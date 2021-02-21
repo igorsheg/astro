@@ -8,4 +8,4 @@ eslint:
   before_script:
     - yarn global add eslint
   script:
-    - eslint -- --ext .tsx,.ts src/ server/
+    - eslint --fix server src
