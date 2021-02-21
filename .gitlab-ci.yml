@@ -10,7 +10,6 @@ variables:
 
 build:
   stage: build
-  image: docker:dind
   script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $CI_REGISTRY
     - docker build  -t $IMAGE_TAG:$CI_PIPELINE_ID .
