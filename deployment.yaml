@@ -18,7 +18,20 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-      restartPolicy: Always
+          readinessProbe:
+            httpGet:
+            path: /healthz
+            port: 3000
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+            restartPolicy: Always
+          livenessProbe:
+            httpGet:
+            path: /healthz
+            port: 3000
+            initialDelaySeconds: 130
+            timeoutSeconds: 10
+            failureThreshold: 10
 ---
 kind: Service
 apiVersion: v1

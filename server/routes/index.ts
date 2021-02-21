@@ -1,13 +1,16 @@
 import Router from '@koa/router';
 import configRoutes from './config';
 import servicesRoutes from './service';
-import themeReoutes from './theme';
+import themeRoutes from './theme';
+import healthzRoutes from './healthz';
+
 const apiRouter = new Router({ prefix: '/api' });
 
 apiRouter.use(
   configRoutes.routes(),
   servicesRoutes.routes(),
-  themeReoutes.routes(),
+  themeRoutes.routes(),
+  healthzRoutes.routes(),
 );
 
 export default apiRouter;
