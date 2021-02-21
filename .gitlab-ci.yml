@@ -1,11 +1,10 @@
-image: node:alpine
-
 stages:
   - code_quality
 
 eslint:
   stage: code_quality
+  image: node:alpine
   before_script:
     - yarn add eslint eslint-config-prettier eslint-plugin-prettier eslint-plugin-react
   script:
-    - eslint --fix server src
+    - yarn run eslint --fix server src
