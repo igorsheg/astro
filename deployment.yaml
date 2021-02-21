@@ -16,8 +16,6 @@ spec:
         - name: <REPOSITORY_NAME>
           image: <IMAGE_TAG>
           imagePullPolicy: Always
-          ports:
-            - containerPort: 3000
           readinessProbe:
             httpGet:
               path: /api/healthz
@@ -32,6 +30,9 @@ spec:
             initialDelaySeconds: 130
             timeoutSeconds: 10
             failureThreshold: 10
+          ports:
+            - containerPort: 3000
+      restartPolicy: Always
 ---
 kind: Service
 apiVersion: v1
