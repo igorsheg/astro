@@ -6,6 +6,6 @@ stages:
 eslint:
   stage: code_quality
   before_script:
-    - yarn global add eslint
+    - yarn global add eslint eslint-config-prettier eslint-plugin-prettier eslint-plugin-react
   script:
     - eslint --fix server src
