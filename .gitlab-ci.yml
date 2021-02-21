@@ -1,3 +1,6 @@
+stages:
+  - code_quality
+
 eslint:
   image: node:8.9.4
   stage: code_quality
