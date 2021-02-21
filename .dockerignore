@@ -1,0 +1,6 @@
+node_modules
+Dockerfile
+bin
+.next
+*.sqlite3
+*.log
