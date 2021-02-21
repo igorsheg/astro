@@ -5,6 +5,6 @@ eslint:
   image: node:8.9.4
   stage: code_quality
   before_script:
-    - yarn instaill -g eslint
+    - npm instaill -g eslint
   script:
     - eslint -- --ext .tsx,.ts src/ server/
