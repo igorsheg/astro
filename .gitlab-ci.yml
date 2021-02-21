@@ -3,7 +3,7 @@ stages:
 
 eslint:
   stage: code_quality
-  image: node:alpine
+  image: node
   before_script:
     - yarn add eslint eslint-config-prettier eslint-plugin-prettier eslint-plugin-react
   script:
