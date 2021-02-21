@@ -3,7 +3,7 @@ FROM mhart/alpine-node AS builder
 WORKDIR /app
 
 COPY  package.json /app
-RUN yarn --production --quiet && yarn add -D typescript @types/node @types/react
+RUN yarn --production --quiet && yarn add -D typescript @types/node @types/react figlet
 COPY . /app
 
 RUN yarn build 
