@@ -15,7 +15,6 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/bin ./bin
-COPY --from=builder /app/data/db.sqlite3 ./data/db.sqlite3
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
