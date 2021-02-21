@@ -1,4 +1,4 @@
-image: node
+image: node:alpine
 
 stages:
   - code_quality
@@ -6,6 +6,6 @@ stages:
 eslint:
   stage: code_quality
   before_script:
-    - npm instaill -g eslint
+    - yarn global add eslint
   script:
     - eslint -- --ext .tsx,.ts src/ server/
