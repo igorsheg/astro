@@ -36,6 +36,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@koa/router": "^10.0.0",
+    "@radix-ui/react-icons": "^1.0.2",
     "axios": "^0.21.1",
     "immer": "^8.0.1",
     "koa": "^2.13.0",
@@ -44,7 +45,7 @@
     "polished": "^4.1.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-spring": "^9.0.0-rc.3",
+    "react-spring": "^8.0.27",
     "reset-css": "^5.0.1",
     "sqlite3": "^5.0.1",
     "styled-components": "^5.2.1",

@@ -22,12 +22,12 @@ export default class Category {
   @Column({ nullable: true })
   description: string;
 
-  @OneToMany(() => Service, service => service.category)
+  @OneToMany(() => Service, service => service.category, { eager: true })
   services?: Service[];
 
   @ManyToOne(() => Config)
   @JoinColumn({ referencedColumnName: 'id' })
-  config?: Config;
+  config: Config;
 
   @CreateDateColumn()
   createdAt?: Date;

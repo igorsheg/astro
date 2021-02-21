@@ -3,26 +3,22 @@ import { useSpring, animated } from 'react-spring';
 import styled, { keyframes } from 'styled-components';
 
 const Loader: FC = () => {
-  const [animationProps, set] = useSpring(
-    {
-      opacity: 0,
-      scale: 1,
-      y: 0,
-      config: { tension: 400, friction: 30 },
-    },
-    [],
-  );
+  const [animationProps, set] = useSpring(() => ({
+    opacity: 0,
+    scale: 1,
+    config: { tension: 400, friction: 30 },
+  }));
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      set({ opacity: 1, scale: 1, y: 0 });
+      set({ opacity: 1, scale: 1 });
     }, 100);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <Wrap>
-      <animated.div style={animationProps as any}>
+      <animated.div style={animationProps}>
         <p>loading...</p>
         <Bar />
       </animated.div>

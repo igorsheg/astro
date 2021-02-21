@@ -1,24 +1,27 @@
 import { Category, Config, Service, Theme } from '../entities';
 
-const SAMPLE_CATEGORIES: Category[] = [
-  {
-    id: 'home-media',
-    name: 'Plex',
-    description: 'Global streaming service',
-  },
-  {
-    id: 'Utilities',
-    name: 'Raddar',
-    description: 'A movie collection manager for Usenet and BitTorrent users',
-  },
-];
-
 const SAMPLE_CONFIG: Config = {
-  id: 'defaultConfig',
+  id: 'default-config',
   title: 'Astro',
   subtitle: 'Your personal space',
   columns: 4,
+  categories: [],
 };
+
+const SAMPLE_CATEGORIES: Category[] = [
+  {
+    id: 'home-media',
+    name: 'Home Media',
+    description: 'Global streaming service',
+    config: SAMPLE_CONFIG,
+  },
+  {
+    id: 'utilities',
+    name: 'Utilities',
+    description: 'A movie collection manager for Usenet and BitTorrent users',
+    config: SAMPLE_CONFIG,
+  },
+];
 
 const SAMPLE_SERVICES: Service[] = [
   {
@@ -26,35 +29,64 @@ const SAMPLE_SERVICES: Service[] = [
     description: 'Global streaming service',
     tags: ['app', 'server'],
     url: 'https://www.plex.tv',
-    category: 'home-media',
+    category: SAMPLE_CATEGORIES[0],
   },
   {
     name: 'Raddar',
     description: 'A movie collection manager for Usenet and BitTorrent users',
     tags: ['app'],
     url: 'https://radarr.video',
-    category: 'home-media',
+    category: SAMPLE_CATEGORIES[0],
   },
   {
     name: 'Sonnar',
     description: 'A PVR for Usenet and BitTorrent users',
     tags: ['app', 'api'],
     url: 'https://sonarr.tv',
-    category: 'home-media',
+    category: SAMPLE_CATEGORIES[0],
   },
   {
     name: 'Bazarr',
     description: 'Manages and downloads subtitles',
     tags: ['app'],
     url: 'https://www.bazarr.media',
-    category: 'home-media',
+    category: SAMPLE_CATEGORIES[0],
   },
   {
     name: 'Jackett',
     description: 'API Support for your favorite torrent trackers',
     tags: ['app', 'api'],
     url: 'https://github.com/Jackett/Jackett',
-    category: 'home-media',
+    category: SAMPLE_CATEGORIES[0],
+  },
+  {
+    name: 'Home Assistant',
+    description:
+      'Open source home automation that puts local control and privacy first.',
+    tags: ['automation'],
+    url: 'https://www.home-assistant.io',
+    category: SAMPLE_CATEGORIES[1],
+  },
+  {
+    name: 'Homebridge',
+    description: 'Adds HomeKit support to your non-HomeKit smart home devices.',
+    tags: ['automation'],
+    url: 'https://homebridge.io',
+    category: SAMPLE_CATEGORIES[1],
+  },
+  {
+    name: 'Unifi',
+    description: 'Network management software solution from Ubiquiti.',
+    tags: ['networking'],
+    url: 'https://github.com/k8s-at-home/charts/tree/master/charts/unifi',
+    category: SAMPLE_CATEGORIES[1],
+  },
+  {
+    name: 'AdGuard Home',
+    description: 'Network-wide software for blocking ads & tracking.',
+    tags: ['networking'],
+    url: 'https://github.com/AdguardTeam/AdGuardHome',
+    category: SAMPLE_CATEGORIES[1],
   },
 ];
 

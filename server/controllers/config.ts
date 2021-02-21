@@ -1,5 +1,5 @@
 import { Context } from 'koa';
-import { getManager, UpdateResult } from 'typeorm';
+import { getManager } from 'typeorm';
 import { Config } from '../entities';
 
 interface ControllerReturnProps {
@@ -20,6 +20,7 @@ export default (): ControllerReturnProps => {
     const { id } = ctx.params;
     const data = await configRepo.findOne({
       where: { id },
+      relations: ['categories'],
     });
     return (ctx.body = data);
   };

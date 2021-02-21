@@ -35,7 +35,7 @@ export default class Config {
   themes?: Theme[];
 
   @OneToMany(() => Catagory, category => category.config)
-  categories?: Catagory[];
+  categories: Catagory[];
 
   @CreateDateColumn()
   createdAt?: Date;

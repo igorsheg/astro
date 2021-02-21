@@ -2,15 +2,13 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
-import { SAMPLE_CONFIG, SAMPLE_THEMES } from 'server/config/seed-data';
-import { Config, Theme } from 'server/entities';
-import fetcher from 'shared/utils/fetcher';
+import { SAMPLE_THEMES } from 'server/config/seed-data';
+import { Theme } from 'server/entities';
 import Fade from 'src/components/fade';
 import Loader from 'src/components/fullpage-loader';
 import { configStore, localSrorageStore, themeStore } from 'src/stores';
 import GlobalStyle from 'src/styles/global';
 import { ThemeProvider } from 'styled-components';
-import useSWR from 'swr';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { activeTheme } = localSrorageStore();
