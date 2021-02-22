@@ -40,8 +40,6 @@ const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
       }),
   };
 
-  console.log('All Services Tab', allServicesTab);
-
   const getAllTabServices = ({ withRest }: { withRest: boolean }) => {
     return withRest ? [allServicesTab, ...caregories] : [allServicesTab];
   };
