@@ -6,11 +6,9 @@ import Padder from 'src/components/padder';
 import { configStore, localSrorageStore, themeStore } from 'src/stores';
 import { Config, Theme } from 'server/entities';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
-
+import Button from '../button';
+import { MixerVerticalIcon } from '@radix-ui/react-icons';
 export const Header: FC = () => {
-  // const { config } = useConfigStore();
-  // const { theme } = useUiStore();
-
   const { data: themes } = themeStore();
   const { data: config } = configStore();
   const { activeTheme } = localSrorageStore();
@@ -35,6 +33,9 @@ export const Header: FC = () => {
             <h1>{config.title}</h1>
             {config.subtitle && <h5>{config.subtitle}</h5>}
           </Title>
+        </Flex>
+        <Flex>
+          <Button skin="default">New Service</Button>
         </Flex>
       </StyledNavbar>
     </>

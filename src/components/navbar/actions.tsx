@@ -51,6 +51,13 @@ const Actions: FC = () => {
         activeItem={activeTab}
       />
       <Flex align="center" justify="flex-end">
+        <Button skin="toogle">
+          <RadixIcons.PlusIcon />
+          <Padder x={6} />
+          New Section
+        </Button>
+        <Padder x={12} />
+
         <SearchInput value={searchTerm} onChange={onSearchTermChange} />
         <Padder x={12} />
         <Button skin="toogle" type="button" onClick={setThemeFun}>

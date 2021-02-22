@@ -1,7 +1,9 @@
 import React, { FC } from 'react';
 import { Service } from 'server/entities';
 import styled from 'styled-components';
-import Card from './card';
+import Card from 'src/components/card';
+import ServiceMenu from './menu';
+import Padder from '../padder';
 
 interface CardProps {
   item: Service;
@@ -10,23 +12,23 @@ interface CardProps {
 const ServiceCard: FC<CardProps> = ({ item }) => {
   return (
     <WrapPadder>
-      <a href={item.url} target={item.target ? item.target : ''}>
-        <StyledCard>
-          <Title>
-            <img src={item.logo} />
-            <Description>
-              <h4>{item.name}</h4>
-              <p>{item.description}</p>
-            </Description>
-          </Title>
-          <TagList>
-            {item.tags &&
-              item.tags.length &&
-              item.tags.map((tag, index) => <li key={index}>{tag}</li>)}
-          </TagList>
-          <span />
-        </StyledCard>
-      </a>
+      <StyledCard>
+        <Title>
+          <img src={item.logo} />
+          <Description>
+            <h4>{item.name}</h4>
+            <p>{item.description}</p>
+          </Description>
+          <Padder x={12} />
+          <ServiceMenu onChange={() => false} />
+        </Title>
+        <TagList>
+          {item.tags &&
+            item.tags.length &&
+            item.tags.map((tag, index) => <li key={index}>{tag}</li>)}
+        </TagList>
+        <span />
+      </StyledCard>
     </WrapPadder>
   );
 };
@@ -37,6 +39,11 @@ const WrapPadder = styled.div`
 `;
 
 const StyledCard = styled(Card)`
+  border-radius: 6px;
+  padding: 18px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   :hover {
     transform: translateY(-1px);
   }
@@ -44,7 +51,7 @@ const StyledCard = styled(Card)`
 
 const Title = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   flex-direction: row;
   margin: 0 0 18px 0;

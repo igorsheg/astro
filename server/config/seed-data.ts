@@ -14,12 +14,14 @@ const SAMPLE_CATEGORIES: Category[] = [
     name: 'Home Media',
     description: 'Global streaming service',
     config: SAMPLE_CONFIG,
+    icon: 'VideoIcon',
   },
   {
     id: 'utilities',
     name: 'Utilities',
     description: 'A movie collection manager for Usenet and BitTorrent users',
     config: SAMPLE_CONFIG,
+    icon: 'MixerVerticalIcon',
   },
 ];
 
@@ -93,6 +95,7 @@ const SAMPLE_SERVICES: Service[] = [
 const dark: Theme = {
   id: 'dark',
   label: 'Dark Theme',
+  accent: { primary: '#0071e3', secondary: '#147ce5' },
   background: { primary: '#2e2f30', secondary: '#222324' },
   text: { primary: '#FFFFFF', secondary: '#cbcecf' },
   border: { primary: '#4D4E4F', secondary: '#4D4E4F' },
@@ -101,6 +104,7 @@ const dark: Theme = {
 const light: Theme = {
   id: 'light',
   label: 'Light Theme',
+  accent: { primary: '#0071e3', secondary: '#147ce5' },
   background: { primary: '#FFFFFF', secondary: '#F6F7F7' },
   text: { primary: '#000000', secondary: '#696b6c' },
   border: { primary: '#E5E5E5', secondary: '#E5E5E5' },

@@ -4,7 +4,7 @@ import { Service } from 'server/entities';
 import { localSrorageStore } from 'src/stores';
 import { filterServicesItems } from 'src/utils';
 import styled from 'styled-components';
-import ServiceCard from './service-card';
+import ServiceCard from './card';
 
 interface ServiceListProps {
   items: Service[];

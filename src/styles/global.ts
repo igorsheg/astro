@@ -107,6 +107,10 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
 		}
 	}
 
+*:focus:not(.focus-visible) {
+  outline: none;
+}
+
 `;
 
 export default GlobalStyle;

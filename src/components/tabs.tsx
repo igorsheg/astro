@@ -1,7 +1,10 @@
 import { darken } from 'polished';
-import React, { FC } from 'react';
+import React, { FC, ReactNode } from 'react';
 import { Category } from 'server/entities';
 import styled, { css } from 'styled-components';
+import * as RadixIcons from '@radix-ui/react-icons';
+import { RadixIconTypes } from 'shared/types/radixIconsTypes';
+import Button from './button';
 
 interface TabsProps {
   items: Category[];
@@ -24,7 +27,7 @@ interface TabProps extends Omit<TabsProps, 'items'> {
 }
 
 const Tab: FC<TabProps> = ({ item, activeItem, onItemClick }) => {
-  // const Icon = RadixIcons[item.icon as keyof typeof RadixIconTypes];
+  const Icon = RadixIcons[item.icon];
 
   return (
     <StyledTab
@@ -32,8 +35,7 @@ const Tab: FC<TabProps> = ({ item, activeItem, onItemClick }) => {
       isActive={item.name === activeItem.name}
       hasSeperator={item.name === 'All Services'}
     >
-      {/* <Icon /> */}
-
+      <Icon />
       <span>{item.name}</span>
     </StyledTab>
   );

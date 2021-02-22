@@ -18,6 +18,9 @@ export default class Theme {
   label: string;
 
   @Column('simple-json')
+  accent!: { primary: string; secondary: string };
+
+  @Column('simple-json')
   background!: { primary: string; secondary: string };
 
   @Column('simple-json')

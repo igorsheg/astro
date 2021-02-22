@@ -29,6 +29,7 @@ const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
   const allServicesTab: Category = {
     id: 'all-services',
     name: 'All Services',
+    icon: 'MixIcon',
     description: 'All services in one list',
     config: SAMPLE_CONFIG,
     services: caregories

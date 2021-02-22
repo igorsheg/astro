@@ -19,6 +19,6 @@
     "baseUrl": "./",
     "moduleResolution": "node"
   },
-  "include": ["next-env.d.ts", "src"],
+  "include": ["next-env.d.ts", "src", "shared"],
   "exclude": ["node_modules", "bin", ".next"]
 }

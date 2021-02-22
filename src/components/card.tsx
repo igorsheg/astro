@@ -24,11 +24,6 @@ const darkStyles = css`
 `;
 
 const Card = styled.div`
-  border-radius: 6px;
-  padding: 18px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
   transition: box-shadow 240ms cubic-bezier(0.19, 1, 0.22, 1),
     transform 240ms cubic-bezier(0.19, 1, 0.22, 1);
   ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};

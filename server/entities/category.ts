@@ -1,3 +1,4 @@
+import { RadixIconTypes } from 'shared/types/radixIconsTypes';
 import {
   Column,
   CreateDateColumn,
@@ -21,6 +22,9 @@ export default class Category {
 
   @Column({ nullable: true })
   description: string;
+
+  @Column({ nullable: false, default: 'CircleIcon' })
+  icon: RadixIconTypes;
 
   @OneToMany(() => Service, service => service.category, { eager: true })
   services?: Service[];

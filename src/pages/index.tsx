@@ -7,7 +7,7 @@ import Flex from 'src/components/flex';
 import Grid from 'src/components/grid';
 import NavBarPanel from 'src/components/navbar';
 import Padder from 'src/components/padder';
-import ServiceList from 'src/components/service-list';
+import ServiceList from 'src/components/service';
 import { configStore, localSrorageStore } from 'src/stores';
 import styled from 'styled-components';
 
