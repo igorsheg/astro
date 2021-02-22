@@ -1,6 +1,3 @@
 #!/bin/sh
-
-
-
-node bin/config/initDb.js &&
-node bin/index.js
+node bin/server/config/initDb.js &&
+node bin/server/index.js
