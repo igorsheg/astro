@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { FetcherRequestKeys } from 'src/types/internal';
+import { FetcherRequestKeys } from 'shared/types/internal';
 
 interface FetcherRequestProps<T> extends AxiosRequestConfig {
   data: Partial<T>;
