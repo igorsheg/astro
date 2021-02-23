@@ -16,7 +16,7 @@ const ContextMenu: FC<Props> = ({ children, onOpen, onClose, ...rest }) => {
   const [animationProps, setAnimation] = useSpring(() => ({
     opacity: 0,
     transform: 'translateY(2px)',
-    config: { tension: 400, friction: 30 },
+    config: { tension: 500, friction: 30 },
   }));
 
   React.useEffect(() => {
@@ -56,7 +56,7 @@ const Background = styled(animated.div)`
   ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};
   backdrop-filter: saturate(180%) blur(20px);
   border-radius: 6px;
-  padding: 0.5em 0;
+  padding: 6px;
   min-width: 180px;
   overflow: hidden;
   overflow-y: auto;
