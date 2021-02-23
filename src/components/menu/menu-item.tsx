@@ -55,6 +55,7 @@ export const MenuAnchor = styled.a<{ disabled: boolean }>`
   padding: 6px 12px;
   width: 100%;
   min-height: 30px;
+  height: 30px;
   background: none;
   color: ${props =>
     props.disabled ? props.theme.text.secondary : props.theme.text.primary};
@@ -77,7 +78,7 @@ export const MenuAnchor = styled.a<{ disabled: boolean }>`
       : `
   &:hover,
   &.focus-visible {
-    color: ${props.theme.text.primary};
+    color: white;
     background: ${props.theme.accent.primary};
     box-shadow: none;
     cursor: pointer;
