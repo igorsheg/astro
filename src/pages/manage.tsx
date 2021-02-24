@@ -1,40 +1,16 @@
 import React, { FC } from 'react';
 import { animated, useTransition } from 'react-spring';
-import { SAMPLE_CONFIG, SAMPLE_THEMES } from 'server/config/seed-data';
-import { Config } from 'server/entities';
-import fetcher from 'shared/utils/fetcher';
 import Flex from 'src/components/flex';
 import Grid from 'src/components/grid';
-import { Actions, Header } from 'src/components/navbar';
+import { Header } from 'src/components/navbar';
 import Padder from 'src/components/padder';
 import ServiceList from 'src/components/service';
 import { configStore, localSrorageStore } from 'src/stores';
 import styled from 'styled-components';
 
-const Index: FC = () => {
+const Manage: FC = () => {
   const { activeTheme, setUi, activeTab } = localSrorageStore();
   const { data: config, mutate: mutateConfig } = configStore();
-
-  const changeThemeHandler = () => {
-    setUi(d => {
-      d.activeTheme =
-        activeTheme === 'light'
-          ? SAMPLE_THEMES.dark.id
-          : SAMPLE_THEMES.light.id;
-    });
-  };
-
-  const changeTitleHandler = () => {
-    if (config) {
-      const rand = `${Math.random()}`;
-      mutateConfig(d => {
-        if (d.data) {
-          d.data.title = rand;
-        }
-      });
-      fetcher<Config>(['Config', SAMPLE_CONFIG.id], { data: { title: rand } });
-    }
-  };
 
   const transitions = useTransition(activeTab, item => item.name, {
     from: {
@@ -56,8 +32,8 @@ const Index: FC = () => {
     <>
       <HeaderWrap>
         <Header />
-        <Actions />
       </HeaderWrap>
+
       <Padder y={204} />
       <Flex align="center" justify="center" column>
         <Grid>
@@ -97,4 +73,4 @@ const AnimatedWrap = styled(animated.div)<{ hasMessage?: boolean }>`
   position: absolute;
 `;
 
-export default Index;
+export default Manage;

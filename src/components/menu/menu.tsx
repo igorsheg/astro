@@ -15,14 +15,14 @@ type Props = {
 const ContextMenu: FC<Props> = ({ children, onOpen, onClose, ...rest }) => {
   const [animationProps, setAnimation] = useSpring(() => ({
     opacity: 0,
-    transform: 'translateY(2px)',
-    config: { tension: 500, friction: 30 },
+    transform: 'translateY(-2px)',
+    config: { tension: 500, friction: 20 },
   }));
 
   React.useEffect(() => {
     setAnimation({
       opacity: rest.visible ? 1 : 0,
-      transform: `translateY(${rest.visible ? '0' : '2px'})`,
+      transform: `translateY(${rest.visible ? '0' : '-2px'})`,
     });
   }, [rest.visible]);
 

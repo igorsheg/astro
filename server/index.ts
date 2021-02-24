@@ -23,8 +23,13 @@ app.prepare().then(async () => {
 
   await createConnection(serverConfig.dbConnectionOptions);
 
-  router.all('(.*)', async ctx => {
+  router.all(/^\/(?!api).*/, async ctx => {
     await handle(ctx.req, ctx.res);
+    ctx.respond = false;
+  });
+
+  router.get('/manage', async ctx => {
+    await app.render(ctx.req, ctx.res, '/b', ctx.query);
     ctx.respond = false;
   });
 
