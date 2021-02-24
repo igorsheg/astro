@@ -40,9 +40,9 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
 	}
 
 	html {
-		overflow-x: hidden;
-		height: 100%;
-		width: 100%;
+		overflow: hidden;
+		height: 100vh;
+		width: 100vw;
         color: ${p => p.theme.text.primary};
         background: ${p => p.theme.background.secondary};
         transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1), color 240ms cubic-bezier(0.19, 1, 0.22, 1);

@@ -1,16 +1,12 @@
 import React, { ChangeEvent, FC } from 'react';
+import { animated, useTransition } from 'react-spring';
 import { Category } from 'server/entities';
+import { Sidebar } from 'src/components/sidebar';
 import { configStore, localSrorageStore } from 'src/stores';
 import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
-import Flex from '../flex';
-import SearchInput from '../search-input';
-import Tabs from '../tabs';
-import Actions from './actions';
-import Panel from './panel';
-import HeaderTitle from './title';
 
-const NavBar: FC = () => {
+const Index: FC = () => {
   const { activeTheme, setUi, activeTab, searchTerm } = localSrorageStore();
   const { data: config, mutate: mutateConfig } = configStore();
 
@@ -26,6 +22,22 @@ const NavBar: FC = () => {
     });
   };
 
+  const transitions = useTransition(activeTab, item => item.name, {
+    from: {
+      transform: 'translate3d(0,15px,0)',
+      opacity: 0,
+    },
+    enter: {
+      transform: 'translate3d(0,0px,0)',
+      opacity: 1,
+    },
+    leave: {
+      transform: 'translate3d(0,-15px,0)',
+      opacity: 0,
+    },
+    config: { tension: 500, friction: 30 },
+  });
+
   if (!config) {
     return null;
   }
@@ -35,22 +47,9 @@ const NavBar: FC = () => {
   ).getAllTabServices({ withRest: true });
 
   return (
-    <HeaderWrap>
-      <Panel style={{ zIndex: 99999191, position: 'relative' }} height="96px">
-        <HeaderTitle config={config} activeTheme={activeTheme} />
-        <Actions />
-      </Panel>
-      <Panel height="60px">
-        <Tabs
-          onItemClick={onTabItemClick}
-          items={servicesWithAllTab}
-          activeItem={activeTab}
-        />
-        <Flex align="center" justify="flex-end">
-          <SearchInput value={searchTerm} onChange={onSearchTermChange} />
-        </Flex>
-      </Panel>
-    </HeaderWrap>
+    <>
+      <Sidebar config={config} activeTheme={activeTheme} />
+    </>
   );
 };
 
@@ -62,4 +61,10 @@ const HeaderWrap = styled.nav`
   width: 100vw;
 `;
 
-export default NavBar;
+const AnimatedWrap = styled(animated.div)<{ hasMessage?: boolean }>`
+  display: flex;
+  width: 100%;
+  position: absolute;
+`;
+
+export default Index;

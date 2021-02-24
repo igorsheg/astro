@@ -30,14 +30,18 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
       transform: 'translate3d(0,-15px,0)',
       opacity: 0,
     },
-    config: { tension: 500, friction: 30 },
-    trail: 20,
+    config: {
+      tension: 500,
+      friction: 30,
+      duration: searchTerm.length ? 0 : undefined,
+    },
+    trail: searchTerm.length ? 0 : 20,
   });
 
   return (
     <StyledList>
-      {transitions.map(({ item, props, key }) => (
-        <AnimatedCard key={key} style={props}>
+      {transitions.map(({ item, props, key }, index) => (
+        <AnimatedCard index={index} key={key} style={props}>
           <ServiceCard item={item} />
         </AnimatedCard>
       ))}
@@ -51,12 +55,11 @@ const StyledList = styled.section`
   width: 100%;
 `;
 
-const AnimatedCard = styled(animated.div)`
+const AnimatedCard = styled(animated.div)<{ index: number }>`
   flex: 1;
   display: flex;
   width: 25%;
   max-width: 25%;
-
   :not(:nth-child(4n)) {
     padding: 0 18px 18px 0;
   }

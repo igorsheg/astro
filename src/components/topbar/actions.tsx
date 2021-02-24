@@ -9,7 +9,8 @@ import Flex from '../flex';
 import Padder from '../padder';
 import ServiceMenu from '../service/menu';
 import NavBarMenu from './menu';
-import { Tooltip, TooltipReference, useTooltipState } from 'reakit/Tooltip';
+import { TooltipReference, useTooltipState } from 'reakit/Tooltip';
+import Tooltip from 'src/components/tooltip';
 
 const Actions: FC = () => {
   const { data: config } = configStore();
@@ -46,35 +47,32 @@ const Actions: FC = () => {
 
   return (
     <Flex style={{ zIndex: 999999991 }}>
-      <Button skin="default">New Service</Button>
-
-      <Padder x={12} />
-
-      <NavBarMenu onChange={() => false} />
+      <Button onClick={() => router.push('/manage')} skin="default">
+        Manage
+      </Button>
 
       <Devider />
 
-      <Tooltip style={{ zIndex: 9991, fontSize: 12 }} {...tooltip}>
-        Switch to {activeTheme === 'dark' ? 'Light' : 'Dark'} Theme
-      </Tooltip>
-
-      <TooltipReference
+      <Tooltip
+        label={`Switch to ${activeTheme === 'dark' ? 'Light' : 'Dark'} Theme`}
         {...tooltip}
-        skin="default"
-        hierarchy="secondary"
-        type="button"
-        onClick={setThemeFun}
-        style={{ width: '36px', padding: '2px 0 0 0 ' }}
-        as={Button}
       >
-        <animated.div style={sunIconProps}>
-          <RadixIcons.SunIcon />
-        </animated.div>
+        <Button
+          skin="default"
+          hierarchy="secondary"
+          type="button"
+          onClick={setThemeFun}
+          style={{ width: '36px', padding: '2px 0 0 0 ' }}
+        >
+          <animated.div style={sunIconProps}>
+            <RadixIcons.SunIcon />
+          </animated.div>
 
-        <animated.div style={moonIconProps}>
-          <RadixIcons.MoonIcon />
-        </animated.div>
-      </TooltipReference>
+          <animated.div style={moonIconProps}>
+            <RadixIcons.MoonIcon />
+          </animated.div>
+        </Button>
+      </Tooltip>
     </Flex>
   );
 };

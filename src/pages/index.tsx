@@ -3,7 +3,7 @@ import { animated, useTransition } from 'react-spring';
 import { Category } from 'server/entities';
 import Flex from 'src/components/flex';
 import Grid from 'src/components/grid';
-import NavBar from 'src/components/navbar';
+import NavBar from 'src/components/topbar';
 import Padder from 'src/components/padder';
 import { ServiceList } from 'src/components/service';
 import { configStore, localSrorageStore } from 'src/stores';

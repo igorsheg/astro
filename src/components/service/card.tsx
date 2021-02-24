@@ -12,23 +12,24 @@ interface CardProps {
 const ServiceCard: FC<CardProps> = ({ item }) => {
   return (
     <WrapPadder>
-      <StyledCard>
-        <Title>
-          <img src={item.logo} />
-          <Description>
-            <h4>{item.name}</h4>
-            <p>{item.description}</p>
-          </Description>
-          <Padder x={12} />
-          <ServiceMenu onChange={() => false} />
-        </Title>
-        <TagList>
-          {item.tags &&
-            item.tags.length &&
-            item.tags.map((tag, index) => <li key={index}>{tag}</li>)}
-        </TagList>
-        <span />
-      </StyledCard>
+      <a href={item.url} target={item.target}>
+        <StyledCard>
+          <Title>
+            <img src={item.logo} />
+            <Description>
+              <h4>{item.name}</h4>
+              <p>{item.description}</p>
+            </Description>
+            <Padder x={12} />
+          </Title>
+          <TagList>
+            {item.tags &&
+              item.tags.length &&
+              item.tags.map((tag, index) => <li key={index}>{tag}</li>)}
+          </TagList>
+          <span />
+        </StyledCard>
+      </a>
     </WrapPadder>
   );
 };
@@ -51,7 +52,7 @@ const StyledCard = styled(Card)`
 
 const Title = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: row;
   margin: 0 0 18px 0;
