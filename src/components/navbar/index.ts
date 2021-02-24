@@ -1,4 +1,7 @@
 import Actions from './actions';
-import Header from './header';
+import HeaderTitle from './title';
+import Panel from './panel';
+import NavBar from './navbar';
 
-export { Header, Actions };
+export { Actions, HeaderTitle, Panel };
+export default NavBar;

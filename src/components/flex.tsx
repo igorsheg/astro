@@ -33,6 +33,7 @@ const Flex: FC<Props> = props => {
 
 const Container = styled.div<Props>`
   display: flex;
+  position: relative;
   flex: ${({ auto }) => (auto ? '1 1 auto' : 'initial')};
   flex-direction: ${({ column }) => (column ? 'column' : 'row')};
   align-items: ${({ align }) => align};

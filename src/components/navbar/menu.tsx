@@ -11,17 +11,18 @@ type Props = {
   onChange: (color: string, icon: string) => void;
 };
 
-interface ServiceMenuActions {
+interface NavBarMenuActions {
   action: string;
   label: string;
   icon: RadixIconTypes;
 }
-const ACTIONS: ServiceMenuActions[] = [
-  { action: 'edit', label: 'Edit Service', icon: 'Pencil1Icon' },
-  { action: 'duplicate', label: 'Duplicate Service', icon: 'CopyIcon' },
+const ACTIONS: NavBarMenuActions[] = [
+  { action: 'new-category', label: 'New Category', icon: 'CopyIcon' },
+  { action: 'new-note', label: 'New Note', icon: 'CopyIcon' },
+  { action: 'edit-services', label: 'Edit Services', icon: 'Pencil1Icon' },
 ];
 
-const ServiceMenu: FC<Props> = ({ onOpen, onChange }) => {
+const NavBarMenu: FC<Props> = ({ onOpen, onChange }) => {
   const menu = useMenuState({
     modal: false,
     placement: 'bottom-end',
@@ -56,4 +57,4 @@ const Wrapper = styled('div')`
   position: relative;
 `;
 
-export default ServiceMenu;
+export default NavBarMenu;

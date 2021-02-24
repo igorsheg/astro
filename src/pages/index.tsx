@@ -1,39 +1,29 @@
-import React, { FC } from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { animated, useTransition } from 'react-spring';
-import { SAMPLE_CONFIG, SAMPLE_THEMES } from 'server/config/seed-data';
-import { Config } from 'server/entities';
-import fetcher from 'shared/utils/fetcher';
+import { Category } from 'server/entities';
 import Flex from 'src/components/flex';
 import Grid from 'src/components/grid';
-import { Actions, Header } from 'src/components/navbar';
+import NavBar from 'src/components/navbar';
 import Padder from 'src/components/padder';
-import ServiceList from 'src/components/service';
+import { ServiceList } from 'src/components/service';
 import { configStore, localSrorageStore } from 'src/stores';
+import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
 
 const Index: FC = () => {
-  const { activeTheme, setUi, activeTab } = localSrorageStore();
+  const { activeTheme, setUi, activeTab, searchTerm } = localSrorageStore();
   const { data: config, mutate: mutateConfig } = configStore();
 
-  const changeThemeHandler = () => {
+  const onTabItemClick = (item: Category) => {
     setUi(d => {
-      d.activeTheme =
-        activeTheme === 'light'
-          ? SAMPLE_THEMES.dark.id
-          : SAMPLE_THEMES.light.id;
+      d.activeTab = item;
     });
   };
 
-  const changeTitleHandler = () => {
-    if (config) {
-      const rand = `${Math.random()}`;
-      mutateConfig(d => {
-        if (d.data) {
-          d.data.title = rand;
-        }
-      });
-      fetcher<Config>(['Config', SAMPLE_CONFIG.id], { data: { title: rand } });
-    }
+  const onSearchTermChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    setUi(d => {
+      d.searchTerm = ev.target.value;
+    });
   };
 
   const transitions = useTransition(activeTab, item => item.name, {
@@ -52,16 +42,20 @@ const Index: FC = () => {
     config: { tension: 500, friction: 30 },
   });
 
+  if (!config) {
+    return null;
+  }
+
+  const servicesWithAllTab = servicesUtils(
+    config.categories,
+  ).getAllTabServices({ withRest: true });
+
   return (
     <>
-      <HeaderWrap>
-        <Header />
-        <Actions />
-      </HeaderWrap>
+      <NavBar />
       <Padder y={204} />
       <Flex align="center" justify="center" column>
         <Grid>
-          {/* {config.message && <MessageCard message={config.message} />} */}
           <Padder y={18} />
           <div>
             {transitions.map(
@@ -87,7 +81,7 @@ const HeaderWrap = styled.nav`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 991;
+  z-index: 1;
   width: 100vw;
 `;
 
