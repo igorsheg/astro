@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { AppProps } from 'next/app';
-import { useRouter } from 'next/router';
+import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
@@ -36,21 +35,33 @@ const MyApp = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const router = useRouter();
-
-  router.pathname;
-
   return (
-    <ThemeProvider theme={ctxTheme as Theme}>
-      <GlobalStyle />
-      {!configData || !mounted ? (
-        <Loader />
-      ) : (
-        <PageTransition>
-          {({ Component, pageProps }: AppProps) => <Component {...pageProps} />}
-        </PageTransition>
-      )}
-    </ThemeProvider>
+    <>
+      <Head>
+        <title>Astro</title>
+        <link rel="icon" href="/favicon.ico" />
+        <link
+          rel="preload"
+          href="/fonts/Inter.var.woff2"
+          as="font"
+          crossOrigin=""
+        />
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"
+        />
+      </Head>
+      <ThemeProvider theme={ctxTheme as Theme}>
+        <GlobalStyle />
+        {!configData || !mounted ? (
+          <Loader />
+        ) : (
+          <PageTransition>
+            {({ Component, pageProps }) => <Component {...pageProps} />}
+          </PageTransition>
+        )}
+      </ThemeProvider>
+    </>
   );
 };
 

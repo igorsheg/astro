@@ -10,7 +10,7 @@ const fetcher = async <T>(
   entity: FetcherRequestKeys,
   reqOptions?: FetcherRequestProps<T>,
 ): Promise<AxiosResponse<T>> => {
-  const url = ['api', ...entity].join('/');
+  const url = ['/api', ...entity].join('/');
 
   if (process.env.NODE_ENV !== 'production') {
     console.log('-------->', url, reqOptions);

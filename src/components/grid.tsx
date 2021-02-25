@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Grid = styled.section`
+const Grid = styled.section<{ sidebar?: boolean }>`
   max-width: 1440px;
   position: relative;
   width: calc(100% - 96px);

@@ -1,30 +1,16 @@
-import React, { ChangeEvent, FC } from 'react';
+import React, { FC } from 'react';
 import { animated, useTransition } from 'react-spring';
-import { Category } from 'server/entities';
 import Flex from 'src/components/flex';
 import Grid from 'src/components/grid';
-import NavBar from 'src/components/topbar';
 import Padder from 'src/components/padder';
 import { ServiceList } from 'src/components/service';
+import NavBar from 'src/components/topbar';
 import { configStore, localSrorageStore } from 'src/stores';
-import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
 
 const Index: FC = () => {
   const { activeTheme, setUi, activeTab, searchTerm } = localSrorageStore();
   const { data: config, mutate: mutateConfig } = configStore();
-
-  const onTabItemClick = (item: Category) => {
-    setUi(d => {
-      d.activeTab = item;
-    });
-  };
-
-  const onSearchTermChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setUi(d => {
-      d.searchTerm = ev.target.value;
-    });
-  };
 
   const transitions = useTransition(activeTab, item => item.name, {
     from: {
@@ -45,10 +31,6 @@ const Index: FC = () => {
   if (!config) {
     return null;
   }
-
-  const servicesWithAllTab = servicesUtils(
-    config.categories,
-  ).getAllTabServices({ withRest: true });
 
   return (
     <>
@@ -76,14 +58,6 @@ const Index: FC = () => {
     </>
   );
 };
-
-const HeaderWrap = styled.nav`
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  width: 100vw;
-`;
 
 const AnimatedWrap = styled(animated.div)<{ hasMessage?: boolean }>`
   display: flex;

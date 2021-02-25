@@ -1,11 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import Document, {
-  DocumentContext,
-  Head,
-  Html,
-  Main,
-  NextScript,
-} from 'next/document';
+import Document, { DocumentContext } from 'next/document';
 import React from 'react';
 import { ServerStyleSheet } from 'styled-components';
 
@@ -33,29 +27,5 @@ export default class MyDocument extends Document {
     } finally {
       sheet.seal();
     }
-  }
-  render() {
-    return (
-      <Html>
-        <Head>
-          <title>Astro</title>
-          <link rel="icon" href="/favicon.ico" />
-          <meta
-            name="viewport"
-            content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"
-          />
-          <link
-            rel="preload"
-            href="/fonts/Inter.var.woff2"
-            as="font"
-            crossOrigin=""
-          />
-        </Head>
-        <body>
-          <Main />
-          <NextScript />
-        </body>
-      </Html>
-    );
   }
 }

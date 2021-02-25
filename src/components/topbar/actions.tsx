@@ -2,15 +2,12 @@ import * as RadixIcons from '@radix-ui/react-icons';
 import { useRouter } from 'next/router';
 import React, { FC } from 'react';
 import { animated, useSpring } from 'react-spring';
+import { useTooltipState } from 'reakit/Tooltip';
+import Tooltip from 'src/components/tooltip';
 import { configStore, localSrorageStore } from 'src/stores';
 import styled from 'styled-components';
 import Button from '../button';
 import Flex from '../flex';
-import Padder from '../padder';
-import ServiceMenu from '../service/menu';
-import NavBarMenu from './menu';
-import { TooltipReference, useTooltipState } from 'reakit/Tooltip';
-import Tooltip from 'src/components/tooltip';
 
 const Actions: FC = () => {
   const { data: config } = configStore();
@@ -47,7 +44,7 @@ const Actions: FC = () => {
 
   return (
     <Flex style={{ zIndex: 999999991 }}>
-      <Button onClick={() => router.push('/manage')} skin="default">
+      <Button onClick={() => router.push('/manage/:service')} skin="default">
         Manage
       </Button>
 

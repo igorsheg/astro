@@ -2,37 +2,32 @@
 import Router from '@koa/router';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
-import next from 'next';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import winston from 'winston';
 import { logger } from './config/logger';
-import { isDevMode, serverConfig } from './config/serverConfig';
-import apiRouter from './routes';
+import { serverConfig } from './config/serverConfig';
+import nextapp from './nextapp';
+import apiRouter from './routes/api';
+import appRouter from './routes/app';
 
-const app = next({ dev: isDevMode });
-const handle = app.getRequestHandler();
-
-app.prepare().then(async () => {
+nextapp.prepare().then(async () => {
   const server = new Koa();
   const router = new Router();
 
   server.use(logger(winston));
-  server.use(apiRouter.routes());
   server.use(bodyParser());
 
   await createConnection(serverConfig.dbConnectionOptions);
 
-  router.all(/^\/(?!api).*/, async ctx => {
-    await handle(ctx.req, ctx.res);
-    ctx.respond = false;
-  });
+  server.use(appRouter.routes());
+  server.use(apiRouter.routes());
+  server.use(router.routes());
 
   server.use(async (ctx, next) => {
     ctx.res.statusCode = 200;
     await next();
   });
-  server.use(router.routes());
 
   server.listen(serverConfig.port, () => {
     console.log(`> Ready on http://localhost:${serverConfig.port}`);

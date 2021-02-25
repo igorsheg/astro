@@ -13,7 +13,7 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
   font-display: swap;
   font-style: normal;
   font-named-instance: 'Regular';
-  src: url("fonts/Inter-roman.var.woff2?v=3.15") format("woff2");
+  src: url("/fonts/Inter-roman.var.woff2?v=3.15") format("woff2");
 }
 @font-face {
   font-family: 'Inter var';
@@ -21,7 +21,7 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
   font-display: swap;
   font-style: italic;
   font-named-instance: 'Italic';
-  src: url("fonts/Inter-italic.var.woff2?v=3.15") format("woff2");
+  src: url("/fonts/Inter-italic.var.woff2?v=3.15") format("woff2");
 }
 
 
