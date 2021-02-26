@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
 import { Service } from 'server/entities';
-import styled from 'styled-components';
 import Card from 'src/components/card';
-import ServiceMenu from './menu';
+import styled from 'styled-components';
 import Padder from '../padder';
 
 interface CardProps {
