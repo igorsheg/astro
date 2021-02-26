@@ -1,39 +1,52 @@
+import { ChevronLeftIcon } from '@radix-ui/react-icons';
+import { useRouter } from 'next/router';
 import { transparentize } from 'polished';
 import React, { FC } from 'react';
 import { Config } from 'server/entities';
 import { SideBarMenuItem } from 'shared/types/internal';
 import styled from 'styled-components';
+import Button from '../button';
 import Flex from '../flex';
 import Padder from '../padder';
-import { HeaderTitle } from '../topbar';
+import Tooltip from '../tooltip';
 import MenuGroup from './menu-group';
 
 interface SidebarProps {
   config: Config;
   activeTheme: string;
+  activeSidebarMenuItemId: SideBarMenuItem['id'];
+  onMenuItemClick: (item: SideBarMenuItem) => void;
+  menuItems: SideBarMenuItem[];
 }
 
-const MENU_ITEMS: SideBarMenuItem[] = [
-  { id: 'Service', label: 'Services', icon: 'SunIcon' },
-  { id: 'Category', label: 'Categories', icon: 'SunIcon' },
-  { id: 'Note', label: 'Notes', icon: 'SwitchIcon' },
-];
+const Sidebar: FC<SidebarProps> = ({
+  menuItems,
+  config,
+  activeSidebarMenuItemId,
+  onMenuItemClick,
+}) => {
+  const router = useRouter();
 
-const onMenuItemClickHandler = (menuItem: SideBarMenuItem) => {
-  console.log(menuItem);
-};
-
-const Sidebar: FC<SidebarProps> = ({ config, activeTheme }) => {
   return (
     <Panel>
       <LogoTop>
-        <HeaderTitle activeTheme={activeTheme} config={config} />
+        <Flex column>
+          <h1>{config.title}</h1>
+          <p>Manage your homelab</p>
+        </Flex>
+        <Tooltip label="Back to home">
+          <Button onClick={() => router.back()} hierarchy="secondary">
+            <ChevronLeftIcon />
+          </Button>
+        </Tooltip>
+        {/* <HeaderTitle activeTheme={activeTheme} config={config} /> */}
       </LogoTop>
       <Padder y={30} />
       <MenuGroup
-        onMenuItemClick={onMenuItemClickHandler}
+        activeSidebarMenuItemId={activeSidebarMenuItemId}
+        onMenuItemClick={onMenuItemClick}
         label="General"
-        menuItems={MENU_ITEMS}
+        menuItems={menuItems}
       />
     </Panel>
   );
@@ -42,14 +55,28 @@ const Sidebar: FC<SidebarProps> = ({ config, activeTheme }) => {
 const LogoTop = styled(Flex)`
   box-shadow: inset 0px -1px 0 ${p => p.theme.border.primary};
   padding: 0 30px;
-  height: 120px;
+  height: 96px;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  h1 {
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
+  }
+  p {
+    font-size: 14px;
+    color: ${p => p.theme.text.secondary};
+    margin: 0;
+  }
 `;
 
 const Panel = styled.nav`
   height: 100vh;
   display: flex;
   width: 280px;
+  min-width: 280px;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;

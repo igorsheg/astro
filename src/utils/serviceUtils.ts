@@ -22,7 +22,7 @@ const filterServicesItems = (
 
 interface ServiceUtilsReturnProps {
   getAllTabServices: ({ withRest }: { withRest: boolean }) => Category[];
-  getActiveServicesTab: (activeTab: Category) => Category;
+  getActiveServicesTab: (activeTab: Category['id']) => Category;
 }
 
 const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
@@ -45,12 +45,12 @@ const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
     return withRest ? [allServicesTab, ...caregories] : [allServicesTab];
   };
 
-  const getActiveServicesTab = (activeTab: Category): Category => {
-    if (activeTab.id === 'all-services') {
+  const getActiveServicesTab = (activeTab: Category['id']) => {
+    if (activeTab === 'all-services') {
       return allServicesTab;
     } else {
       const activeServiceIndex = caregories.findIndex(
-        svc => svc.name === activeTab.name,
+        svc => svc.id === activeTab,
       );
       return caregories[activeServiceIndex];
     }

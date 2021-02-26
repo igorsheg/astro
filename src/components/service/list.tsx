@@ -1,18 +1,16 @@
 import React, { FC, useEffect, useState } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Service } from 'server/entities';
-import { localSrorageStore } from 'src/stores';
+import { uiStore } from 'src/stores';
 import { filterServicesItems } from 'src/utils';
 import styled from 'styled-components';
 import ServiceCard from './card';
 
 interface ServiceListProps {
   items: Service[];
-  serviceGroupName: Service['name'];
 }
 const ServiceList: FC<ServiceListProps> = ({ items }) => {
-  const { searchTerm } = localSrorageStore();
-
+  const { searchTerm } = uiStore();
   const [localData, setLocalData] = useState(items);
 
   useEffect(() => {

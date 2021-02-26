@@ -1,7 +1,6 @@
 import React, { ChangeEvent, FC } from 'react';
 import { Category } from 'server/entities';
 import { configStore, localSrorageStore } from 'src/stores';
-import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
 import Flex from '../flex';
 import SearchInput from '../search-input';
@@ -10,29 +9,26 @@ import Actions from './actions';
 import Panel from './panel';
 import HeaderTitle from './title';
 
-const TopBar: FC = () => {
-  const { activeTheme, setUi, activeTab, searchTerm } = localSrorageStore();
-  const { data: config, mutate: mutateConfig } = configStore();
-
-  const onTabItemClick = (item: Category) => {
-    setUi(d => {
-      d.activeTab = item;
-    });
-  };
-
-  const onSearchTermChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    setUi(d => {
-      d.searchTerm = ev.target.value;
-    });
-  };
+interface TopBarProps {
+  catagories: Category[];
+  onCategoryClick: (categoryId: Category['id']) => void;
+  activeCategory: Category['id'];
+  searchTerm: string;
+  onSearchTermChange: (ev: ChangeEvent<HTMLInputElement>) => void;
+}
+const TopBar: FC<TopBarProps> = ({
+  catagories,
+  onCategoryClick,
+  activeCategory,
+  searchTerm,
+  onSearchTermChange,
+}) => {
+  const { activeTheme } = localSrorageStore();
+  const { data: config } = configStore();
 
   if (!config) {
     return null;
   }
-
-  const servicesWithAllTab = servicesUtils(
-    config.categories,
-  ).getAllTabServices({ withRest: true });
 
   return (
     <HeaderWrap>
@@ -42,9 +38,9 @@ const TopBar: FC = () => {
       </Panel>
       <Panel height="60px">
         <Tabs
-          onItemClick={onTabItemClick}
-          items={servicesWithAllTab}
-          activeItem={activeTab}
+          onItemClick={onCategoryClick}
+          items={catagories}
+          activeItem={activeCategory}
         />
         <Flex align="center" justify="flex-end">
           <SearchInput value={searchTerm} onChange={onSearchTermChange} />

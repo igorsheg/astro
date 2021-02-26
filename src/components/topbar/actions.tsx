@@ -2,20 +2,16 @@ import * as RadixIcons from '@radix-ui/react-icons';
 import { useRouter } from 'next/router';
 import React, { FC } from 'react';
 import { animated, useSpring } from 'react-spring';
-import { useTooltipState } from 'reakit/Tooltip';
 import Tooltip from 'src/components/tooltip';
-import { configStore, localSrorageStore } from 'src/stores';
+import { configStore, localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
 import Button from '../button';
 import Flex from '../flex';
 
 const Actions: FC = () => {
   const { data: config } = configStore();
-  const { activeTheme, setUi } = localSrorageStore();
-  const tooltip = useTooltipState({
-    placement: 'auto',
-    unstable_preventOverflow: true,
-  });
+  const { activeTheme, setLocalStorage } = localSrorageStore();
+  const { activeSidebarMenuItem } = uiStore();
 
   const router = useRouter();
 
@@ -24,7 +20,7 @@ const Actions: FC = () => {
   }
 
   const setThemeFun = () => {
-    setUi(draft => {
+    setLocalStorage(draft => {
       draft.activeTheme = activeTheme === 'dark' ? 'light' : 'dark';
     });
   };
@@ -44,7 +40,12 @@ const Actions: FC = () => {
 
   return (
     <Flex style={{ zIndex: 999999991 }}>
-      <Button onClick={() => router.push('/manage/:service')} skin="default">
+      <Button
+        onClick={() =>
+          router.push(`/manage/${activeSidebarMenuItem || 'service'}`)
+        }
+        skin="default"
+      >
         Manage
       </Button>
 
@@ -52,7 +53,6 @@ const Actions: FC = () => {
 
       <Tooltip
         label={`Switch to ${activeTheme === 'dark' ? 'Light' : 'Dark'} Theme`}
-        {...tooltip}
       >
         <Button
           skin="default"
