@@ -1,6 +1,6 @@
 import produce from 'immer';
 import { SAMPLE_CONFIG } from 'server/config/seed-data';
-import { Config, Theme } from 'server/entities';
+import { Config, Service, Theme } from 'server/entities';
 import fetcher from 'shared/utils/fetcher';
 import { FetcherRequestKeys } from 'shared/types/internal';
 import create, { GetState, SetState, State } from 'zustand';
@@ -40,4 +40,8 @@ const themeStore = create<AstroStoreProps<Theme[]>>((set, get) => ({
   ...baseStore(['Theme'], { set, get }),
 }));
 
-export { configStore, themeStore };
+const serviceStore = create<AstroStoreProps<Service[]>>((set, get) => ({
+  ...baseStore(['Service'], { set, get }),
+}));
+
+export { configStore, themeStore, serviceStore };

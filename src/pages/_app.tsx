@@ -29,11 +29,8 @@ const MyApp = () => {
       : SAMPLE_THEMES.dark;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      mount(true);
-    }, 420);
-    return () => clearTimeout(timer);
-  }, []);
+    mount(!!configData);
+  }, [configData]);
 
   return (
     <>

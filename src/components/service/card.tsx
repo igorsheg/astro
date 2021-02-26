@@ -17,7 +17,7 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
             <img src={item.logo} />
             <Description>
               <h4>{item.name}</h4>
-              <p>{item.description}</p>
+              <p>{item.url}</p>
             </Description>
             <Padder x={12} />
           </Title>
@@ -81,6 +81,10 @@ const Description = styled.div`
     font-size: 16px;
     font-weight: 500;
     margin: 0 0 0.2em 0;
+    white-space: nowrap;
+    overflow: hidden;
+    box-orient: vertical;
+    text-overflow: ellipsis;
   }
   p {
     line-height: 18px;

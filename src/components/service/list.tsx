@@ -57,6 +57,7 @@ const AnimatedCard = styled(animated.div)<{ index: number }>`
   flex: 1;
   display: flex;
   width: 25%;
+  min-width: 25%;
   max-width: 25%;
   :not(:nth-child(4n)) {
     padding: 0 18px 18px 0;
