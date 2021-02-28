@@ -24,7 +24,7 @@ const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
     transform: dialog.visible
       ? 'translateY(0px) scale(1)'
       : 'translateY(15px) scale(1)',
-    config: { tension: 400, friction: 30, velocity: 20 },
+    config: { tension: 300, friction: 30, velocity: 20 },
   });
 
   useEffect(() => {
@@ -85,7 +85,7 @@ const Blanket = styled(DialogBackdrop)`
     opacity: 1;
   }
 
-  backdrop-filter: saturate(180%) blur(20px);
+  /* backdrop-filter: saturate(180%) blur(20px); */
 `;
 
 const StyledModal = styled(animated(Dialog))`
@@ -134,9 +134,10 @@ const Header = styled.div`
 const Body = styled.div`
   display: flex;
   position: relative;
-  height: 100vh;
+  /* height: 100vh; */
   overflow-y: auto;
   flex-direction: column;
+  padding: 0 18px;
 `;
 
 export default Modal;

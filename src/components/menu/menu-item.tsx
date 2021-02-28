@@ -69,6 +69,9 @@ export const MenuAnchor = styled.a<{ disabled: boolean }>`
     margin-right: 8px;
   }
   svg {
+    height: 14px;
+    margin: 1px 0 0 0;
+    vertical-align: middle;
     flex-shrink: 0;
     opacity: ${props => (props.disabled ? '.5' : 1)};
   }
@@ -87,8 +90,8 @@ export const MenuAnchor = styled.a<{ disabled: boolean }>`
     }
   }
   &:focus {
-    color: ${props.theme.text.primary};
-    background: ${props.theme.background.primary};
+    color: white;
+    background: ${props.theme.accent.primary};
   }
   `};
 `;

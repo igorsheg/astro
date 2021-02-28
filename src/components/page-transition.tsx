@@ -30,7 +30,7 @@ export const PageTransition = ({
       opacity: 0,
       transform: 'translateX(-15px)',
     },
-    config: { tension: 300, velocity: 10 },
+    config: { tension: 300, velocity: 20, friction: 35 },
   });
 
   return (

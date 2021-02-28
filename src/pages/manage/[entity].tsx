@@ -3,6 +3,7 @@ import React, { FC, ReactElement, useMemo } from 'react';
 import * as Entities from 'server/entities';
 import { SideBarMenuItem } from 'shared/types/internal';
 import Flex from 'src/components/flex';
+import Padder from 'src/components/padder';
 import { Panel, Sidebar } from 'src/components/sidebar';
 import ManageServiceList from 'src/scences/manage/service';
 import { configStore, localSrorageStore, uiStore } from 'src/stores';
@@ -17,12 +18,13 @@ const MENU_ITEMS: SideBarMenuItem[] = [
 interface ManageScences {
   path: Lowercase<keyof typeof Entities>;
   component: ReactElement;
+  label: string;
 }
 
 const SCENCES: ManageScences[] = [
-  { path: 'service', component: <ManageServiceList /> },
-  { path: 'category', component: <ManageServiceList /> },
-  { path: 'note', component: <ManageServiceList /> },
+  { path: 'service', label: 'Services', component: <ManageServiceList /> },
+  { path: 'category', label: 'Categories', component: <ManageServiceList /> },
+  { path: 'note', label: 'Notes', component: <ManageServiceList /> },
 ];
 
 const Index: FC = () => {
@@ -55,10 +57,9 @@ const Index: FC = () => {
       />
       <Grid>
         <ManageHeader>
-          <h1>
-            {activeSidebarMenuItem.split('')[0].toUpperCase()}
-            {activeSidebarMenuItem.substring(1, activeSidebarMenuItem.length)}s
-          </h1>
+          <Padder y={54} />
+          <h1>{ctxScene?.label}</h1>
+          <Padder y={30} />
         </ManageHeader>
         {ctxScene && ctxScene.component ? ctxScene.component : null}
       </Grid>
@@ -69,15 +70,16 @@ const Index: FC = () => {
 const ManageHeader = styled.div`
   display: flex;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
   max-width: 960px;
   position: relative;
   width: calc(100% - 96px);
   display: flex;
-  height: 120px;
+  /* height: 120px; */
   h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 28px;
   }
 `;
 const Grid = styled.section`

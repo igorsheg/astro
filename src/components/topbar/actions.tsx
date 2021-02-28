@@ -3,10 +3,12 @@ import { useRouter } from 'next/router';
 import React, { FC } from 'react';
 import { animated, useSpring } from 'react-spring';
 import Tooltip from 'src/components/tooltip';
+import TopbarMenu from 'src/menus/topbar-menu';
 import { configStore, localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
 import Button from '../button';
 import Flex from '../flex';
+import Padder from '../padder';
 
 const Actions: FC = () => {
   const { data: config } = configStore();
@@ -40,25 +42,6 @@ const Actions: FC = () => {
 
   return (
     <Flex style={{ zIndex: 999999991 }}>
-      <Tooltip
-        label={`Switch to ${activeTheme === 'dark' ? 'Light' : 'Dark'} Theme`}
-      >
-        <Button
-          skin="default"
-          hierarchy="secondary"
-          type="button"
-          onClick={setThemeFun}
-          style={{ width: '36px', padding: '2px 0 0 0 ' }}
-        >
-          <animated.div style={sunIconProps}>
-            <RadixIcons.SunIcon />
-          </animated.div>
-
-          <animated.div style={moonIconProps}>
-            <RadixIcons.MoonIcon />
-          </animated.div>
-        </Button>
-      </Tooltip>
       <Devider />
       <Button
         onClick={() =>
@@ -68,6 +51,8 @@ const Actions: FC = () => {
       >
         Manage
       </Button>
+      <Padder x={12} />
+      <TopbarMenu />
     </Flex>
   );
 };

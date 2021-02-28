@@ -2,21 +2,18 @@ import { invert, transparentize } from 'polished';
 import * as React from 'react';
 import { FC } from 'react';
 import { animated, useSpring } from 'react-spring';
-import { Menu } from 'reakit/Menu';
+import { Menu, MenuOptions } from 'reakit/Menu';
 import styled, { css } from 'styled-components';
 
-type Props = {
-  'aria-label': string;
+interface Props extends MenuOptions {
   visible?: boolean;
-  onOpen?: () => void;
-  onClose?: () => void;
-};
+}
 
-const ContextMenu: FC<Props> = ({ children, onOpen, onClose, ...rest }) => {
+const ContextMenu: FC<Props> = ({ children, ...rest }) => {
   const [animationProps, setAnimation] = useSpring(() => ({
     opacity: 0,
     transform: 'translateY(-2px)',
-    config: { tension: 500, friction: 20 },
+    config: { tension: 300, velocity: 30 },
   }));
 
   React.useEffect(() => {
@@ -39,12 +36,13 @@ const ContextMenu: FC<Props> = ({ children, onOpen, onClose, ...rest }) => {
 
 const Position = styled(animated.div)`
   position: absolute;
+  z-index: 9991;
 `;
 
 const lightStyles = css`
-  background: ${p => p.theme.background.secondary};
-  box-shadow: 0 1px 2px 0px ${p => transparentize(0.95, p.theme.text.primary)},
-    0 0 0 1px ${p => p.theme.border.primary} inset;
+  background: ${p => p.theme.background.primary};
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
 `;
 
 const darkStyles = css`
@@ -57,9 +55,9 @@ const Background = styled(animated.div)`
   backdrop-filter: saturate(180%) blur(20px);
   border-radius: 6px;
   padding: 6px;
-  min-width: 180px;
-  overflow: hidden;
-  overflow-y: auto;
+  min-width: 144px;
+  /* overflow: hidden; */
+  /* overflow-y: auto; */
   max-height: 75vh;
   max-width: 276px;
   pointer-events: all;

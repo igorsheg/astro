@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 interface MenuGroupProps {
   menuItems: SideBarMenuItem[];
-  label: string;
+  label?: string;
   activeSidebarMenuItemId: SideBarMenuItem['id'];
   onMenuItemClick: (item: SideBarMenuItem) => void;
 }
@@ -18,7 +18,7 @@ const MenuGroup: FC<MenuGroupProps> = ({
 }) => {
   return (
     <Group>
-      <h5>{label}</h5>
+      {label && <h5>{label}</h5>}
       <List>
         {menuItems.map(menuItem => {
           const Icon = RadixIcons[menuItem.icon];
