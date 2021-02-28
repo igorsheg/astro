@@ -3,18 +3,11 @@ import React, { FC, useEffect } from 'react';
 import { Service } from 'server/entities';
 import Flex from 'src/components/flex';
 import ManageMenu from 'src/menus/manage-menu';
-import { configStore, serviceStore, uiStore } from 'src/stores';
+import { serviceStore } from 'src/stores';
 import styled, { css } from 'styled-components';
 
 const ManageServiceList: FC = () => {
-  const { searchTerm } = uiStore();
-  const { data: config } = configStore();
-
-  const {
-    data: services,
-    mutate: mutateServices,
-    sync: syncServices,
-  } = serviceStore();
+  const { data: services, sync: syncServices } = serviceStore();
 
   useEffect(() => {
     syncServices();
@@ -43,7 +36,7 @@ const ServiceCard: FC<ServiceCardProps> = ({ item }) => {
           <h5>{item.description}</h5>
         </ServiceDescription>
       </Flex>
-      <ManageMenu onChange={() => false} />
+      <ManageMenu />
     </ServiceRow>
   );
 };

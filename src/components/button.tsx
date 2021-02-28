@@ -1,55 +1,58 @@
-import { darken, transparentize, invert } from 'polished';
-import styled, { css } from 'styled-components';
+import { darken } from 'polished';
+import styled, {
+  css,
+  DefaultTheme,
+  FlattenInterpolation,
+  ThemeProps,
+} from 'styled-components';
 
-type ButtonTypes = 'default' | 'toogle';
-type HierarchyTypes = 'primary' | 'secondary';
+type HierarchyTypes = 'primary' | 'secondary' | 'ternary';
 
 interface StyledButtonProps {
-  skin?: ButtonTypes;
   hierarchy?: HierarchyTypes;
 }
 
-const secondaryStyles = css`
+const ternary = css`
   background: none;
+  border: none;
+  color: ${p => p.theme.text.primary};
+  transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
+  :hover {
+    background: ${p => p.theme.background.secondary};
+  }
+`;
 
+const secondary = css`
+  background: none;
   box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px;
   border: 1px solid ${p => p.theme.border.primary};
   color: ${p => p.theme.text.primary};
-  font-size: 14px;
-  height: 30px;
+
   transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
   :hover {
     background: ${p => darken(0.01, p.theme.background.secondary)};
   }
 `;
 
-const primaryStyles = css`
+const primary = css`
   background: ${p => p.theme.accent.primary};
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px;
   border: none;
   color: white;
-  font-size: 14px;
-  height: 30px;
+
   transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
   :hover {
     background: ${p => p.theme.accent.secondary};
   }
 `;
 
-const defaultStyles = css<StyledButtonProps>`
-  ${p => (p.hierarchy === 'secondary' ? secondaryStyles : primaryStyles)}
-`;
-
-const tooggleStyles = css`
-  background: none;
-  border: none;
-
-  color: ${p => p.theme.text.primary};
-  :hover {
-    background: ${p =>
-      transparentize(0.6, darken(0.2, invert(p.theme.text.primary)))};
-  }
-`;
+const hierarchyStyles: {
+  [Key in HierarchyTypes]: FlattenInterpolation<ThemeProps<DefaultTheme>>;
+} = {
+  primary,
+  secondary,
+  ternary,
+};
 
 const Button = styled.button<StyledButtonProps>`
   display: flex;
@@ -66,8 +69,7 @@ const Button = styled.button<StyledButtonProps>`
   :hover {
     cursor: pointer;
   }
-
-  ${p => (p.skin === 'toogle' ? tooggleStyles : defaultStyles)}
+  ${p => hierarchyStyles[p.hierarchy || 'primary']}
 `;
 
 export default Button;

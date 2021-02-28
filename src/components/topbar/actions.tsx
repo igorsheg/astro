@@ -1,8 +1,6 @@
-import * as RadixIcons from '@radix-ui/react-icons';
 import { useRouter } from 'next/router';
 import React, { FC } from 'react';
-import { animated, useSpring } from 'react-spring';
-import Tooltip from 'src/components/tooltip';
+import { useSpring } from 'react-spring';
 import TopbarMenu from 'src/menus/topbar-menu';
 import { configStore, localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
@@ -21,25 +19,6 @@ const Actions: FC = () => {
     return null;
   }
 
-  const setThemeFun = () => {
-    setLocalStorage(draft => {
-      draft.activeTheme = activeTheme === 'dark' ? 'light' : 'dark';
-    });
-  };
-
-  const sunIconProps = useSpring({
-    config: { tension: 300 },
-    position: 'absolute',
-    opacity: activeTheme === 'dark' ? 1 : 0,
-    transform: activeTheme === 'dark' ? 'translateY(0px)' : 'translateY(30px)',
-  });
-  const moonIconProps = useSpring({
-    position: 'absolute',
-    config: { tension: 300 },
-    opacity: activeTheme === 'light' ? 1 : 0,
-    transform: activeTheme === 'light' ? 'translateY(0px)' : 'translateY(30px)',
-  });
-
   return (
     <Flex style={{ zIndex: 999999991 }}>
       <Devider />
@@ -47,7 +26,6 @@ const Actions: FC = () => {
         onClick={() =>
           router.push(`/manage/${activeSidebarMenuItem || 'service'}`)
         }
-        skin="default"
       >
         Manage
       </Button>

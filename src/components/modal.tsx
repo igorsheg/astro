@@ -1,14 +1,11 @@
-import {
-  useDialogState,
-  Dialog,
-  DialogDisclosure,
-  DialogBackdrop,
-} from 'reakit/Dialog';
-import { FC, ReactNode, ReactText, useEffect } from 'react';
-import styled, { css } from 'styled-components';
+import { Cross2Icon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
-import { useSpring, animated } from 'react-spring';
-import { Cross1Icon } from '@radix-ui/react-icons';
+import { FC, ReactNode, ReactText, useEffect } from 'react';
+import { animated, useSpring } from 'react-spring';
+import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
+import styled, { css } from 'styled-components';
+import Button from './button';
+import Padder from './padder';
 import Tooltip from './tooltip';
 
 interface ModalProps {
@@ -33,21 +30,27 @@ const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
 
   return (
     <>
-      {/* <DialogDisclosure {...dialog}>Open dialog</DialogDisclosure> */}
       <Blanket {...dialog}>
         <StyledModal
           hideOnClickOutside={false}
           style={blanketAnimation}
+          aria-label={`${title} Modal`}
           {...dialog}
-          aria-label="Welcome"
         >
           <Header>
-            <h1>{title}</h1>
-            <Tooltip label="Close modal">
-              <button onClick={onRequestClose} type="button">
-                <Cross1Icon />
-              </button>
+            <Tooltip tabIndex={-1} label="Close modal">
+              <Button
+                style={{ width: '30px', padding: 0 }}
+                tabIndex={-1}
+                hierarchy="ternary"
+                onClick={onRequestClose}
+                type="button"
+              >
+                <Cross2Icon />
+              </Button>
             </Tooltip>
+            <h1>{title}</h1>
+            <Padder x={30} />
           </Header>
           <Body>{children}</Body>
         </StyledModal>
@@ -77,7 +80,7 @@ const Blanket = styled(DialogBackdrop)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${p => transparentize(0.5, 'black')};
+  background: ${transparentize(0.5, 'black')};
   opacity: 0;
   transition: opacity 240ms cubic-bezier(0.19, 1, 0.22, 1);
 
@@ -100,32 +103,17 @@ const StyledModal = styled(animated(Dialog))`
 `;
 
 const Header = styled.div`
-  height: 72px;
-  min-height: 72px;
+  height: 60px;
+  min-height: 60px;
   padding: 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: inset 0 -1px 0 0 ${p => p.theme.border.primary};
 
-  button {
-    border: none;
-    background: none;
-    height: 30px;
-    padding: 0;
-    margin: 0;
-    width: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: ${p => p.theme.text.primary};
-
-    :hover {
-      cursor: pointer;
-      color: ${p => p.theme.text.secondary};
-    }
-  }
   h1 {
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 600;
     margin: 0;
     padding: 0;
   }
@@ -137,7 +125,7 @@ const Body = styled.div`
   /* height: 100vh; */
   overflow-y: auto;
   flex-direction: column;
-  padding: 0 18px;
+  padding: 18px;
 `;
 
 export default Modal;

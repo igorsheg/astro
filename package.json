@@ -44,6 +44,7 @@
     "koa": "^2.13.0",
     "koa-bodyparser": "^4.3.0",
     "koa-connect": "^2.1.0",
+    "lodash": "^4.17.21",
     "next": "latest",
     "polished": "^4.1.0",
     "react": "^17.0.1",
@@ -54,6 +55,7 @@
     "sqlite3": "^5.0.1",
     "styled-components": "^5.2.1",
     "typeorm": "^0.2.31",
+    "yup": "^0.32.9",
     "zustand": "^3.3.1"
   },
   "devDependencies": {

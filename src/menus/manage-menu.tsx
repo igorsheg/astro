@@ -1,15 +1,10 @@
+import * as RadixIcons from '@radix-ui/react-icons';
 import React, { FC } from 'react';
 import { MenuButton, useMenuState } from 'reakit/Menu';
 import { RadixIconTypes } from 'shared/types/radixIconsTypes';
-import styled from 'styled-components';
 import Button from 'src/components/button';
 import { ContextMenu, MenuItem } from 'src/components/menu';
-import * as RadixIcons from '@radix-ui/react-icons';
-
-type Props = {
-  onOpen?: () => void;
-  onChange: (color: string, icon: string) => void;
-};
+import styled from 'styled-components';
 
 interface NavBarMenuActions {
   action: string;
@@ -22,7 +17,7 @@ const ACTIONS: NavBarMenuActions[] = [
   { action: 'delete', label: 'Delete', icon: 'Pencil1Icon' },
 ];
 
-const ManageMenu: FC<Props> = ({ onOpen, onChange }) => {
+const ManageMenu: FC = () => {
   const menu = useMenuState({
     modal: false,
     placement: 'bottom-end',
@@ -34,7 +29,6 @@ const ManageMenu: FC<Props> = ({ onOpen, onChange }) => {
       <MenuButton {...menu}>
         {props => (
           <Button
-            skin="default"
             hierarchy="secondary"
             aria-label="View Service Menu"
             {...props}
@@ -45,7 +39,9 @@ const ManageMenu: FC<Props> = ({ onOpen, onChange }) => {
       </MenuButton>
       <ContextMenu {...menu} aria-label="Choose icon">
         {ACTIONS.map(action => (
-          <MenuItem key={action.action}>{action.label}</MenuItem>
+          <MenuItem {...menu} key={action.action}>
+            {action.label}
+          </MenuItem>
         ))}
       </ContextMenu>
     </Wrapper>

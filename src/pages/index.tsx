@@ -1,15 +1,11 @@
-import React, { ChangeEvent, FC, useState } from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Category, Service } from 'server/entities';
-import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import Grid from 'src/components/grid';
-import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
 import { ServiceList } from 'src/components/service';
 import NavBar from 'src/components/topbar';
-import NewServiceModal from 'src/modals/new-service';
-import ManageServiceList from 'src/scences/manage/service';
 import { configStore, uiStore } from 'src/stores';
 import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';

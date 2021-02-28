@@ -1,10 +1,9 @@
-import { CheckIcon } from '@radix-ui/react-icons';
 import * as React from 'react';
 import { FC, SyntheticEvent } from 'react';
-import { MenuItem as BaseMenuItem } from 'reakit/Menu';
+import { MenuItem as BaseMenuItem, MenuItemOptions } from 'reakit/Menu';
 import styled from 'styled-components';
 
-type Props = {
+interface Props extends MenuItemOptions {
   onClick?: (ev: SyntheticEvent) => void | Promise<void>;
   selected?: boolean;
   disabled?: boolean;
@@ -12,41 +11,32 @@ type Props = {
   href?: string;
   target?: '_blank';
   as?: string | React.ComponentType<any>;
-};
+}
 
-const MenuItem: FC<Props> = ({
-  onClick,
-  children,
-  selected,
-  disabled,
-  as,
-  ...rest
-}) => {
+const MenuItem: FC<Props> = ({ onClick, children, disabled, as, ...rest }) => {
+  const clickMiddleware = (ev: SyntheticEvent) => {
+    if (onClick) {
+      onClick(ev);
+    }
+    if (rest && rest.hide) {
+      rest.hide();
+    }
+  };
+
   return (
     <BaseMenuItem
-      onClick={disabled ? undefined : onClick}
+      onClick={disabled ? undefined : clickMiddleware}
       disabled={disabled}
       {...rest}
     >
       {props => (
         <MenuAnchor as={onClick ? 'button' : as} {...props}>
-          {selected !== undefined && (
-            <>
-              {selected ? <CheckIcon /> : <Spacer />}
-              &nbsp;
-            </>
-          )}
           {children}
         </MenuAnchor>
       )}
     </BaseMenuItem>
   );
 };
-
-const Spacer = styled.div`
-  width: 24px;
-  height: 24px;
-`;
 
 export const MenuAnchor = styled.a<{ disabled: boolean }>`
   display: flex;

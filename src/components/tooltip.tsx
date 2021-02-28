@@ -8,9 +8,10 @@ import styled from 'styled-components';
 
 interface TooltipProps {
   label: string;
+  tabIndex: number;
 }
 
-const Tooltip: FC<TooltipProps> = ({ children, label }) => {
+const Tooltip: FC<TooltipProps> = ({ children, label, tabIndex }) => {
   const tool = useTooltipState({
     placement: 'auto',
     unstable_preventOverflow: true,
@@ -20,7 +21,9 @@ const Tooltip: FC<TooltipProps> = ({ children, label }) => {
 
   return (
     <>
-      <TooltipReference {...tool}>{children}</TooltipReference>
+      <TooltipReference tabIndex={tabIndex} {...tool}>
+        {children}
+      </TooltipReference>
       <Tip {...tool}>
         <Wrap>{label}</Wrap>
       </Tip>

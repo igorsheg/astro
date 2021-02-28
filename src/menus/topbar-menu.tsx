@@ -1,44 +1,33 @@
 import * as RadixIcons from '@radix-ui/react-icons';
+import dynamic from 'next/dynamic';
 import React, { FC, forwardRef, useState } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
-import { RadixIconTypes } from 'shared/types/radixIconsTypes';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { ContextMenu, MenuItem } from 'src/components/menu';
-import NewServiceModal from 'src/modals/new-service';
 import { localSrorageStore } from 'src/stores';
 import styled from 'styled-components';
 
-interface NavBarMenuActions {
-  action: string;
-  label: string;
-  icon: RadixIconTypes;
-}
-const ACTIONS: NavBarMenuActions[] = [
-  { action: 'new-service', label: 'New Service', icon: 'CopyIcon' },
-  { action: 'new-category', label: 'New Category', icon: 'CopyIcon' },
-  { action: 'delete', label: 'Delete', icon: 'Pencil1Icon' },
-];
+const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
+  ssr: false,
+});
 
 const TopbarMenu: FC = () => {
-  const menu = useMenuState({
-    modal: false,
-    animated: 240,
-  });
+  const menu = useMenuState({ animated: 120 });
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
 
   return (
     <>
-      <NewServiceModal
-        onRequestClose={() => setIsNewServiceModalOpen(false)}
-        isOpen={isNewServiceModalOpen}
-        title="Create New Service"
-      />
-
+      {isNewServiceModalOpen && (
+        <NewServiceModal
+          onRequestClose={() => setIsNewServiceModalOpen(false)}
+          isOpen={isNewServiceModalOpen}
+          title="Create New Service"
+        />
+      )}
       <MenuButton {...menu}>
         {props => (
           <Button
-            skin="default"
             hierarchy="secondary"
             aria-label="View Service Menu"
             {...props}
@@ -62,7 +51,7 @@ const TopbarMenu: FC = () => {
   );
 };
 
-const ApperanceMenu = forwardRef<any>((props, ref) => {
+const ApperanceMenu = forwardRef<HTMLButtonElement>((props, ref) => {
   const menu = useMenuState();
   const { setLocalStorage, activeTheme } = localSrorageStore();
 
@@ -74,11 +63,11 @@ const ApperanceMenu = forwardRef<any>((props, ref) => {
 
   return (
     <>
-      <MenuBtn ref={ref} {...menu} {...props}>
+      <MenuButton ref={ref} {...menu} {...props}>
         <Flex justify="space-between" auto>
           Apperance <RadixIcons.TriangleRightIcon />
         </Flex>
-      </MenuBtn>
+      </MenuButton>
       <ContextMenu {...menu} aria-label="Set Theme Menu">
         <MenuItem {...menu} as="checbox" onClick={() => setThemeFun('light')}>
           <Flex justify="space-between" auto>
@@ -96,10 +85,6 @@ const ApperanceMenu = forwardRef<any>((props, ref) => {
     </>
   );
 });
-
-const MenuBtn = styled(MenuButton)`
-  font-size: 14px;
-`;
 
 const Seperator = styled(MenuSeparator)`
   height: 12px;
