@@ -50,6 +50,7 @@ const darkStyles = css`
 const ServiceRow = styled.div`
   width: 100%;
   height: 66px;
+  min-height: 66px;
   display: flex;
   align-items: center;
   padding: 0 18px;
@@ -70,10 +71,11 @@ const ServiceRow = styled.div`
 
 // Consolidate card styles across app
 const StyledList = styled.div`
-  max-width: 1440px;
+  max-width: 960px;
   position: relative;
   width: calc(100% - 96px);
   display: flex;
+  min-height: min-content;
   flex-direction: column;
   background: ${p => p.theme.background.primary};
   border-radius: 6px;

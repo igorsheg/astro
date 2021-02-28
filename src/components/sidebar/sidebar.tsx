@@ -30,16 +30,21 @@ const Sidebar: FC<SidebarProps> = ({
   return (
     <Panel>
       <LogoTop>
-        <Flex column>
+        {/* <Flex column>
           <h1>{config.title}</h1>
           <p>Manage your homelab</p>
-        </Flex>
-        <Tooltip label="Back to home">
-          <Button onClick={() => router.back()} hierarchy="secondary">
-            <ChevronLeftIcon />
-          </Button>
-        </Tooltip>
-        {/* <HeaderTitle activeTheme={activeTheme} config={config} /> */}
+        </Flex> */}
+        {/* <Tooltip label="Back to home"> */}
+        <Button
+          type="button"
+          aria-label="Go Back Home"
+          onClick={() => router.back()}
+          hierarchy="secondary"
+        >
+          <ChevronLeftIcon />
+          Back Home
+        </Button>
+        {/* </Tooltip> */}
       </LogoTop>
       <Padder y={30} />
       <MenuGroup

@@ -40,17 +40,6 @@ const Actions: FC = () => {
 
   return (
     <Flex style={{ zIndex: 999999991 }}>
-      <Button
-        onClick={() =>
-          router.push(`/manage/${activeSidebarMenuItem || 'service'}`)
-        }
-        skin="default"
-      >
-        Manage
-      </Button>
-
-      <Devider />
-
       <Tooltip
         label={`Switch to ${activeTheme === 'dark' ? 'Light' : 'Dark'} Theme`}
       >
@@ -70,6 +59,15 @@ const Actions: FC = () => {
           </animated.div>
         </Button>
       </Tooltip>
+      <Devider />
+      <Button
+        onClick={() =>
+          router.push(`/manage/${activeSidebarMenuItem || 'service'}`)
+        }
+        skin="default"
+      >
+        Manage
+      </Button>
     </Flex>
   );
 };
