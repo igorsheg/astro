@@ -45,7 +45,7 @@ const TopbarMenu: FC = () => {
 
         <Seperator />
 
-        <MenuItem {...menu} as={ApperanceMenu} />
+        <MenuItem closeOnClick={false} {...menu} as={ApperanceMenu} />
       </ContextMenu>
     </>
   );

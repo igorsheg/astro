@@ -122,7 +122,7 @@ const Header = styled.div`
 const Body = styled.div`
   display: flex;
   position: relative;
-  /* height: 100vh; */
+  overflow-x: hidden;
   overflow-y: auto;
   flex-direction: column;
   padding: 18px;

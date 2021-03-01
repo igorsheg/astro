@@ -11,14 +11,22 @@ interface Props extends MenuItemOptions {
   href?: string;
   target?: '_blank';
   as?: string | React.ComponentType<any>;
+  closeOnClick?: boolean;
 }
 
-const MenuItem: FC<Props> = ({ onClick, children, disabled, as, ...rest }) => {
+const MenuItem: FC<Props> = ({
+  onClick,
+  children,
+  disabled,
+  as,
+  closeOnClick = true,
+  ...rest
+}) => {
   const clickMiddleware = (ev: SyntheticEvent) => {
     if (onClick) {
       onClick(ev);
     }
-    if (rest && rest.hide) {
+    if (rest && rest.hide && closeOnClick) {
       rest.hide();
     }
   };
