@@ -34,7 +34,7 @@ const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
   const [{ coord, opacity }, set] = useSpring(() => ({
     opacity: 0,
     coord: [0, 0],
-    config: { tension: 300, friction: 30 },
+    config: { clamp: true, tension: 1000 },
   }));
 
   const bindCanvas = useDrag(
@@ -76,6 +76,7 @@ const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
       <Blanket {...dialog}>
         <animated.div style={enterAnimation}>
           <StyledModal
+            hideOnEsc={false}
             hideOnClickOutside={false}
             style={{
               opacity,
