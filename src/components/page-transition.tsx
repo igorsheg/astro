@@ -4,11 +4,13 @@ import { animated, useTransition } from 'react-spring';
 
 interface EnchancedRouter extends NextRouter {
   components: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [a: string]: any;
   };
 }
 
 interface PageTransitionProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: (e: any) => JSX.Element;
 }
 

@@ -13,18 +13,19 @@ const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
 });
 
 const TopbarMenu: FC = () => {
-  const menu = useMenuState({ animated: 120 });
+  const menu = useMenuState({
+    animated: 120,
+    modal: false,
+  });
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
 
   return (
     <>
-      {isNewServiceModalOpen && (
-        <NewServiceModal
-          onRequestClose={() => setIsNewServiceModalOpen(false)}
-          isOpen={isNewServiceModalOpen}
-          title="Create New Service"
-        />
-      )}
+      <NewServiceModal
+        onRequestClose={() => setIsNewServiceModalOpen(false)}
+        isOpen={isNewServiceModalOpen}
+        title="Create New Service"
+      />
       <MenuButton {...menu}>
         {props => (
           <Button
@@ -45,7 +46,7 @@ const TopbarMenu: FC = () => {
 
         <Seperator />
 
-        <MenuItem {...menu} as={ApperanceMenu} />
+        <MenuItem closeOnClick={false} {...menu} as={ApperanceMenu} />
       </ContextMenu>
     </>
   );

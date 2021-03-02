@@ -1,4 +1,6 @@
 import { darken } from 'polished';
+import { FC } from 'react';
+import { Button as ReakitButton } from 'reakit/Button';
 import styled, {
   css,
   DefaultTheme,
@@ -7,6 +9,10 @@ import styled, {
 } from 'styled-components';
 
 type HierarchyTypes = 'primary' | 'secondary' | 'ternary';
+
+interface ButtonProps extends React.HTMLProps<HTMLDivElement> {
+  hierarchy?: HierarchyTypes;
+}
 
 interface StyledButtonProps {
   hierarchy?: HierarchyTypes;
@@ -54,13 +60,14 @@ const hierarchyStyles: {
   ternary,
 };
 
-const Button = styled.button<StyledButtonProps>`
+const StyledButton = styled(ReakitButton)<StyledButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 9px;
   border-radius: 4px;
   height: 30px;
+  min-height: 30px;
   margin: 0;
   font-size: 14px;
   font-weight: 500;
@@ -69,7 +76,19 @@ const Button = styled.button<StyledButtonProps>`
   :hover {
     cursor: pointer;
   }
+
   ${p => hierarchyStyles[p.hierarchy || 'primary']}
 `;
 
+const Button: FC<ButtonProps> = ({ children, ...props }) => {
+  return (
+    <StyledButton hierarchy={props.hierarchy}>
+      {refProps => (
+        <div {...props} {...refProps}>
+          {children}
+        </div>
+      )}
+    </StyledButton>
+  );
+};
 export default Button;

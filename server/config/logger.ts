@@ -1,9 +1,11 @@
 import { Context } from 'koa';
 import { isDevMode } from './serverConfig';
-import { transports, format } from 'winston';
+import winston, { transports, format } from 'winston';
 import * as path from 'path';
 
-const logger = (winstonInstance: any): any => {
+const logger = (
+  winstonInstance: typeof winston,
+): ((ctx: Context, next: () => Promise<string>) => Promise<void>) => {
   winstonInstance.configure({
     level: isDevMode ? 'debug' : 'info',
     transports: [
@@ -21,7 +23,7 @@ const logger = (winstonInstance: any): any => {
     ],
   });
 
-  return async (ctx: Context, next: () => Promise<any>): Promise<void> => {
+  return async (ctx: Context, next: () => Promise<string>): Promise<void> => {
     const start = new Date().getTime();
     try {
       await next();

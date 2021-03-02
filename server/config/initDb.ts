@@ -19,7 +19,7 @@ interface SeedProps<T> {
   idKey: keyof T;
 }
 
-const seeds: SeedProps<any>[] = [
+const seeds: SeedProps<Category | Config | Service | Theme>[] = [
   {
     entity: Theme,
     data: [SAMPLE_THEMES.dark, SAMPLE_THEMES.light],

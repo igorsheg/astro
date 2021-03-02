@@ -18,7 +18,6 @@ interface SidebarProps {
 
 const Sidebar: FC<SidebarProps> = ({
   menuItems,
-  config,
   activeSidebarMenuItemId,
   onMenuItemClick,
 }) => {
@@ -42,7 +41,6 @@ const Sidebar: FC<SidebarProps> = ({
 };
 
 const LogoTop = styled(Flex)`
-  /* box-shadow: inset 0px -1px 0 ${p => p.theme.border.primary}; */
   padding: 0 30px;
   height: 96px;
   width: 100%;
@@ -79,7 +77,6 @@ const Panel = styled.nav`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  /* padding: 0 30px; */
   background: ${p => transparentize(0.2, p.theme.background.primary)};
   backdrop-filter: saturate(180%) blur(20px);
   box-shadow: inset -1px 0 0 ${p => p.theme.border.primary};

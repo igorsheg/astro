@@ -1,19 +1,19 @@
 import { Context } from 'koa';
-import { ConnectionManager, getConnectionManager } from 'typeorm';
+import { getConnectionManager } from 'typeorm';
+
+const healthcheck = {
+  uptime: process.uptime(),
+  message: 'OK',
+  timestamp: Date.now(),
+};
 
 interface HealthzControllerProps {
-  ping: (ctx: Context) => Promise<any>;
-  pingDb: (ctx: Context) => Promise<any>;
+  ping: (ctx: Context) => Promise<typeof healthcheck>;
+  pingDb: (ctx: Context) => Promise<boolean | string>;
 }
 
 export default (): HealthzControllerProps => {
   const ping = async (ctx: Context) => {
-    const healthcheck = {
-      uptime: process.uptime(),
-      message: 'OK',
-      timestamp: Date.now(),
-    };
-
     try {
       return (ctx.body = healthcheck);
     } catch (e) {

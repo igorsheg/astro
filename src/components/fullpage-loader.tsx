@@ -1,9 +1,9 @@
 import React, { FC, useEffect } from 'react';
-import { useSpring, animated } from 'react-spring';
+import { animated, useSpring } from 'react-spring';
 import styled, { keyframes } from 'styled-components';
 
 const Loader: FC = () => {
-  const [animationProps, set] = useSpring(() => ({
+  const [styles, set] = useSpring(() => ({
     opacity: 0,
     scale: 1,
     config: { tension: 400, friction: 30 },
@@ -18,7 +18,7 @@ const Loader: FC = () => {
 
   return (
     <Wrap>
-      <animated.div style={animationProps}>
+      <animated.div style={styles}>
         <p>loading...</p>
         <Bar />
       </animated.div>
