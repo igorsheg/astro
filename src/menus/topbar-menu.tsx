@@ -5,14 +5,15 @@ import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { ContextMenu, MenuItem } from 'src/components/menu';
-import { localSrorageStore } from 'src/stores';
+import { localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
-
-const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
-  ssr: false,
-});
+import NewServiceModal from 'src/modals/new-service';
+// const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
+//   ssr: false,
+// });
 
 const TopbarMenu: FC = () => {
+  const { activeModals, setUiStore } = uiStore();
   const menu = useMenuState({
     animated: 120,
     modal: false,
@@ -21,11 +22,6 @@ const TopbarMenu: FC = () => {
 
   return (
     <>
-      <NewServiceModal
-        onRequestClose={() => setIsNewServiceModalOpen(false)}
-        isOpen={isNewServiceModalOpen}
-        title="Create New Service"
-      />
       <MenuButton {...menu}>
         {props => (
           <Button
@@ -40,7 +36,22 @@ const TopbarMenu: FC = () => {
         )}
       </MenuButton>
       <ContextMenu aria-label="Manage Astro Menu" {...menu}>
-        <MenuItem {...menu} onClick={() => setIsNewServiceModalOpen(true)}>
+        <MenuItem
+          {...menu}
+          onClick={() =>
+            setUiStore(d => {
+              const ctxModal = d.activeModals.findIndex(
+                d => d.id === 'new-service',
+              );
+              ctxModal !== -1
+                ? (d.activeModals[ctxModal].state = 'expnanded')
+                : d.activeModals.push({
+                    id: 'new-service',
+                    state: 'expnanded',
+                  });
+            })
+          }
+        >
           New Service
         </MenuItem>
         <MenuItem {...menu}>New Category</MenuItem>

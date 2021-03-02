@@ -1,11 +1,13 @@
-import { Cross2Icon } from '@radix-ui/react-icons';
+import { Cross2Icon, MinusIcon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
+import React, { useLayoutEffect, useState } from 'react';
 import { FC, ReactNode, ReactText, useEffect, useRef } from 'react';
 import { animated, interpolate, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
 import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
 import styled, { css } from 'styled-components';
 import Button from './button';
+import Flex from './flex';
 import Padder from './padder';
 import Tooltip from './tooltip';
 
@@ -17,8 +19,29 @@ interface ModalProps {
   onRequestClose: () => void;
 }
 const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
-  const dialog = useDialogState({ animated: true });
+  const dialog = useDialogState({ animated: 240 });
+  const [isTucked, setTucked] = useState(false);
+
+  const modalRef = useRef<HTMLDivElement>();
   const ref = useRef<HTMLDivElement>(null);
+
+  const getModalDimentions = () => {
+    if (modalRef && modalRef.current) {
+      return modalRef.current?.getBoundingClientRect().toJSON();
+    } else {
+      return {};
+    }
+  };
+
+  const [modalDimentions, setModalDimentions] = useState<
+    DOMRect | Record<string, unknown>
+  >({});
+
+  useLayoutEffect(() => {
+    if (modalRef && modalRef.current) {
+      setModalDimentions(getModalDimentions());
+    }
+  }, [modalRef.current]);
 
   const getWindowDimensions = () => {
     const { innerWidth: width, innerHeight: height } = window;
@@ -28,76 +51,105 @@ const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
     };
   };
 
-  const modalDimentions =
-    ref && ref.current && ref.current.getBoundingClientRect();
-
-  const [{ coord, opacity }, set] = useSpring(() => ({
-    opacity: 0,
+  const [{ coord }, set] = useSpring(() => ({
     coord: [0, 0],
-    config: { clamp: true, tension: 1000 },
+    config: { tension: 2000, clamp: true },
   }));
 
   const bindCanvas = useDrag(
     ({ offset, down }) => {
-      down ? set({ coord: offset }) : undefined;
+      if (down) {
+        set({ coord: offset });
+        setModalDimentions({ ...modalDimentions, x: offset[0], y: offset[1] });
+      }
     },
+
     {
+      enabled: !isTucked,
       domTarget: ref,
-      rubberband: true,
+      // rubberband: true,
       bounds: {
         left: -(getWindowDimensions().width - 600),
         right: getWindowDimensions().width - 600,
         top: -(
           getWindowDimensions().height -
-          ((modalDimentions && modalDimentions.height) || 0)
+          (getModalDimentions().height + 300 || 0)
         ),
         bottom:
-          getWindowDimensions().height -
-          ((modalDimentions && modalDimentions.height) || 0),
+          getWindowDimensions().height - (getModalDimentions().height || 0),
       },
     },
   );
 
-  const enterAnimation = useSpring({
-    opacity: dialog.visible ? 1 : 0,
-    transform: dialog.visible
-      ? 'translateY(0px) scale(1)'
-      : 'translateY(15px) scale(1)',
+  const [enterAnimation, setEnterAnimation] = useSpring(() => ({
+    opacity: 0,
+    transform: 'translateY(15px)',
     config: { tension: 300, friction: 30, velocity: 20 },
-  });
+  }));
 
   useEffect(() => {
-    set({ opacity: 1 });
+    setEnterAnimation({
+      opacity: 1,
+      transform: isOpen ? 'translateY(0px)' : 'translateY(15px)',
+    });
     dialog.setVisible(isOpen);
+    return () => {
+      setTucked(false);
+    };
   }, [isOpen]);
+
+  const onRequestHide = () => {
+    setTucked(!isTucked);
+    const tuck = `translateY(${
+      getWindowDimensions().height - getModalDimentions().y - 60
+    }px)`;
+    const view = `translateY(0px)`;
+
+    setEnterAnimation({
+      transform: isTucked ? view : tuck,
+    });
+  };
 
   return (
     <>
-      <Blanket {...dialog}>
+      <Blanket isTucked={isTucked} {...dialog}>
         <animated.div style={enterAnimation}>
           <StyledModal
-            hideOnEsc={false}
+            ref={modalRef}
+            hideOnEsc={true}
             hideOnClickOutside={false}
             style={{
-              opacity,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               transform: interpolate([coord] as any, trans as any),
             }}
             aria-label={`${title} Modal`}
-            {...dialog}
             {...bindCanvas}
+            {...dialog}
           >
             <Header ref={ref}>
-              <Tooltip tabIndex={-1} label="Close modal">
-                <Button
-                  style={{ width: '30px', padding: 0 }}
-                  tabIndex={-1}
-                  hierarchy="ternary"
-                  onClick={onRequestClose}
-                >
-                  <Cross2Icon />
-                </Button>
-              </Tooltip>
+              <Flex>
+                <Tooltip tabIndex={-1} label="Close modal">
+                  <Button
+                    style={{ width: '30px', padding: 0 }}
+                    tabIndex={-1}
+                    hierarchy="ternary"
+                    onClick={onRequestClose}
+                  >
+                    <Cross2Icon />
+                  </Button>
+                </Tooltip>
+
+                <Tooltip tabIndex={-1} label="Minimize modal">
+                  <Button
+                    style={{ width: '30px', padding: 0 }}
+                    tabIndex={-1}
+                    hierarchy="ternary"
+                    onClick={onRequestHide}
+                  >
+                    <MinusIcon />
+                  </Button>
+                </Tooltip>
+              </Flex>
               <h1>{title}</h1>
               <Padder x={30} />
             </Header>
@@ -121,15 +173,17 @@ const darkStyles = css`
     0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
 `;
 
-const Blanket = styled(DialogBackdrop)`
+const Blanket = styled(DialogBackdrop)<{ isTucked: boolean }>`
   width: 100vw;
   height: 100vh;
   position: absolute;
+  pointer-events: ${p => (p.isTucked ? 'none' : 'all')};
   top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${transparentize(0.5, 'black')};
+  background: ${p =>
+    p.isTucked ? 'transparent' : transparentize(0.5, 'black')};
   opacity: 0;
   transition: opacity 240ms cubic-bezier(0.19, 1, 0.22, 1);
 
@@ -138,12 +192,14 @@ const Blanket = styled(DialogBackdrop)`
   }
 `;
 
-const StyledModal = styled(animated(Dialog))`
+const StyledModal = styled(animated(Dialog))<{ ref: any }>`
   width: 600px;
+  pointer-events: all;
   position: absolute;
   border-radius: 6px;
   position: relative;
   overflow: hidden;
+  opacity: 1;
   flex-direction: column;
   max-height: calc(100vh - 96px);
   display: flex;

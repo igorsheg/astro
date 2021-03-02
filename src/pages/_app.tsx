@@ -1,13 +1,25 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
+import { ActiveModal } from 'shared/types/internal';
 import Loader from 'src/components/fullpage-loader';
 import { PageTransition } from 'src/components/page-transition';
-import { configStore, localSrorageStore, themeStore } from 'src/stores';
+// import NewServiceModal from 'src/modals/new-service';
+import {
+  configStore,
+  localSrorageStore,
+  themeStore,
+  uiStore,
+} from 'src/stores';
 import GlobalStyle from 'src/styles/global';
 import { ThemeProvider } from 'styled-components';
+
+const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
+  ssr: false,
+});
 
 const MyApp = () => {
   const { activeTheme } = localSrorageStore();
@@ -15,6 +27,7 @@ const MyApp = () => {
 
   const { data: configData, sync: syncConfig } = configStore();
   const { data: themes, sync: syncThemes } = themeStore();
+  const { activeModals, setUiStore } = uiStore();
 
   useEffect(() => {
     syncConfig();
@@ -31,6 +44,18 @@ const MyApp = () => {
   useEffect(() => {
     mount(!!configData);
   }, [configData]);
+
+  const modalCloseRequest = (modal: ActiveModal) => {
+    setUiStore(d => {
+      const ctxModalIndex = d.activeModals.findIndex(m => m.id === modal.id);
+      d.activeModals[ctxModalIndex].state = 'closed';
+      // d.activeModals.push(modal);
+    });
+  };
+
+  useEffect(() => {
+    console.log(activeModals);
+  }, [activeModals]);
 
   return (
     <>
@@ -50,6 +75,16 @@ const MyApp = () => {
       </Head>
       <ThemeProvider theme={ctxTheme as Theme}>
         <GlobalStyle />
+
+        <NewServiceModal
+          onRequestClose={modalCloseRequest}
+          isOpen={
+            activeModals.find(modal => modal.id === 'new-service')?.state ===
+            'expnanded'
+          }
+          title="Create New Service"
+        />
+
         {!configData || !mounted ? (
           <Loader />
         ) : (

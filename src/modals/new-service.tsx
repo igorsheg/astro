@@ -15,6 +15,7 @@ import {
   unstable_FormMessage as FormMessage,
   unstable_useFormState as useFormState,
 } from 'reakit/Form';
+import { ActiveModal } from 'shared/types/internal';
 import Button from 'src/components/button';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
@@ -25,7 +26,7 @@ import { Asserts, object, string, ValidationError } from 'yup';
 interface NewServiceModalProps {
   title: string;
   isOpen: boolean;
-  onRequestClose: () => void;
+  onRequestClose: (m: ActiveModal) => void;
 }
 
 const NewServiceModal: FC<NewServiceModalProps> = ({
@@ -33,6 +34,10 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   isOpen,
   onRequestClose,
 }) => {
+  const modalIdentity: ActiveModal = {
+    id: 'new-service',
+    state: 'closed',
+  };
   const { data: config, sync: syncConfig } = configStore();
 
   useEffect(() => {
@@ -88,7 +93,11 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
 
   return (
     <div>
-      <Modal onRequestClose={onRequestClose} isOpen={isOpen} title={title}>
+      <Modal
+        onRequestClose={() => onRequestClose(modalIdentity)}
+        isOpen={isOpen}
+        title={title}
+      >
         <Form {...form}>
           <FormBody>
             <Row>
@@ -189,7 +198,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
             {/* <Tabbable> */}
             <Button
               tabIndex={0}
-              onClick={() => onRequestClose()}
+              onClick={() => onRequestClose(modalIdentity)}
               hierarchy="secondary"
             >
               Cancel

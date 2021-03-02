@@ -13,3 +13,10 @@ export interface SideBarMenuItem {
   id: Lowercase<keyof typeof Entities>;
   icon: RadixIconTypes;
 }
+
+export type ActiveModalState = 'expnanded' | 'tucked' | 'closed';
+
+export interface ActiveModal {
+  id: string;
+  state: ActiveModalState;
+}
