@@ -10,6 +10,7 @@ interface Props extends MenuItemOptions {
   to?: string;
   href?: string;
   target?: '_blank';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   as?: string | React.ComponentType<any>;
   closeOnClick?: boolean;
 }

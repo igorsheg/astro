@@ -1,5 +1,5 @@
 import set from 'lodash/set';
-import { transparentize } from 'polished';
+import { invert, transparentize } from 'polished';
 import React, { FC, useEffect } from 'react';
 import {
   unstable_Combobox as Combobox,
@@ -13,12 +13,13 @@ import {
   unstable_FormInput as FormInput,
   unstable_FormLabel as FormLabel,
   unstable_FormMessage as FormMessage,
-  unstable_FormSubmitButton as FormSubmitButton,
   unstable_useFormState as useFormState,
 } from 'reakit/Form';
+import Button from 'src/components/button';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import styled from 'styled-components';
+import { configStore } from 'src/stores';
+import styled, { css } from 'styled-components';
 import { Asserts, object, string, ValidationError } from 'yup';
 
 interface NewServiceModalProps {
@@ -32,9 +33,17 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   isOpen,
   onRequestClose,
 }) => {
+  const { data: config, sync: syncConfig } = configStore();
+
+  useEffect(() => {
+    syncConfig();
+  }, []);
+
   const schema = object({
     name: string().required('Naming your service is requiered'),
     url: string().url().required('Linking you service is reqieried'),
+    category: string().required('Naming your service is requiered'),
+    // category: string().is(['home-media'], 'asdasd').,
   });
 
   function validateWithYup(yupSchema: typeof schema) {
@@ -69,15 +78,13 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
     inline: true,
     autoSelect: true,
     gutter: 8,
-    // if you comment the next line, positioning is always OK
-    // minValueLength: 0,
   });
 
   useEffect(() => {
-    if (combobox.currentValue) {
-      form.values.category = combobox.currentValue;
+    if (combobox.currentId) {
+      form.update('category', combobox.currentId);
     }
-  }, [combobox.currentValue]);
+  }, [combobox.currentId]);
 
   return (
     <div>
@@ -91,12 +98,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
               </RowLabel>
 
               <RowContent>
-                <FormInput
-                  name="name"
-                  tabIndex={0}
-                  {...form}
-                  placeholder="E.g. 'Plex'"
-                />
+                <FormInput name="name" {...form} placeholder="E.g. 'Plex'" />
               </RowContent>
             </Row>
             <Padder y={18} />
@@ -110,7 +112,6 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                 <FormInput
                   as="textarea"
                   name="description"
-                  tabIndex={0}
                   {...form}
                   placeholder="E.g. 'My home media server'"
                 />
@@ -128,7 +129,6 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
               <RowContent>
                 <FormInput
                   name="url"
-                  tabIndex={0}
                   {...form}
                   placeholder="E.g. https://www.plex.tv"
                 />
@@ -144,52 +144,30 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
               </RowLabel>
 
               <RowContent>
-                <Select
-                  {...combobox}
-                  name="category"
-                  aria-label="Fruit"
-                  placeholder="Enter a fruit"
-                />
-                <ComboboxPopover {...combobox} aria-label="Fruits">
-                  <ComboboxOption
-                    {...form}
+                <Select>
+                  <Combobox
                     {...combobox}
-                    key="asdasd"
-                    value={'asdasdas'}
+                    {...form}
+                    name="category"
+                    type="select"
+                    aria-label="Category"
+                    placeholder="Select Category"
                   />
-                </ComboboxPopover>
 
-                {/* <MenuButton {...menu}>
-                  {props => (
-                    <FormInput
-                      name="category"
-                      tabIndex={0}
-                      {...form}
-                      {...props}
-                      placeholder="E.g. https://www.plex.tv"
-                    />
-                  )}
-                </MenuButton>
-                <ContextMenu aria-label="Manage Astro Menu" {...menu}>
-                  <MenuItem {...menu}>New Service</MenuItem>
-                  <MenuItem {...menu}>New Category</MenuItem>
-                  <MenuItem {...menu}>New Note</MenuItem>
-
-
-
-
-                </ContextMenu> */}
-
-                {/* <FormInput
-                  type="select"
-                  name="category"
-                  tabIndex={0}
-                  {...form}
-                  placeholder="E.g. https://www.plex.tv"
-                >
-                  <option value="asdas">asdasdasd</option>
-                  <option value="asdas2">asdasdasdasdas</option>
-                </FormInput> */}
+                  <ComboboxPopover {...combobox} aria-label="Categories">
+                    {config &&
+                      config.categories &&
+                      config.categories.length &&
+                      config.categories.map(category => (
+                        <ComboboxOption
+                          key={category.id}
+                          id={category.id}
+                          value={category.name}
+                          {...combobox}
+                        />
+                      ))}
+                  </ComboboxPopover>
+                </Select>
               </RowContent>
             </Row>
 
@@ -207,71 +185,98 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
               </RowContent>
             </Row>
           </FormBody>
-          <FormSubmitButton {...form}>Submit</FormSubmitButton>
+          <FormFooter>
+            {/* <Tabbable> */}
+            <Button
+              tabIndex={0}
+              onClick={() => onRequestClose()}
+              hierarchy="secondary"
+            >
+              Cancel
+            </Button>
+
+            <Padder x={12} />
+
+            <Button
+              role="button"
+              {...form}
+              tabIndex={0}
+              type="submit"
+              hierarchy="primary"
+              onClick={() => form.submit()}
+            >
+              Submit
+            </Button>
+          </FormFooter>
         </Form>
       </Modal>
     </div>
   );
 };
 
-const Select = styled(Combobox)`
-  [role='combobox'] {
-    font-family: var(--font-family);
-    font-size: var(--font-size);
-    background-color: var(--combobox-background);
-    color: var(--combobox-color);
-    border: 1px solid var(--combobox-border);
-    border-radius: 4px;
-    height: 2.5em;
-    padding: 0 1em;
-    outline: 0;
-    width: 250px;
-    box-sizing: border-box;
-  }
+const lightStyles = css`
+  background: ${p => p.theme.background.primary};
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
+`;
 
-  [role='combobox']:focus {
-    border-color: var(--combobox-border-focus);
-    box-shadow: 0 0 0 1px var(--combobox-border-focus);
-  }
+const darkStyles = css`
+  background: ${p => p.theme.background.secondary};
+  box-shadow: 0 0 0 1px ${p => invert(p.theme.text.primary)},
+    0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
+`;
+
+const FormFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  box-shadow: inset 0 1px 0 0 ${p => p.theme.border.primary};
+  padding: 18px;
+`;
+
+const Select = styled.div`
+  display: flex;
+  width: 100%;
 
   [role='listbox'] {
-    font-family: var(--font-family);
-    font-size: var(--font-size);
-    background-color: var(--listbox-background);
-    color: var(--listbox-color);
-    width: 250px;
-    z-index: 999;
-    padding: 1em;
+    ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};
+    width: 100%;
+    border-radius: 6px;
+    z-index: 991;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
     box-sizing: border-box;
-    border-radius: 4px;
-    box-shadow: 0 0 8px var(--listbox-shadow-50),
-      0 10px 10px -5px var(--listbox-shadow-50),
-      0 20px 25px -5px var(--listbox-shadow-100);
+    /* min-height: min-content; */
+    /* height: 300px; */
+    padding: 6px;
+    position: relative;
   }
 
   [role='option'] {
-    cursor: default;
-    padding: 0.5em;
-    margin: 0 -0.5em;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    padding: 0 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    position: relative;
     border-radius: 4px;
   }
 
-  [role='option']:first-child {
-    margin-top: -0.5em;
-  }
-
-  [role='option']:last-child {
-    margin-bottom: -0.5em;
-  }
-
   [role='option']:hover {
-    background-color: var(--option-background-hover);
+    color: white;
+    background: ${p => p.theme.accent.primary};
+    cursor: pointer;
   }
 
   [role='combobox']:focus + [role='listbox'] [aria-selected='true'] {
-    background-color: var(--option-background-focus);
+    color: white;
+    background: ${p => p.theme.accent.primary};
   }
 `;
+
 const Row = styled.div`
   display: flex;
   width: 100%;
@@ -305,7 +310,7 @@ const Row = styled.div`
     height: 72px;
   }
   div[role='alert'] {
-    color: #ff1a1a;
+    color: #ff453a;
     font-size: 12px;
     line-height: 12px;
     font-weight: 400;
@@ -333,6 +338,7 @@ const RowLabel = styled(FormLabel)`
 const FormBody = styled.div`
   display: flex;
   flex-direction: column;
+  padding: 18px;
 `;
 
 const CheckBoxWrapper = styled.div`

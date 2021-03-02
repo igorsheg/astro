@@ -1,8 +1,7 @@
 import { useRouter } from 'next/router';
 import React, { FC } from 'react';
-import { useSpring } from 'react-spring';
 import TopbarMenu from 'src/menus/topbar-menu';
-import { configStore, localSrorageStore, uiStore } from 'src/stores';
+import { configStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
 import Button from '../button';
 import Flex from '../flex';
@@ -10,7 +9,6 @@ import Padder from '../padder';
 
 const Actions: FC = () => {
   const { data: config } = configStore();
-  const { activeTheme, setLocalStorage } = localSrorageStore();
   const { activeSidebarMenuItem } = uiStore();
 
   const router = useRouter();
@@ -23,6 +21,8 @@ const Actions: FC = () => {
     <Flex style={{ zIndex: 999999991 }}>
       <Devider />
       <Button
+        type="button"
+        tabIndex={0}
         onClick={() =>
           router.push(`/manage/${activeSidebarMenuItem || 'service'}`)
         }

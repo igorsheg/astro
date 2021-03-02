@@ -19,7 +19,7 @@ const ContextMenu: FC<Props> = ({ children, ...rest }) => {
   React.useEffect(() => {
     setAnimation({
       opacity: rest.visible ? 1 : 0,
-      transform: `translateY(${rest.visible ? '0' : '-2px'})`,
+      transform: `translateY(${rest.visible ? '0px' : '-2px'})`,
     });
   }, [rest.visible]);
 
@@ -37,6 +37,7 @@ const ContextMenu: FC<Props> = ({ children, ...rest }) => {
 const Position = styled(animated.div)`
   position: absolute;
   z-index: 9991;
+  top: 0px;
 `;
 
 const lightStyles = css`
@@ -56,8 +57,6 @@ const Background = styled(animated.div)`
   border-radius: 6px;
   padding: 6px;
   min-width: 144px;
-  /* overflow: hidden; */
-  /* overflow-y: auto; */
   max-height: 75vh;
   max-width: 276px;
   pointer-events: all;

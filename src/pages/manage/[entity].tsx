@@ -4,7 +4,7 @@ import * as Entities from 'server/entities';
 import { SideBarMenuItem } from 'shared/types/internal';
 import Flex from 'src/components/flex';
 import Padder from 'src/components/padder';
-import { Panel, Sidebar } from 'src/components/sidebar';
+import { Sidebar } from 'src/components/sidebar';
 import ManageServiceList from 'src/scences/manage/service';
 import { configStore, localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
@@ -30,7 +30,7 @@ const SCENCES: ManageScences[] = [
 const Index: FC = () => {
   const { activeTheme } = localSrorageStore();
   const { data: config } = configStore();
-  const { setUiStore, activeSidebarMenuItem } = uiStore();
+  const { setUiStore } = uiStore();
 
   const router = useRouter();
 
