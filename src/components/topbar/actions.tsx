@@ -19,9 +19,8 @@ const Actions: FC = () => {
 
   return (
     <Flex style={{ zIndex: 999999991 }}>
-      <Devider />
+      {/* <Devider /> */}
       <Button
-        type="button"
         tabIndex={0}
         onClick={() =>
           router.push(`/manage/${activeSidebarMenuItem || 'service'}`)

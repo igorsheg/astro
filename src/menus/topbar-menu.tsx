@@ -30,6 +30,8 @@ const TopbarMenu: FC = () => {
         {props => (
           <Button
             hierarchy="secondary"
+            as="div"
+            tabIndex={0}
             aria-label="View Service Menu"
             {...props}
           >
