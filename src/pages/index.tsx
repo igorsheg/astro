@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC } from 'react';
+import React, { ChangeEvent, FC, useCallback, useEffect } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Category, Service } from 'server/entities';
 import Flex from 'src/components/flex';
@@ -18,6 +18,10 @@ const Index: FC = () => {
     return null;
   }
 
+  useEffect(() => {
+    console.log('Changes!');
+  }, [config]);
+
   const transitions = useTransition(activeTab, item => item, {
     from: {
       transform: 'translate3d(0,15px,0)',
@@ -34,9 +38,14 @@ const Index: FC = () => {
     config: { tension: 500, friction: 30 },
   });
 
-  const categoriesWithAllTab = servicesUtils(
-    config.categories,
-  ).getAllTabServices({ withRest: true });
+  const categoriesWithAllTab = useCallback(() => {
+    return servicesUtils(config.categories).getAllTabServices({
+      withRest: true,
+    });
+  }, [config]);
+  // const categoriesWithAllTab = servicesUtils(
+  //   config.categories,
+  // ).getAllTabServices({ withRest: true });
 
   const onCategoryClickHandler = (category: Category['id']) => {
     setUiStore(d => {
@@ -50,10 +59,13 @@ const Index: FC = () => {
     });
   };
 
+  const ctxItems = categoriesWithAllTab().find(c => c.id === activeTab)
+    ?.services as Service[];
+
   return (
     <>
       <NavBar
-        catagories={categoriesWithAllTab}
+        catagories={categoriesWithAllTab()}
         activeCategory={activeTab}
         onCategoryClick={onCategoryClickHandler}
         searchTerm={searchTerm}
@@ -66,12 +78,7 @@ const Index: FC = () => {
           <div>
             {transitions.map(({ item, props, key }) => (
               <AnimatedWrap key={key} style={props}>
-                <ServiceList
-                  items={
-                    categoriesWithAllTab.find(c => c.id === item)
-                      ?.services as Service[]
-                  }
-                />
+                <ServiceList items={ctxItems} />
               </AnimatedWrap>
             ))}
           </div>

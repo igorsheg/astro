@@ -14,7 +14,7 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
       <a href={item.url} target={item.target}>
         <StyledCard>
           <Title>
-            <img src={item.logo} />
+            <img src={'logos' + '/' + item.logo} />
             <Description>
               <h4>{item.name}</h4>
               <p>{item.url}</p>

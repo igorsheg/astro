@@ -1,7 +1,14 @@
 import { Cross2Icon, MinusIcon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
-import React, { useLayoutEffect, useState } from 'react';
-import { FC, ReactNode, ReactText, useEffect, useRef } from 'react';
+import React, {
+  FC,
+  ReactNode,
+  ReactText,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { animated, interpolate, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
 import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
@@ -67,7 +74,6 @@ const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
     {
       enabled: !isTucked,
       domTarget: ref,
-      // rubberband: true,
       bounds: {
         left: -(getWindowDimensions().width - 600),
         right: getWindowDimensions().width - 600,

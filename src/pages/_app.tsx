@@ -7,7 +7,6 @@ import { Theme } from 'server/entities';
 import { ActiveModal } from 'shared/types/internal';
 import Loader from 'src/components/fullpage-loader';
 import { PageTransition } from 'src/components/page-transition';
-// import NewServiceModal from 'src/modals/new-service';
 import {
   configStore,
   localSrorageStore,
@@ -49,13 +48,12 @@ const MyApp = () => {
     setUiStore(d => {
       const ctxModalIndex = d.activeModals.findIndex(m => m.id === modal.id);
       d.activeModals[ctxModalIndex].state = 'closed';
-      // d.activeModals.push(modal);
     });
   };
 
-  useEffect(() => {
-    console.log(activeModals);
-  }, [activeModals]);
+  const isModalOpen = (id: ActiveModal['id']) => {
+    return activeModals.find(modal => modal.id === id)?.state === 'expnanded';
+  };
 
   return (
     <>
@@ -75,16 +73,11 @@ const MyApp = () => {
       </Head>
       <ThemeProvider theme={ctxTheme as Theme}>
         <GlobalStyle />
-
         <NewServiceModal
           onRequestClose={modalCloseRequest}
-          isOpen={
-            activeModals.find(modal => modal.id === 'new-service')?.state ===
-            'expnanded'
-          }
+          isOpen={isModalOpen('new-service')}
           title="Create New Service"
         />
-
         {!configData || !mounted ? (
           <Loader />
         ) : (

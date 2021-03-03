@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 import Router from '@koa/router';
 import Koa from 'koa';
-import bodyParser from 'koa-bodyparser';
+import koaBody from 'koa-body';
 import koaConnect from 'koa-connect';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
@@ -13,6 +13,7 @@ import nextapp from './nextapp';
 import apiRouter from './routes/api';
 import appRouter from './routes/app';
 import compression from 'compression';
+import path from 'path';
 
 nextapp.prepare().then(async () => {
   const server = new Koa();
@@ -22,7 +23,17 @@ nextapp.prepare().then(async () => {
   server.use(koaConnect(compression()));
 
   server.use(logger(winston));
-  server.use(bodyParser());
+  server.use(
+    koaBody({
+      multipart: true,
+      formidable: {
+        multiples: false,
+        uploadDir: path.join(process.cwd(), 'public/logos'),
+        keepExtensions: true,
+        maxFieldsSize: 2 * 1024 * 1024,
+      },
+    }),
+  );
 
   await createConnection(serverConfig.dbConnectionOptions);
 
