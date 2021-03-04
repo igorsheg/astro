@@ -25,8 +25,8 @@ const trans = ([x, y]: [number, number]) => `translate3d(${x}px, ${y}px, 0)`;
 
 interface ModalProps {
   title: ReactText | ReactNode;
-  modalIdentity: ModalIdentity;
-  onRequestClose: (modal: ModalIdentity) => void;
+  modalIdentity: ModalIdentity<unknown>;
+  onRequestClose: (modal: ModalIdentity<unknown>) => void;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -88,16 +88,16 @@ const Modal: FC<ModalProps> = ({
     {
       enabled: !isTucked,
       domTarget: ref,
-      bounds: {
-        left: -(getWindowDimensions().width - 600),
-        right: getWindowDimensions().width - 600,
-        top: -(
-          getWindowDimensions().height -
-          (getModalDimentions().height + 300 || 0)
-        ),
-        bottom:
-          getWindowDimensions().height - (getModalDimentions().height || 0),
-      },
+      // bounds: {
+      //   left: -(getWindowDimensions().width - 600),
+      //   right: getWindowDimensions().width - 600,
+      //   top: -(
+      //     getWindowDimensions().height -
+      //     (getModalDimentions().height + 300 || 0)
+      //   ),
+      //   bottom:
+      //     getWindowDimensions().height - (getModalDimentions().height || 0),
+      // },
     },
   );
 

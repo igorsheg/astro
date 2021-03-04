@@ -4,18 +4,12 @@ import * as Entities from 'server/entities';
 import { ModalIdentity } from 'shared/types/internal';
 import create, { State } from 'zustand';
 
-// const MODALS = {
-//   newService: {
-
-//   }
-// }
-
 interface SessionStorageProps extends State {
   activeTab: Entities.Category['id'];
   activeSidebarMenuItem: Lowercase<keyof typeof Entities>;
   searchTerm: string;
   setUiStore: (fn: (draft: SessionStorageProps) => void) => void;
-  activeModals: ModalIdentity[];
+  activeModals: ModalIdentity<any>[];
 }
 
 const uiStore = create<SessionStorageProps>(set => ({

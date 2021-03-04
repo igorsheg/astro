@@ -14,9 +14,16 @@ export interface SideBarMenuItem {
   icon: RadixIconTypes;
 }
 
+export enum ModalTypes {
+  'new-service' = 'new-service',
+  'new-category' = 'new-category',
+}
 export type ModalState = 'expnanded' | 'tucked' | 'closed';
 
-export interface ModalIdentity {
+export interface ModalIdentity<T> {
   id: string;
+  label: ModalTypes;
+  title?: string;
   state: ModalState;
+  data?: T;
 }
