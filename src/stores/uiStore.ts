@@ -1,7 +1,7 @@
 import produce from 'immer';
 import { SAMPLE_CATEGORIES } from 'server/config/seed-data';
 import * as Entities from 'server/entities';
-import { ActiveModal } from 'shared/types/internal';
+import { ModalIdentity } from 'shared/types/internal';
 import create, { State } from 'zustand';
 
 // const MODALS = {
@@ -15,7 +15,7 @@ interface SessionStorageProps extends State {
   activeSidebarMenuItem: Lowercase<keyof typeof Entities>;
   searchTerm: string;
   setUiStore: (fn: (draft: SessionStorageProps) => void) => void;
-  activeModals: ActiveModal[];
+  activeModals: ModalIdentity[];
 }
 
 const uiStore = create<SessionStorageProps>(set => ({

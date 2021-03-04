@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Context } from 'koa';
-interface FileUploadControllerProps {
-  upload: (ctx: Context) => Promise<any>;
-}
 
 interface ParsedUpload {
   mtime: string;
@@ -11,6 +8,10 @@ interface ParsedUpload {
   size: number;
   type: string;
 }
+interface FileUploadControllerProps {
+  upload: (ctx: Context) => Promise<ParsedUpload | undefined>;
+}
+
 export default (): FileUploadControllerProps => {
   const upload = async (ctx: Context) => {
     if (ctx.request.files) {

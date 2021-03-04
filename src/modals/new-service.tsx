@@ -17,29 +17,49 @@ import {
   unstable_useFormState as useFormState,
 } from 'reakit/Form';
 import { Category, Service } from 'server/entities';
-import { ActiveModal } from 'shared/types/internal';
+import { ModalIdentity } from 'shared/types/internal';
 import fetcher from 'shared/utils/fetcher';
 import Button from 'src/components/button';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { configStore, serviceStore } from 'src/stores';
+import { configStore } from 'src/stores';
 import styled, { css } from 'styled-components';
 import { Asserts, object, string, ValidationError } from 'yup';
 
 interface NewServiceModalProps {
   title: string;
   isOpen: boolean;
-  onRequestClose: (m: ActiveModal) => void;
+  onRequestClose: (m: ModalIdentity) => void;
 }
 
-const modalIdentity: ActiveModal = {
+const schema = object({
+  name: string().required('Naming your service is requiered'),
+  url: string().url().required('Linking you service is reqieried'),
+  category: string().required('Naming your service is requiered'),
+});
+
+function validateWithYup(yupSchema: typeof schema) {
+  return (values: Asserts<typeof schema>) =>
+    yupSchema
+      .validate(values, { abortEarly: false })
+      .then(() => null)
+      .catch((error: ValidationError) => {
+        if (error.inner.length) {
+          throw error.inner.reduce(
+            (acc, curr) => set(acc, curr.path as string, curr.message),
+            {},
+          );
+        }
+      });
+}
+
+const modalIdentity: ModalIdentity = {
   id: 'new-service',
   state: 'closed',
 };
 
 const NewServiceModal: FC<NewServiceModalProps> = ({
   title,
-  isOpen,
   onRequestClose,
 }) => {
   const { data: config, sync: syncConfig } = configStore();
@@ -51,27 +71,6 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       setLogoFile(null);
     };
   }, []);
-
-  const schema = object({
-    name: string().required('Naming your service is requiered'),
-    url: string().url().required('Linking you service is reqieried'),
-    category: string().required('Naming your service is requiered'),
-  });
-
-  function validateWithYup(yupSchema: typeof schema) {
-    return (values: Asserts<typeof schema>) =>
-      yupSchema
-        .validate(values, { abortEarly: false })
-        .then(() => null)
-        .catch((error: ValidationError) => {
-          if (error.inner.length) {
-            throw error.inner.reduce(
-              (acc, curr) => set(acc, curr.path as string, curr.message),
-              {},
-            );
-          }
-        });
-  }
 
   const form = useFormState({
     values: {
@@ -124,7 +123,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       logo: logoPath,
       category: config?.categories.find(c => c.id === category) as Category,
     };
-    fetcher(['Service'], { data: newService }).then(x => {
+    fetcher(['Service'], { data: newService }).then(() => {
       syncConfig();
       form.reset();
       setLogoFile(null);
@@ -147,160 +146,158 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   };
 
   return (
-    <div>
-      <Modal
-        onRequestClose={() => onRequestClose(modalIdentity)}
-        isOpen={isOpen}
-        title={title}
-      >
-        <Form {...form}>
-          <FormBody>
-            <Row>
-              <RowLabel>
-                <span>Name</span>
-                <FormMessage name="name" {...form} />
-              </RowLabel>
+    <Modal
+      onRequestClose={onRequestClose}
+      title={title}
+      modalIdentity={modalIdentity}
+    >
+      <Form {...form}>
+        <FormBody>
+          <Row>
+            <RowLabel>
+              <span>Name</span>
+              <FormMessage name="name" {...form} />
+            </RowLabel>
 
-              <RowContent>
-                <FormInput name="name" {...form} placeholder="E.g. 'Plex'" />
-              </RowContent>
-            </Row>
-            <Padder y={18} />
-            <Row>
-              <RowLabel>
-                <span>Description</span>
-                <FormMessage name="description" {...form} />
-              </RowLabel>
+            <RowContent>
+              <FormInput name="name" {...form} placeholder="E.g. 'Plex'" />
+            </RowContent>
+          </Row>
+          <Padder y={18} />
+          <Row>
+            <RowLabel>
+              <span>Description</span>
+              <FormMessage name="description" {...form} />
+            </RowLabel>
 
-              <RowContent>
-                <FormInput
-                  as="textarea"
-                  name="description"
+            <RowContent>
+              <FormInput
+                as="textarea"
+                name="description"
+                {...form}
+                placeholder="E.g. 'My home media server'"
+              />
+            </RowContent>
+          </Row>
+
+          <Padder y={18} />
+
+          <Row>
+            <RowLabel>
+              <span>Url</span>
+              <FormMessage name="url" {...form} />
+            </RowLabel>
+
+            <RowContent>
+              <FormInput
+                name="url"
+                {...form}
+                placeholder="E.g. https://www.plex.tv"
+              />
+            </RowContent>
+          </Row>
+
+          <Padder y={18} />
+
+          <Row>
+            <RowLabel>
+              <span>Category</span>
+              <FormMessage name="category" {...form} />
+            </RowLabel>
+
+            <RowContent>
+              <Select>
+                <Combobox
+                  {...combobox}
                   {...form}
-                  placeholder="E.g. 'My home media server'"
+                  name="category"
+                  type="select"
+                  aria-label="Category"
+                  placeholder="Select Category"
                 />
-              </RowContent>
-            </Row>
 
-            <Padder y={18} />
+                <ComboboxPopover {...combobox} aria-label="Categories">
+                  {config &&
+                    config.categories &&
+                    config.categories.length &&
+                    config.categories.map(category => (
+                      <ComboboxOption
+                        key={category.id}
+                        id={category.id}
+                        value={category.name}
+                        {...combobox}
+                      />
+                    ))}
+                </ComboboxPopover>
+              </Select>
+            </RowContent>
+          </Row>
 
-            <Row>
-              <RowLabel>
-                <span>Url</span>
-                <FormMessage name="url" {...form} />
-              </RowLabel>
+          <Padder y={18} />
 
-              <RowContent>
-                <FormInput
-                  name="url"
-                  {...form}
-                  placeholder="E.g. https://www.plex.tv"
-                />
-              </RowContent>
-            </Row>
+          <Row>
+            <RowLabel>
+              <span>Logo</span>
+              <FormMessage name="logo" {...form} />
+            </RowLabel>
 
-            <Padder y={18} />
-
-            <Row>
-              <RowLabel>
-                <span>Category</span>
-                <FormMessage name="category" {...form} />
-              </RowLabel>
-
-              <RowContent>
-                <Select>
-                  <Combobox
-                    {...combobox}
-                    {...form}
-                    name="category"
-                    type="select"
-                    aria-label="Category"
-                    placeholder="Select Category"
+            <RowContent>
+              <Upload>
+                <div role="imagePreview">
+                  <img ref={logoRef} src="logos/logoPlaceHolder.png" />
+                </div>
+                <Padder x={18} />
+                <label>
+                  <input
+                    type="file"
+                    name="logo"
+                    onChange={onChangeHandler}
+                    placeholder="E.g. https://www.plex.tv"
                   />
+                </label>
+              </Upload>
+            </RowContent>
+          </Row>
 
-                  <ComboboxPopover {...combobox} aria-label="Categories">
-                    {config &&
-                      config.categories &&
-                      config.categories.length &&
-                      config.categories.map(category => (
-                        <ComboboxOption
-                          key={category.id}
-                          id={category.id}
-                          value={category.name}
-                          {...combobox}
-                        />
-                      ))}
-                  </ComboboxPopover>
-                </Select>
-              </RowContent>
-            </Row>
+          <Padder y={18} />
 
-            <Padder y={18} />
+          <Row>
+            <RowLabel>
+              <span>Should it open in a new tab?</span>
+            </RowLabel>
+            <RowContent>
+              <CheckBoxWrapper>
+                <CheckBox {...form} name="target" />
+                <CheckBoxLabel {...form} name="target" />
+              </CheckBoxWrapper>
+            </RowContent>
+          </Row>
+        </FormBody>
+        <FormFooter>
+          {/* <Tabbable> */}
+          <Button
+            tabIndex={0}
+            onClick={() => onRequestClose(modalIdentity)}
+            hierarchy="secondary"
+          >
+            Cancel
+          </Button>
 
-            <Row>
-              <RowLabel>
-                <span>Logo</span>
-                <FormMessage name="logo" {...form} />
-              </RowLabel>
+          <Padder x={12} />
 
-              <RowContent>
-                <Upload>
-                  <div role="imagePreview">
-                    <img ref={logoRef} src="logoPlaceHolder.png" />
-                  </div>
-                  <Padder x={18} />
-                  <label>
-                    <input
-                      type="file"
-                      name="logo"
-                      onChange={onChangeHandler}
-                      placeholder="E.g. https://www.plex.tv"
-                    />
-                  </label>
-                </Upload>
-              </RowContent>
-            </Row>
-
-            <Padder y={18} />
-
-            <Row>
-              <RowLabel>
-                <span>Should it open in a new tab?</span>
-              </RowLabel>
-              <RowContent>
-                <CheckBoxWrapper>
-                  <CheckBox {...form} name="target" />
-                  <CheckBoxLabel {...form} name="target" />
-                </CheckBoxWrapper>
-              </RowContent>
-            </Row>
-          </FormBody>
-          <FormFooter>
-            {/* <Tabbable> */}
-            <Button
-              tabIndex={0}
-              onClick={() => onRequestClose(modalIdentity)}
-              hierarchy="secondary"
-            >
-              Cancel
-            </Button>
-
-            <Padder x={12} />
-
-            <Button
-              role="button"
-              {...form}
-              tabIndex={0}
-              type="submit"
-              hierarchy="primary"
-              onClick={submitFormHandler}
-            >
-              Submit
-            </Button>
-          </FormFooter>
-        </Form>
-      </Modal>
-    </div>
+          <Button
+            role="button"
+            {...form}
+            tabIndex={0}
+            type="submit"
+            hierarchy="primary"
+            onClick={submitFormHandler}
+          >
+            Submit
+          </Button>
+        </FormFooter>
+      </Form>
+    </Modal>
   );
 };
 

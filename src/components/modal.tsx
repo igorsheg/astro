@@ -1,4 +1,4 @@
-import { Cross2Icon, MinusIcon } from '@radix-ui/react-icons';
+import { Cross2Icon, MinusIcon, SizeIcon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
 import React, {
   FC,
@@ -12,25 +12,39 @@ import React, {
 import { animated, interpolate, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
 import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
+import { ModalIdentity } from 'shared/types/internal';
+import { uiStore } from 'src/stores';
 import styled, { css } from 'styled-components';
 import Button from './button';
 import Flex from './flex';
 import Padder from './padder';
 import Tooltip from './tooltip';
+import { VisuallyHidden } from 'reakit/VisuallyHidden';
 
 const trans = ([x, y]: [number, number]) => `translate3d(${x}px, ${y}px, 0)`;
 
 interface ModalProps {
   title: ReactText | ReactNode;
-  isOpen: boolean;
-  onRequestClose: () => void;
+  modalIdentity: ModalIdentity;
+  onRequestClose: (modal: ModalIdentity) => void;
 }
-const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
+
+const Modal: FC<ModalProps> = ({
+  title,
+  onRequestClose,
+  children,
+  modalIdentity,
+}) => {
   const dialog = useDialogState({ animated: 240 });
-  const [isTucked, setTucked] = useState(false);
+  const { activeModals, setUiStore } = uiStore();
 
   const modalRef = useRef<HTMLDivElement>();
   const ref = useRef<HTMLDivElement>(null);
+
+  const isTucked =
+    activeModals.find(m => m.id === modalIdentity.id)?.state === 'tucked';
+  const isOpen =
+    activeModals.find(m => m.id === modalIdentity.id)?.state === 'expnanded';
 
   const getModalDimentions = () => {
     if (modalRef && modalRef.current) {
@@ -94,76 +108,78 @@ const Modal: FC<ModalProps> = ({ isOpen, title, onRequestClose, children }) => {
   }));
 
   useEffect(() => {
-    setEnterAnimation({
-      opacity: 1,
-      transform: isOpen ? 'translateY(0px)' : 'translateY(15px)',
-    });
-    dialog.setVisible(isOpen);
-    return () => {
-      setTucked(false);
-    };
-  }, [isOpen]);
-
-  const onRequestHide = () => {
-    setTucked(!isTucked);
-    const tuck = `translateY(${
+    const tucked = `translateY(${
       getWindowDimensions().height - getModalDimentions().y - 60
     }px)`;
-    const view = `translateY(0px)`;
+    const expanded = `translateY(0px)`;
+    const collapsed = `translateY(15px)`;
 
     setEnterAnimation({
-      transform: isTucked ? view : tuck,
+      transform: isOpen ? expanded : isTucked ? tucked : collapsed,
+      opacity: isOpen || isTucked ? 1 : 0,
+    });
+    dialog.setVisible(isOpen || isTucked);
+  }, [isTucked, isOpen]);
+
+  const onRequestHide = () => {
+    setUiStore(d => {
+      const ctxModal = activeModals.findIndex(m => m.id === modalIdentity.id);
+      d.activeModals[ctxModal].state = isTucked ? 'expnanded' : 'tucked';
     });
   };
 
   return (
-    <>
-      <Blanket isTucked={isTucked} {...dialog}>
-        <animated.div style={enterAnimation}>
-          <StyledModal
-            ref={modalRef}
-            hideOnEsc={true}
-            hideOnClickOutside={false}
-            style={{
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              transform: interpolate([coord] as any, trans as any),
-            }}
-            aria-label={`${title} Modal`}
-            {...bindCanvas}
-            {...dialog}
-          >
-            <Header ref={ref}>
-              <Flex>
-                <Tooltip tabIndex={-1} label="Close modal">
-                  <Button
-                    style={{ width: '30px', padding: 0 }}
-                    tabIndex={-1}
-                    hierarchy="ternary"
-                    onClick={onRequestClose}
-                  >
-                    <Cross2Icon />
-                  </Button>
-                </Tooltip>
+    <Blanket isTucked={isTucked} {...dialog}>
+      <animated.div style={enterAnimation}>
+        <StyledModal
+          ref={modalRef}
+          hideOnEsc={true}
+          hideOnClickOutside={false}
+          style={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            transform: interpolate([coord] as any, trans as any),
+          }}
+          aria-label={`${title} Modal`}
+          {...bindCanvas}
+          {...dialog}
+        >
+          <Header ref={ref}>
+            <Flex>
+              <Tooltip tabIndex={-1} label="Close modal">
+                <Button
+                  style={{ width: '30px', padding: 0 }}
+                  tabIndex={-1}
+                  hierarchy="ternary"
+                  onClick={() => onRequestClose(modalIdentity)}
+                >
+                  <Cross2Icon />
+                </Button>
+              </Tooltip>
 
-                <Tooltip tabIndex={-1} label="Minimize modal">
-                  <Button
-                    style={{ width: '30px', padding: 0 }}
-                    tabIndex={-1}
-                    hierarchy="ternary"
-                    onClick={onRequestHide}
-                  >
-                    <MinusIcon />
-                  </Button>
-                </Tooltip>
-              </Flex>
-              <h1>{title}</h1>
-              <Padder x={30} />
-            </Header>
-            <Body>{children}</Body>
-          </StyledModal>
-        </animated.div>
-      </Blanket>
-    </>
+              <Tooltip
+                tabIndex={-1}
+                label={isTucked ? 'Expand modal' : 'Hide modal'}
+              >
+                <Button
+                  style={{ width: '30px', padding: 0 }}
+                  tabIndex={-1}
+                  hierarchy="ternary"
+                  onClick={onRequestHide}
+                >
+                  {isTucked ? <SizeIcon /> : <MinusIcon />}
+                </Button>
+              </Tooltip>
+            </Flex>
+            <h1>{title}</h1>
+            <Padder x={30} />
+          </Header>
+
+          <Body>
+            {isTucked ? <VisuallyHidden>{children}</VisuallyHidden> : children}
+          </Body>
+        </StyledModal>
+      </animated.div>
+    </Blanket>
   );
 };
 

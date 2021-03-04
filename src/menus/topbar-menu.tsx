@@ -1,24 +1,18 @@
 import * as RadixIcons from '@radix-ui/react-icons';
-import dynamic from 'next/dynamic';
-import React, { FC, forwardRef, useState } from 'react';
+import React, { FC, forwardRef } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { ContextMenu, MenuItem } from 'src/components/menu';
 import { localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
-import NewServiceModal from 'src/modals/new-service';
-// const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
-//   ssr: false,
-// });
 
 const TopbarMenu: FC = () => {
-  const { activeModals, setUiStore } = uiStore();
+  const { setUiStore } = uiStore();
   const menu = useMenuState({
     animated: 120,
     modal: false,
   });
-  const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
 
   return (
     <>

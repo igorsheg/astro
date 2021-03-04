@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useCallback, useEffect } from 'react';
+import React, { ChangeEvent, FC, useCallback } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Category, Service } from 'server/entities';
 import Flex from 'src/components/flex';
@@ -17,10 +17,6 @@ const Index: FC = () => {
   if (!config) {
     return null;
   }
-
-  useEffect(() => {
-    console.log('Changes!');
-  }, [config]);
 
   const transitions = useTransition(activeTab, item => item, {
     from: {
@@ -76,7 +72,7 @@ const Index: FC = () => {
         <Grid>
           <Padder y={18} />
           <div>
-            {transitions.map(({ item, props, key }) => (
+            {transitions.map(({ props, key }) => (
               <AnimatedWrap key={key} style={props}>
                 <ServiceList items={ctxItems} />
               </AnimatedWrap>

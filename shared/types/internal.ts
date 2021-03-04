@@ -14,9 +14,9 @@ export interface SideBarMenuItem {
   icon: RadixIconTypes;
 }
 
-export type ActiveModalState = 'expnanded' | 'tucked' | 'closed';
+export type ModalState = 'expnanded' | 'tucked' | 'closed';
 
-export interface ActiveModal {
+export interface ModalIdentity {
   id: string;
-  state: ActiveModalState;
+  state: ModalState;
 }

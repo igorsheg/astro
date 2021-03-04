@@ -4,7 +4,7 @@ import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
-import { ActiveModal } from 'shared/types/internal';
+import { ModalIdentity } from 'shared/types/internal';
 import Loader from 'src/components/fullpage-loader';
 import { PageTransition } from 'src/components/page-transition';
 import {
@@ -44,14 +44,14 @@ const MyApp = () => {
     mount(!!configData);
   }, [configData]);
 
-  const modalCloseRequest = (modal: ActiveModal) => {
+  const modalCloseRequest = (modal: ModalIdentity) => {
     setUiStore(d => {
       const ctxModalIndex = d.activeModals.findIndex(m => m.id === modal.id);
       d.activeModals[ctxModalIndex].state = 'closed';
     });
   };
 
-  const isModalOpen = (id: ActiveModal['id']) => {
+  const isModalOpen = (id: ModalIdentity['id']) => {
     return activeModals.find(modal => modal.id === id)?.state === 'expnanded';
   };
 

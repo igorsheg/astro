@@ -6,7 +6,7 @@ import path from 'path';
 interface ControllerReturnProps {
   list: (ctx: Context) => Promise<Service[] | undefined>;
   get: (ctx: Context) => Promise<Service | undefined>;
-  post: (ctx: Context) => Promise<any>;
+  post: (ctx: Context) => Promise<Service | undefined>;
 }
 
 export default (): ControllerReturnProps => {
@@ -30,8 +30,6 @@ export default (): ControllerReturnProps => {
 
   const post = async (ctx: Context) => {
     const reqBody: Service = ctx.request.body;
-
-    const logoNameByPath = (reqBody.logo as string).split('/');
 
     const draftService = serviceRepo.create({
       ...reqBody,
