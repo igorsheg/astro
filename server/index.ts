@@ -14,6 +14,7 @@ import apiRouter from './routes/api';
 import appRouter from './routes/app';
 import compression from 'compression';
 import path from 'path';
+import serve from 'koa-static';
 
 nextapp.prepare().then(async () => {
   const server = new Koa();
@@ -21,6 +22,8 @@ nextapp.prepare().then(async () => {
 
   //@ts-ignore
   server.use(koaConnect(compression()));
+
+  server.use(serve('./public/logos'));
 
   server.use(logger(winston));
   server.use(
