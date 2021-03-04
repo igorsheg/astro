@@ -18,6 +18,8 @@
 .DS_Store
 *.pem
 *.sqlite3
+public/logos/*
+!public/logos/logoPlaceHolder.png
 
 # debug
 npm-debug.log*

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC } from 'react';
+import React, { ChangeEvent, FC, useCallback } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Category, Service } from 'server/entities';
 import Flex from 'src/components/flex';
@@ -34,9 +34,14 @@ const Index: FC = () => {
     config: { tension: 500, friction: 30 },
   });
 
-  const categoriesWithAllTab = servicesUtils(
-    config.categories,
-  ).getAllTabServices({ withRest: true });
+  const categoriesWithAllTab = useCallback(() => {
+    return servicesUtils(config.categories).getAllTabServices({
+      withRest: true,
+    });
+  }, [config]);
+  // const categoriesWithAllTab = servicesUtils(
+  //   config.categories,
+  // ).getAllTabServices({ withRest: true });
 
   const onCategoryClickHandler = (category: Category['id']) => {
     setUiStore(d => {
@@ -50,10 +55,13 @@ const Index: FC = () => {
     });
   };
 
+  const ctxItems = categoriesWithAllTab().find(c => c.id === activeTab)
+    ?.services as Service[];
+
   return (
     <>
       <NavBar
-        catagories={categoriesWithAllTab}
+        catagories={categoriesWithAllTab()}
         activeCategory={activeTab}
         onCategoryClick={onCategoryClickHandler}
         searchTerm={searchTerm}
@@ -64,14 +72,9 @@ const Index: FC = () => {
         <Grid>
           <Padder y={18} />
           <div>
-            {transitions.map(({ item, props, key }) => (
+            {transitions.map(({ props, key }) => (
               <AnimatedWrap key={key} style={props}>
-                <ServiceList
-                  items={
-                    categoriesWithAllTab.find(c => c.id === item)
-                      ?.services as Service[]
-                  }
-                />
+                <ServiceList items={ctxItems} />
               </AnimatedWrap>
             ))}
           </div>

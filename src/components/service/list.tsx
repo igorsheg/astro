@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useCallback } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Service } from 'server/entities';
 import { uiStore } from 'src/stores';
@@ -11,14 +11,12 @@ interface ServiceListProps {
 }
 const ServiceList: FC<ServiceListProps> = ({ items }) => {
   const { searchTerm } = uiStore();
-  const [localData, setLocalData] = useState(items);
 
-  useEffect(() => {
-    const filteredData = filterServicesItems(items, searchTerm);
-    setLocalData(!searchTerm.length ? items : filteredData || []);
-  }, [searchTerm]);
+  const filteredData = useCallback(() => {
+    return filterServicesItems(items, searchTerm);
+  }, [searchTerm, items]);
 
-  const transitions = useTransition(localData, item => item.name, {
+  const transitions = useTransition(filteredData(), item => item.name, {
     from: { transform: 'translate3d(0,15px,0)', opacity: 0 },
     enter: {
       transform: 'translate3d(0,0px,0)',

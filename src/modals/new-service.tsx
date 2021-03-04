@@ -1,6 +1,7 @@
+import axios from 'axios';
 import set from 'lodash/set';
 import { invert, transparentize } from 'polished';
-import React, { FC, useEffect } from 'react';
+import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import {
   unstable_Combobox as Combobox,
   unstable_ComboboxOption as ComboboxOption,
@@ -15,6 +16,9 @@ import {
   unstable_FormMessage as FormMessage,
   unstable_useFormState as useFormState,
 } from 'reakit/Form';
+import { Category, Service } from 'server/entities';
+import { ModalIdentity } from 'shared/types/internal';
+import fetcher from 'shared/utils/fetcher';
 import Button from 'src/components/button';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
@@ -25,41 +29,48 @@ import { Asserts, object, string, ValidationError } from 'yup';
 interface NewServiceModalProps {
   title: string;
   isOpen: boolean;
-  onRequestClose: () => void;
+  onRequestClose: (m: ModalIdentity) => void;
 }
+
+const schema = object({
+  name: string().required('Naming your service is requiered'),
+  url: string().url().required('Linking you service is reqieried'),
+  category: string().required('Naming your service is requiered'),
+});
+
+function validateWithYup(yupSchema: typeof schema) {
+  return (values: Asserts<typeof schema>) =>
+    yupSchema
+      .validate(values, { abortEarly: false })
+      .then(() => null)
+      .catch((error: ValidationError) => {
+        if (error.inner.length) {
+          throw error.inner.reduce(
+            (acc, curr) => set(acc, curr.path as string, curr.message),
+            {},
+          );
+        }
+      });
+}
+
+const modalIdentity: ModalIdentity = {
+  id: 'new-service',
+  state: 'closed',
+};
 
 const NewServiceModal: FC<NewServiceModalProps> = ({
   title,
-  isOpen,
   onRequestClose,
 }) => {
   const { data: config, sync: syncConfig } = configStore();
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   useEffect(() => {
     syncConfig();
+    return () => {
+      setLogoFile(null);
+    };
   }, []);
-
-  const schema = object({
-    name: string().required('Naming your service is requiered'),
-    url: string().url().required('Linking you service is reqieried'),
-    category: string().required('Naming your service is requiered'),
-    // category: string().is(['home-media'], 'asdasd').,
-  });
-
-  function validateWithYup(yupSchema: typeof schema) {
-    return (values: Asserts<typeof schema>) =>
-      yupSchema
-        .validate(values, { abortEarly: false })
-        .then(() => null)
-        .catch((error: ValidationError) => {
-          if (error.inner.length) {
-            throw error.inner.reduce(
-              (acc, curr) => set(acc, curr.path as string, curr.message),
-              {},
-            );
-          }
-        });
-  }
 
   const form = useFormState({
     values: {
@@ -68,6 +79,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       url: '',
       target: true,
       category: '',
+      logo: '',
     },
     validateOnChange: false,
     onValidate: validateWithYup(schema),
@@ -77,7 +89,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
     list: true,
     inline: true,
     autoSelect: true,
-    gutter: 8,
+    gutter: 0,
   });
 
   useEffect(() => {
@@ -86,131 +98,206 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
     }
   }, [combobox.currentId]);
 
+  const onChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files?.length) {
+      setLogoFile(event.target.files[0]);
+      loadLogo(event.target.files[0]);
+    }
+  };
+
+  const uploadLogo = async (): Promise<string> => {
+    const data = new FormData();
+    data.append('logo', logoFile as File);
+    return axios.post(`/api/upload`, data, {}).then(res => res.data.path);
+  };
+
+  const submitFormHandler = async () => {
+    const logoPath = await uploadLogo();
+    form.update('logo', logoPath);
+    const { name, url, description, target, category } = form.values;
+    const newService: Service = {
+      name,
+      url,
+      description,
+      target: !!target ? '_blank' : '',
+      logo: logoPath,
+      category: config?.categories.find(c => c.id === category) as Category,
+    };
+    fetcher(['Service'], { data: newService }).then(() => {
+      syncConfig();
+      form.reset();
+      setLogoFile(null);
+      onRequestClose(modalIdentity);
+    });
+  };
+
+  const logoRef = useRef<any>();
+
+  const loadLogo = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = async r => {
+      if (r && r.target) {
+        if (logoRef && logoRef.current) {
+          logoRef.current.src = r.target.result as string;
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
-    <div>
-      <Modal onRequestClose={onRequestClose} isOpen={isOpen} title={title}>
-        <Form {...form}>
-          <FormBody>
-            <Row>
-              <RowLabel>
-                <span>Name</span>
-                <FormMessage name="name" {...form} />
-              </RowLabel>
+    <Modal
+      onRequestClose={onRequestClose}
+      title={title}
+      modalIdentity={modalIdentity}
+    >
+      <Form {...form}>
+        <FormBody>
+          <Row>
+            <RowLabel>
+              <span>Name</span>
+              <FormMessage name="name" {...form} />
+            </RowLabel>
 
-              <RowContent>
-                <FormInput name="name" {...form} placeholder="E.g. 'Plex'" />
-              </RowContent>
-            </Row>
-            <Padder y={18} />
-            <Row>
-              <RowLabel>
-                <span>Description</span>
-                <FormMessage name="description" {...form} />
-              </RowLabel>
+            <RowContent>
+              <FormInput name="name" {...form} placeholder="E.g. 'Plex'" />
+            </RowContent>
+          </Row>
+          <Padder y={18} />
+          <Row>
+            <RowLabel>
+              <span>Description</span>
+              <FormMessage name="description" {...form} />
+            </RowLabel>
 
-              <RowContent>
-                <FormInput
-                  as="textarea"
-                  name="description"
+            <RowContent>
+              <FormInput
+                as="textarea"
+                name="description"
+                {...form}
+                placeholder="E.g. 'My home media server'"
+              />
+            </RowContent>
+          </Row>
+
+          <Padder y={18} />
+
+          <Row>
+            <RowLabel>
+              <span>Url</span>
+              <FormMessage name="url" {...form} />
+            </RowLabel>
+
+            <RowContent>
+              <FormInput
+                name="url"
+                {...form}
+                placeholder="E.g. https://www.plex.tv"
+              />
+            </RowContent>
+          </Row>
+
+          <Padder y={18} />
+
+          <Row>
+            <RowLabel>
+              <span>Category</span>
+              <FormMessage name="category" {...form} />
+            </RowLabel>
+
+            <RowContent>
+              <Select>
+                <Combobox
+                  {...combobox}
                   {...form}
-                  placeholder="E.g. 'My home media server'"
+                  name="category"
+                  type="select"
+                  aria-label="Category"
+                  placeholder="Select Category"
                 />
-              </RowContent>
-            </Row>
 
-            <Padder y={18} />
+                <ComboboxPopover {...combobox} aria-label="Categories">
+                  {config &&
+                    config.categories &&
+                    config.categories.length &&
+                    config.categories.map(category => (
+                      <ComboboxOption
+                        key={category.id}
+                        id={category.id}
+                        value={category.name}
+                        {...combobox}
+                      />
+                    ))}
+                </ComboboxPopover>
+              </Select>
+            </RowContent>
+          </Row>
 
-            <Row>
-              <RowLabel>
-                <span>Url</span>
-                <FormMessage name="url" {...form} />
-              </RowLabel>
+          <Padder y={18} />
 
-              <RowContent>
-                <FormInput
-                  name="url"
-                  {...form}
-                  placeholder="E.g. https://www.plex.tv"
-                />
-              </RowContent>
-            </Row>
+          <Row>
+            <RowLabel>
+              <span>Logo</span>
+              <FormMessage name="logo" {...form} />
+            </RowLabel>
 
-            <Padder y={18} />
-
-            <Row>
-              <RowLabel>
-                <span>Category</span>
-                <FormMessage name="category" {...form} />
-              </RowLabel>
-
-              <RowContent>
-                <Select>
-                  <Combobox
-                    {...combobox}
-                    {...form}
-                    name="category"
-                    type="select"
-                    aria-label="Category"
-                    placeholder="Select Category"
+            <RowContent>
+              <Upload>
+                <div role="imagePreview">
+                  <img ref={logoRef} src="logos/logoPlaceHolder.png" />
+                </div>
+                <Padder x={18} />
+                <label>
+                  <input
+                    type="file"
+                    name="logo"
+                    onChange={onChangeHandler}
+                    placeholder="E.g. https://www.plex.tv"
                   />
+                </label>
+              </Upload>
+            </RowContent>
+          </Row>
 
-                  <ComboboxPopover {...combobox} aria-label="Categories">
-                    {config &&
-                      config.categories &&
-                      config.categories.length &&
-                      config.categories.map(category => (
-                        <ComboboxOption
-                          key={category.id}
-                          id={category.id}
-                          value={category.name}
-                          {...combobox}
-                        />
-                      ))}
-                  </ComboboxPopover>
-                </Select>
-              </RowContent>
-            </Row>
+          <Padder y={18} />
 
-            <Padder y={18} />
+          <Row>
+            <RowLabel>
+              <span>Should it open in a new tab?</span>
+            </RowLabel>
+            <RowContent>
+              <CheckBoxWrapper>
+                <CheckBox {...form} name="target" />
+                <CheckBoxLabel {...form} name="target" />
+              </CheckBoxWrapper>
+            </RowContent>
+          </Row>
+        </FormBody>
+        <FormFooter>
+          {/* <Tabbable> */}
+          <Button
+            tabIndex={0}
+            onClick={() => onRequestClose(modalIdentity)}
+            hierarchy="secondary"
+          >
+            Cancel
+          </Button>
 
-            <Row>
-              <RowLabel>
-                <span>Should it open in a new tab?</span>
-              </RowLabel>
-              <RowContent>
-                <CheckBoxWrapper>
-                  <CheckBox {...form} name="target" />
-                  <CheckBoxLabel {...form} name="target" />
-                </CheckBoxWrapper>
-              </RowContent>
-            </Row>
-          </FormBody>
-          <FormFooter>
-            {/* <Tabbable> */}
-            <Button
-              tabIndex={0}
-              onClick={() => onRequestClose()}
-              hierarchy="secondary"
-            >
-              Cancel
-            </Button>
+          <Padder x={12} />
 
-            <Padder x={12} />
-
-            <Button
-              role="button"
-              {...form}
-              tabIndex={0}
-              type="submit"
-              hierarchy="primary"
-              onClick={() => form.submit()}
-            >
-              Submit
-            </Button>
-          </FormFooter>
-        </Form>
-      </Modal>
-    </div>
+          <Button
+            role="button"
+            {...form}
+            tabIndex={0}
+            type="submit"
+            hierarchy="primary"
+            onClick={submitFormHandler}
+          >
+            Submit
+          </Button>
+        </FormFooter>
+      </Form>
+    </Modal>
   );
 };
 
@@ -304,6 +391,9 @@ const Row = styled.div`
     :focus {
       border: 1px solid ${p => transparentize(0.3, p.theme.text.primary)};
     }
+    ::placeholder {
+      color: ${p => transparentize(0.7, p.theme.text.primary)};
+    }
   }
   textarea {
     padding: 12px;
@@ -392,6 +482,92 @@ const CheckBox = styled(FormCheckbox)<{ name: string }>`
       height: 18px;
       margin-left: 21px;
       transition: all 240ms cubic-bezier(0.19, 1, 0.22, 1);
+    }
+  }
+`;
+
+const Upload = styled.div`
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 42px;
+  align-items: center;
+
+  div[role='imagePreview'] {
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    display: flex;
+    img {
+      height: 36px;
+      width: 36px;
+      display: block;
+    }
+  }
+  label {
+    grid-area: image;
+    display: block;
+    width: 100%;
+    height: 42px;
+    font-size: 12px;
+    overflow: hidden;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: ${p => transparentize(0.7, p.theme.text.primary)};
+    border: 1px dashed ${p => p.theme.border.primary};
+    transition: border 240ms cubic-bezier(0.19, 1, 0.22, 1);
+    position: relative;
+    &:hover {
+      cursor: pointer;
+      border: 1px dashed ${p => transparentize(0.7, p.theme.text.primary)};
+    }
+    &:after {
+      content: 'Upload Project Image';
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 4px;
+      position: absolute;
+      z-index: -1;
+      width: calc(100% - 6px);
+      height: calc(100% - 6px);
+      top: 3px;
+      bottom: 0;
+      left: 3px;
+      right: 0;
+      background: ${p => p.theme.background.secondary};
+    }
+
+    &:before {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      border: 2px solid ${p => p.theme.background.primary};
+      top: 0px;
+      bottom: 0;
+      left: 0px;
+      right: 0;
+    }
+
+    input {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      font-size: 1;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      z-index: 1;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
   }
 `;
