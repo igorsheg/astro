@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import React, { useEffect, useState } from 'react';
+import React, { ComponentType, ReactNode, useEffect, useState } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
-import { ModalIdentity } from 'shared/types/internal';
+import { ModalIdentity, ModalTypes } from 'shared/types/internal';
 import Loader from 'src/components/fullpage-loader';
 import { PageTransition } from 'src/components/page-transition';
 import {
@@ -44,16 +44,26 @@ const MyApp = () => {
     mount(!!configData);
   }, [configData]);
 
-  const modalCloseRequest = (modal: ModalIdentity) => {
+  const modalCloseRequest = (modal: ModalIdentity<any>) => {
+    const ctxModalIndex = activeModals.findIndex(m => m.id === modal.id);
     setUiStore(d => {
-      const ctxModalIndex = d.activeModals.findIndex(m => m.id === modal.id);
       d.activeModals[ctxModalIndex].state = 'closed';
     });
+    setTimeout(() => {
+      setUiStore(d => {
+        d.activeModals.splice(ctxModalIndex, 1);
+      });
+    }, 240);
   };
 
-  const isModalOpen = (id: ModalIdentity['id']) => {
-    return activeModals.find(modal => modal.id === id)?.state === 'expnanded';
+  const MODALS = {
+    [ModalTypes['new-service']]: NewServiceModal,
+    [ModalTypes['new-category']]: NewServiceModal,
   };
+
+  // useEffect(() => {
+  //   console.log(activeModals);
+  // }, [activeModals]);
 
   return (
     <>
@@ -73,11 +83,17 @@ const MyApp = () => {
       </Head>
       <ThemeProvider theme={ctxTheme as Theme}>
         <GlobalStyle />
-        <NewServiceModal
-          onRequestClose={modalCloseRequest}
-          isOpen={isModalOpen('new-service')}
-          title="Create New Service"
-        />
+        {activeModals.map(modal => {
+          const CtxModal = MODALS[modal.label];
+          return (
+            <CtxModal
+              key={modal.id}
+              onRequestClose={modalCloseRequest}
+              modalIdentity={modal}
+              title={modal.title || ''}
+            />
+          );
+        })}
         {!configData || !mounted ? (
           <Loader />
         ) : (
