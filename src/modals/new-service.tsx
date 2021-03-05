@@ -1,31 +1,30 @@
 import { UploadIcon } from '@radix-ui/react-icons';
 import axios from 'axios';
 import set from 'lodash/set';
-import { invert, transparentize } from 'polished';
 import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { Checkbox as ReakitCheckbox } from 'reakit/Checkbox';
-import {
-  unstable_Combobox as Combobox,
-  unstable_ComboboxOption as ComboboxOption,
-  unstable_ComboboxPopover as ComboboxPopover,
-  unstable_useComboboxState as useComboboxState,
-} from 'reakit/Combobox';
-import {
-  unstable_FormLabel as FormLabel,
-  unstable_useFormState as useFormState,
-} from 'reakit/Form';
 import { Category, Service } from 'server/entities';
-import { ModalIdentity } from 'shared/types/internal';
+import { ModalIdentity, SelectOption } from 'shared/types/internal';
 import fetcher from 'shared/utils/fetcher';
-import generateUuid from 'shared/utils/generateUuid';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
-import Input from 'src/components/input';
+import { Input, Select } from 'src/components/input';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
 import { configStore, uiStore } from 'src/stores';
-import styled, { css } from 'styled-components';
+import {
+  loadLogoRender,
+  mapEntityToSelectOptions,
+  uploadLogo,
+} from 'src/utils';
+import styled from 'styled-components';
 import { Asserts, object, string, ValidationError } from 'yup';
+
+const schema = object().shape({
+  name: string().required('Naming your service is requiered'),
+  url: string().url().required('Linking you service is reqieried'),
+  category: string().required('Adding your service to a category is reqiered'),
+});
 
 const baseFormState = {
   name: '',
@@ -33,7 +32,7 @@ const baseFormState = {
   target: true,
   url: '',
   category: '',
-  logo: '',
+  logo: '/logos/logoPlaceHolder.png',
 };
 
 interface NewServiceModalProps {
@@ -42,26 +41,24 @@ interface NewServiceModalProps {
   modalIdentity: ModalIdentity<typeof baseFormState>;
 }
 
-const schema = object({
-  name: string().required('Naming your service is requiered'),
-  url: string().url().required('Linking you service is reqieried'),
-  category: string().required('Naming your service is requiered'),
-});
-
-function validateWithYup(yupSchema: typeof schema) {
-  return (values: Asserts<typeof schema>) =>
-    yupSchema
-      .validate(values, { abortEarly: false })
-      .then(() => null)
-      .catch((error: ValidationError) => {
-        if (error.inner.length) {
-          throw error.inner.reduce(
-            (acc, curr) => set(acc, curr.path as string, curr.message),
-            {},
-          );
-        }
-      });
-}
+const validateForm = (
+  yupSchema: typeof schema,
+  values: typeof baseFormState | undefined,
+) => {
+  return yupSchema
+    .validate(values, { abortEarly: false })
+    .then(() => null)
+    .catch((error: ValidationError) => {
+      if (error.inner.length) {
+        throw error.inner.reduce((acc: any, curr) => {
+          if (curr.path) {
+            acc[curr.path] = curr.message;
+          }
+          return acc;
+        }, {});
+      }
+    });
+};
 
 const NewServiceModal: FC<NewServiceModalProps> = ({
   title,
@@ -72,54 +69,30 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const { activeModals, setUiStore } = uiStore();
 
+  const [valitationState, setValitationState] = useState<
+    { [key in keyof typeof baseFormState]: string } | Record<string, never>
+  >({});
+
   const ctxModalIndex = activeModals.findIndex(m => m.id === modalIdentity.id);
+  const logoRenderRef = useRef<any>();
+  const logoBlobRef = useRef<any>();
 
   useEffect(() => {
-    syncConfig();
     setUiStore(d => {
       d.activeModals[ctxModalIndex].data = baseFormState;
     });
   }, []);
 
-  const combobox = useComboboxState({
-    list: true,
-    inline: true,
-    autoSelect: true,
-    gutter: 0,
-  });
-
-  const onChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files?.length) {
-      setLogoFile(event.target.files[0]);
-      loadLogo(event.target.files[0]);
-    }
-  };
-
-  const uploadLogo = async (): Promise<string> => {
-    const data = new FormData();
-    data.append('logo', logoFile as File);
-    return axios.post(`/api/upload`, data, {}).then(res => res.data.path);
-  };
-
-  const logoRef = useRef<any>();
-
-  const loadLogo = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = async r => {
-      if (r && r.target) {
-        if (logoRef && logoRef.current) {
-          logoRef.current.src = r.target.result as string;
-        }
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const onFormChange = (ev: ChangeEvent<HTMLFormElement>) => {
     const target = ev.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
+
+    if (target.type === 'file') {
+      logoBlobRef.current = target.files[0];
+      loadLogoRender(target.files[0], logoRenderRef);
+    }
 
     setUiStore(d => {
+      const value = target.type === 'checkbox' ? target.checked : target.value;
       d.activeModals[ctxModalIndex].data = {
         ...d.activeModals[ctxModalIndex].data,
         [target.name]: value,
@@ -127,28 +100,31 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
     });
   };
 
-  useEffect(() => {
-    if (combobox.currentId) {
-      setUiStore(d => {
-        d.activeModals[ctxModalIndex].data = {
-          ...d.activeModals[ctxModalIndex].data,
-          category: combobox.currentId,
-        };
-      });
-    }
-  }, [combobox.currentId]);
+  const categoriesOptions = mapEntityToSelectOptions(config?.categories);
 
-  if (!modalIdentity.data) {
-    return null;
-  }
+  const categoryChangeHandler = (option: SelectOption) => {
+    setUiStore(d => {
+      d.activeModals[ctxModalIndex].data = {
+        ...d.activeModals[ctxModalIndex].data,
+        category: option.id,
+      };
+    });
+  };
 
   const submitFormHandler = async (
     ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     ev.preventDefault();
 
+    try {
+      await validateForm(schema, modalIdentity.data);
+    } catch (err) {
+      setValitationState(err);
+      return;
+    }
+
     if (modalIdentity.data) {
-      const logoPath = await uploadLogo();
+      const logoPath = await uploadLogo(logoBlobRef.current);
 
       setUiStore(d => {
         d.activeModals[ctxModalIndex].data = {
@@ -173,6 +149,10 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
     }
   };
 
+  useEffect(() => {
+    console.log(valitationState);
+  }, [valitationState]);
+
   return (
     <Modal
       onRequestClose={onRequestClose}
@@ -186,14 +166,14 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
               <RowContent>
                 <Upload>
                   <div role="imagePreview">
-                    <img ref={logoRef} src="logos/logoPlaceHolder.png" />
+                    <img ref={logoRenderRef} src={modalIdentity.data?.logo} />
                   </div>
                   <Padder x={12} />
                   <label>
                     <UploadIcon />
                     <Padder x={6} />
                     Upload service logo
-                    <input type="file" name="logo" onChange={onChangeHandler} />
+                    <input type="file" name="logo" />
                   </label>
                 </Upload>
               </RowContent>
@@ -210,7 +190,8 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                 <Input
                   onChange={() => false}
                   name="name"
-                  value={modalIdentity.data.name}
+                  aria-errormessage={valitationState['name']}
+                  value={modalIdentity?.data?.name}
                   placeholder="Service Name"
                 />
               </RowContent>
@@ -220,7 +201,8 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
               <RowContent>
                 <Input
                   name="url"
-                  value={modalIdentity.data.url}
+                  value={modalIdentity?.data?.url}
+                  aria-errormessage={valitationState['url']}
                   placeholder="Service Url"
                 />
               </RowContent>
@@ -231,7 +213,8 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                 <Input
                   as="textarea"
                   name="description"
-                  value={modalIdentity.data.description}
+                  value={modalIdentity?.data?.description}
+                  aria-errormessage={valitationState['description']}
                   placeholder="Service Description"
                 />
               </RowContent>
@@ -241,30 +224,13 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
 
             <Row>
               <RowContent>
-                <Select>
-                  <Combobox
-                    {...combobox}
-                    name="category"
-                    type="select"
-                    as={Input}
-                    aria-label="Category"
-                    placeholder="Select Category"
-                  />
-
-                  <ComboboxPopover {...combobox} aria-label="Categories">
-                    {config &&
-                      config.categories &&
-                      config.categories.length &&
-                      config.categories.map(category => (
-                        <ComboboxOption
-                          key={category.id}
-                          id={category.id}
-                          value={category.name}
-                          {...combobox}
-                        />
-                      ))}
-                  </ComboboxPopover>
-                </Select>
+                <Select
+                  label="Categories"
+                  options={categoriesOptions}
+                  aria-errormessage={valitationState['category']}
+                  defaultOptionId={modalIdentity.data?.category || ''}
+                  onChange={categoryChangeHandler}
+                />
               </RowContent>
             </Row>
 
@@ -281,7 +247,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                 <Flex align="center">
                   <CheckBoxWrapper>
                     <CheckBox
-                      checked={modalIdentity.data.target}
+                      checked={modalIdentity?.data?.target}
                       name="target"
                     />
                     <CheckBoxLabel name="target" />
@@ -319,17 +285,17 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   );
 };
 
-const lightStyles = css`
-  background: ${p => p.theme.background.primary};
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
-    rgba(0, 0, 0, 0.1) 0px 4px 8px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
-`;
+// const lightStyles = css`
+//   background: ${p => p.theme.background.primary};
+//   box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
+//     rgba(0, 0, 0, 0.1) 0px 4px 8px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
+// `;
 
-const darkStyles = css`
-  background: ${p => p.theme.background.secondary};
-  box-shadow: 0 0 0 1px ${p => invert(p.theme.text.primary)},
-    0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
-`;
+// const darkStyles = css`
+//   background: ${p => p.theme.background.secondary};
+//   box-shadow: 0 0 0 1px ${p => invert(p.theme.text.primary)},
+//     0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
+// `;
 
 const FormFooter = styled.div`
   display: flex;
@@ -339,48 +305,47 @@ const FormFooter = styled.div`
   padding: 24px;
 `;
 
-const Select = styled.div`
-  display: flex;
-  width: 100%;
+// const Select = styled.div`
+//   display: flex;
+//   width: 100%;
 
-  [role='listbox'] {
-    ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};
-    width: 100%;
-    border-radius: 6px;
-    z-index: 991;
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
-    box-sizing: border-box;
-    /* min-height: min-content; */
-    /* height: 300px; */
-    padding: 6px;
-    position: relative;
-  }
+//   [role='listbox'] {
+//     ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};
+//     width: 100%;
+//     border-radius: 6px;
+//     z-index: 991;
+//     display: flex;
+//     justify-content: flex-start;
+//     flex-direction: column;
+//     box-sizing: border-box;
 
-  [role='option'] {
-    height: 36px;
-    min-height: 36px;
-    max-height: 36px;
-    padding: 0 12px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    border-radius: 4px;
-  }
+//     padding: 6px;
+//     position: relative;
+//   }
 
-  [role='option']:hover {
-    color: white;
-    background: ${p => p.theme.accent.primary};
-    cursor: pointer;
-  }
+//   [role='option'] {
+//     height: 36px;
+//     min-height: 36px;
+//     max-height: 36px;
+//     padding: 0 12px;
+//     font-size: 14px;
+//     display: flex;
+//     align-items: center;
+//     position: relative;
+//     border-radius: 4px;
+//   }
 
-  [role='combobox']:focus + [role='listbox'] [aria-selected='true'] {
-    color: white;
-    background: ${p => p.theme.accent.primary};
-  }
-`;
+//   [role='option']:hover {
+//     color: white;
+//     background: ${p => p.theme.accent.primary};
+//     cursor: pointer;
+//   }
+
+//   [role='combobox']:focus + [role='listbox'] [aria-selected='true'] {
+//     color: white;
+//     background: ${p => p.theme.accent.primary};
+//   }
+// `;
 
 const Row = styled.div`
   display: flex;
@@ -389,41 +354,6 @@ const Row = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-
-  /* input,
-  textarea {
-    width: 100%;
-    height: 48px;
-    border: 1px solid ${p => p.theme.border.primary};
-    color: ${p => p.theme.text.primary};
-    font-size: 14px;
-    padding: 0 15px;
-    font-weight: 500;
-    border-radius: 4px;
-    background: ${p => p.theme.background.secondary};
-    transition: all 240ms cubic-bezier(0.19, 1, 0.22, 1);
-
-    :hover {
-      border: 1px solid ${p => transparentize(0.7, p.theme.text.primary)};
-    }
-    :focus {
-      border: 1px solid ${p => transparentize(0, p.theme.text.primary)};
-    }
-    ::placeholder {
-      color: ${p => transparentize(0.5, p.theme.text.primary)};
-    }
-  }
-  textarea {
-    padding: 15px;
-    height: 66px;
-  }
-  div[role='alert'] {
-    color: #ff453a;
-    font-size: 12px;
-    line-height: 12px;
-    font-weight: 400;
-    margin: 0.2em 0 0 0;
-  } */
 `;
 
 const Group = styled.div`
@@ -461,7 +391,7 @@ const RowContent = styled.div`
   flex: 1;
   position: relative;
 `;
-const RowLabel = styled(FormLabel)`
+const RowLabel = styled.label`
   flex: 0.5;
   display: flex;
   flex-direction: column;

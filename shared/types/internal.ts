@@ -27,3 +27,8 @@ export interface ModalIdentity<T> {
   state: ModalState;
   data?: T;
 }
+
+export interface SelectOption {
+  id: string;
+  value: string;
+}
