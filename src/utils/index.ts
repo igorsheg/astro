@@ -4,8 +4,10 @@ import {
   loadLogoRender,
   uploadLogo,
 } from './entityUtils';
+import fetcher from './fetcher';
 
 export {
+  fetcher,
   filterServicesItems,
   servicesUtils,
   mapEntityToSelectOptions,

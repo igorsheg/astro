@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Category } from 'server/entities';
-import { SelectOption } from 'shared/types/internal';
+import { SelectOption } from 'typings';
 
 const mapEntityToSelectOptions = (entitiyList: Category[] | undefined) => {
   if (!entitiyList || !entitiyList.length) {

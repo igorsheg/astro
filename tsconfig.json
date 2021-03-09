@@ -16,9 +16,10 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "baseUrl": "./",
-    "moduleResolution": "node"
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "typeRoots": ["typings"]
   },
-  "include": ["next-env.d.ts", "src", "shared"],
+  "include": ["next-env.d.ts", "src/**/*"],
   "exclude": ["node_modules", "bin", ".next"]
 }

@@ -12,7 +12,7 @@ import React, {
 import { animated, interpolate, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
 import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
-import { ModalIdentity } from 'shared/types/internal';
+import { ModalIdentity } from 'typings';
 import { uiStore } from 'src/stores';
 import styled, { css } from 'styled-components';
 import Button from './button';

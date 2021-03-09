@@ -1,11 +1,7 @@
 import { UploadIcon } from '@radix-ui/react-icons';
-import axios from 'axios';
-import set from 'lodash/set';
 import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { Checkbox as ReakitCheckbox } from 'reakit/Checkbox';
 import { Category, Service } from 'server/entities';
-import { ModalIdentity, SelectOption } from 'shared/types/internal';
-import fetcher from 'shared/utils/fetcher';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { Input, Select } from 'src/components/input';
@@ -17,8 +13,10 @@ import {
   mapEntityToSelectOptions,
   uploadLogo,
 } from 'src/utils';
+import fetcher from 'src/utils/fetcher';
 import styled from 'styled-components';
-import { Asserts, object, string, ValidationError } from 'yup';
+import { ModalIdentity, SelectOption } from 'typings';
+import { object, string, ValidationError } from 'yup';
 
 const schema = object().shape({
   name: string().required('Naming your service is requiered'),

@@ -1,7 +1,7 @@
 import produce from 'immer';
 import { SAMPLE_CATEGORIES } from 'server/config/seed-data';
 import * as Entities from 'server/entities';
-import { ModalIdentity } from 'shared/types/internal';
+import { ModalIdentity } from 'typings';
 import create, { State } from 'zustand';
 
 interface SessionStorageProps extends State {

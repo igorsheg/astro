@@ -1,4 +1,4 @@
-import * as Entities from '../../server/entities';
+import * as Entities from '../server/entities';
 import { RadixIconTypes } from './radixIconsTypes';
 
 declare module 'styled-components' {

@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import React, { ComponentType, ReactNode, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
-import { ModalIdentity, ModalTypes } from 'shared/types/internal';
 import Loader from 'src/components/fullpage-loader';
 import { PageTransition } from 'src/components/page-transition';
 import {
@@ -15,6 +14,7 @@ import {
 } from 'src/stores';
 import GlobalStyle from 'src/styles/global';
 import { ThemeProvider } from 'styled-components';
+import { ModalIdentity, ModalTypes } from 'typings/internal';
 
 const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
   ssr: false,

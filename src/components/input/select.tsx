@@ -7,8 +7,8 @@ import {
   unstable_useComboboxState as useComboboxState,
   InputProps as ReakitInputProps,
 } from 'reakit';
-import { SelectOption } from 'shared/types/internal';
 import styled, { css } from 'styled-components';
+import { SelectOption } from 'typings';
 import { Input } from '.';
 import Flex from '../flex';
 

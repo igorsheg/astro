@@ -1,8 +1,8 @@
 import * as RadixIcons from '@radix-ui/react-icons';
 import React, { FC, forwardRef } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
-import { ModalTypes } from 'shared/types/internal';
-import generateUuid from 'shared/utils/generateUuid';
+import { ModalTypes } from 'typings';
+import generateUuid from 'src/utils/generateUuid';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { ContextMenu, MenuItem } from 'src/components/menu';

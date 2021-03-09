@@ -1,4 +1,3 @@
-import { RadixIconTypes } from 'shared/types/radixIconsTypes';
 import {
   Column,
   CreateDateColumn,
@@ -11,6 +10,7 @@ import {
 } from 'typeorm';
 import Config from './config';
 import Service from './service';
+import { RadixIconTypes } from 'typings/radixIconsTypes';
 
 @Entity()
 export default class Category {
