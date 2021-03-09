@@ -1,0 +1,24 @@
+{
+  "verbose": false,
+  "debug": false,
+  "exec": "ts-node -r tsconfig-paths/register --project tsconfig.server.json ./server/index.ts",
+  "ignore": [
+    "mochawesome-report",
+    "node_modules",
+    "./test",
+    "**/*.d.ts",
+    "*.test.ts",
+    "*.spec.ts",
+    "fixtures/*",
+    "test/**/*",
+    "docs/*",
+    "bin",
+    ".next"
+  ],
+  "events": {
+    "restart": ""
+  },
+  "watch": ["./src", "./server"],
+  "ext": "ts",
+  "inspect": true
+}
