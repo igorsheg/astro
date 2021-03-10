@@ -1,5 +1,7 @@
+import { CheckIcon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
 import React, { FC, useEffect } from 'react';
+import { useSpring, animated } from 'react-spring';
 import {
   unstable_Combobox as Combobox,
   unstable_ComboboxOption as ComboboxOption,
@@ -29,10 +31,7 @@ const Select: FC<SelectProps> = ({
   const combobox = useComboboxState({
     list: true,
     inline: true,
-    autoSelect: true,
     gutter: 3,
-    currentId: defaultOptionId,
-    values: options.map(op => op.value),
   });
 
   useEffect(() => {
@@ -40,6 +39,19 @@ const Select: FC<SelectProps> = ({
       onChange({ id: combobox.currentId, value: combobox.currentValue });
     }
   }, [combobox.inputValue]);
+
+  function tpmt(x: number) {
+    return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
+  }
+
+  const animationProps = useSpring({
+    opacity: combobox.visible ? 1 : 0,
+    transform: `translateY(${combobox.visible ? '0px' : '-2px'})`,
+    config: {
+      duration: 240,
+      easing: (t: number) => 1 - tpmt(t),
+    },
+  });
 
   return (
     <Flex column auto>
@@ -55,14 +67,20 @@ const Select: FC<SelectProps> = ({
         />
 
         <ComboboxPopover {...combobox} aria-label={label}>
-          {options.map(option => (
-            <ComboboxOption
-              key={option.id}
-              id={option.id}
-              value={option.value}
-              {...combobox}
-            />
-          ))}
+          <animated.div style={animationProps}>
+            {options.map(option => (
+              <ComboboxOption
+                key={option.id}
+                id={option.id}
+                aria-selected={option.id === defaultOptionId}
+                value={option.value}
+                {...combobox}
+              >
+                {option.value}
+                {option.id === defaultOptionId && <CheckIcon />}
+              </ComboboxOption>
+            ))}
+          </animated.div>
         </ComboboxPopover>
       </StyledSelect>
       {props['aria-errormessage']?.length && (
@@ -104,7 +122,6 @@ const StyledSelect = styled.div`
     justify-content: flex-start;
     flex-direction: column;
     box-sizing: border-box;
-
     padding: 6px;
     position: relative;
   }
@@ -119,12 +136,14 @@ const StyledSelect = styled.div`
     align-items: center;
     position: relative;
     border-radius: 4px;
-  }
+    display: flex;
+    justify-content: space-between;
 
-  [role='option']:hover {
-    color: white;
-    background: ${p => p.theme.accent.primary};
-    cursor: pointer;
+    svg {
+      width: 21px;
+      height: 21px;
+      color: ${p => p.theme.accent.primary};
+    }
   }
 
   &[aria-invalid='true'] {
@@ -134,6 +153,10 @@ const StyledSelect = styled.div`
   [role='combobox']:focus + [role='listbox'] [aria-selected='true'] {
     color: white;
     background: ${p => p.theme.accent.primary};
+  }
+  [role='option']:hover {
+    background: ${p => p.theme.background.ternary};
+    cursor: pointer;
   }
 `;
 

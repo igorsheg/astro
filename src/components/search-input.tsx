@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import Flex from 'src/components/flex';
-import { darken, transparentize } from 'polished';
+import { transparentize } from 'polished';
 import React, { ChangeEvent, FC } from 'react';
+import Flex from 'src/components/flex';
 import styled from 'styled-components';
 
 interface SearchInputProps {
@@ -33,7 +33,7 @@ const PseudoInput = styled.div`
     height: 30px;
     font-size: 14px;
     color: ${p => p.theme.text.primary};
-    background: ${p => darken(0.04, p.theme.background.secondary)};
+    background: ${p => p.theme.background.secondary};
     border: 1px solid transparent;
     display: flex;
     align-items: center;

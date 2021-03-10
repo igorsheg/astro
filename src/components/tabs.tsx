@@ -1,5 +1,4 @@
 import * as RadixIcons from '@radix-ui/react-icons';
-import { darken } from 'polished';
 import React, { FC } from 'react';
 import { Category } from 'server/entities';
 import styled, { css } from 'styled-components';
@@ -31,7 +30,7 @@ const Tab: FC<TabProps> = ({ item, activeItem, onItemClick }) => {
     <StyledTab
       onClick={() => onItemClick(item.id)}
       isActive={item.id === activeItem}
-      hasSeperator={item.name === 'All Services'}
+      hasSeperator={false}
     >
       <Icon />
       <span>{item.name}</span>
@@ -64,15 +63,14 @@ const StyledTab = styled.li<{ isActive: boolean; hasSeperator: boolean }>`
   align-items: center;
   position: relative;
   display: flex;
-  padding: 12px;
+  padding: 9px;
   height: 30px;
-  margin: 0 3px 0 0;
-  border-radius: 30em;
+  margin: 0 6px 0 0;
+  border-radius: 4px;
+  font-size: 14px;
   font-weight: 500;
   transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
-  /* box-shadow: inset 1px 0 0 ${p => p.theme.border.primary}; */
-  background: ${p =>
-    p.isActive ? darken(0.08, p.theme.background.secondary) : 'transparent'};
+  background: ${p => (p.isActive ? p.theme.background.ternary : 'transparent')};
   ${p => p.hasSeperator && withSeperatorCss}
 
   :hover {
@@ -82,7 +80,7 @@ const StyledTab = styled.li<{ isActive: boolean; hasSeperator: boolean }>`
     !p.isActive &&
     `:hover {
     
-    background: ${p.theme.background.secondary}};
+    background: ${p.theme.background.ternary};
   }`}
   svg {
     margin: 0 6px 0 0;

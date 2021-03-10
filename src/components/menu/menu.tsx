@@ -1,6 +1,6 @@
 import { invert, transparentize } from 'polished';
 import * as React from 'react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { animated, useSpring } from 'react-spring';
 import { Menu, MenuOptions } from 'reakit/Menu';
 import styled, { css } from 'styled-components';
@@ -10,13 +10,24 @@ interface Props extends MenuOptions {
 }
 
 const ContextMenu: FC<Props> = ({ children, ...rest }) => {
+  const animationOrigin =
+    rest.placement === 'bottom-start' || 'right-start' ? 'right' : 'left';
+
+  function tpmt(x: number) {
+    return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
+  }
+
   const [animationProps, setAnimation] = useSpring(() => ({
     opacity: 0,
     transform: 'translateY(-2px)',
-    config: { tension: 300, velocity: 30 },
+    transformOrigin: `${animationOrigin} 0px`,
+    config: {
+      duration: 240,
+      easing: (t: number) => 1 - tpmt(t),
+    },
   }));
 
-  React.useEffect(() => {
+  useEffect(() => {
     setAnimation({
       opacity: rest.visible ? 1 : 0,
       transform: `translateY(${rest.visible ? '0px' : '-2px'})`,

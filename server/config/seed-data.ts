@@ -96,7 +96,7 @@ const dark: Theme = {
   id: 'dark',
   label: 'Dark Theme',
   accent: { primary: '#0071e3', secondary: '#147ce5' },
-  background: { primary: '#2e2f30', secondary: '#222324' },
+  background: { primary: '#2e2f30', secondary: '#222324', ternary: '#191A1B' },
   text: { primary: '#FFFFFF', secondary: '#cbcecf' },
   border: { primary: '#4D4E4F', secondary: '#4D4E4F' },
 };
@@ -105,7 +105,7 @@ const light: Theme = {
   id: 'light',
   label: 'Light Theme',
   accent: { primary: '#0071e3', secondary: '#147ce5' },
-  background: { primary: '#FFFFFF', secondary: '#F6F7F7' },
+  background: { primary: '#FFFFFF', secondary: '#F6F7F7', ternary: '#E9EAEA' },
   text: { primary: '#000000', secondary: '#696b6c' },
   border: { primary: '#E5E5E5', secondary: '#E5E5E5' },
 };

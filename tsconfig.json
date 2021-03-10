@@ -17,8 +17,7 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "baseUrl": ".",
-    "moduleResolution": "node",
-    "typeRoots": ["typings"]
+    "moduleResolution": "node"
   },
   "include": ["next-env.d.ts", "src/**/*"],
   "exclude": ["node_modules", "bin", ".next"]

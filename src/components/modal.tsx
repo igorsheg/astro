@@ -86,7 +86,8 @@ const Modal: FC<ModalProps> = ({
     },
 
     {
-      enabled: !isTucked,
+      enabled: true,
+      axis: isTucked ? 'x' : undefined,
       domTarget: ref,
       // bounds: {
       //   left: -(getWindowDimensions().width - 600),

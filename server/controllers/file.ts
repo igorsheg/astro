@@ -14,6 +14,7 @@ interface FileUploadControllerProps {
 
 export default (): FileUploadControllerProps => {
   const upload = async (ctx: Context) => {
+    //@ts-ignore
     if (ctx.request.files) {
       //@ts-ignore
       const filesReq = ctx.request.files as any;

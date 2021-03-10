@@ -67,32 +67,21 @@ export const MenuAnchor = styled.a<{ disabled: boolean }>`
   svg:not(:last-child) {
     margin-right: 8px;
   }
-  svg {
-    height: 14px;
+  svg[role='selected-icon'] {
+    height: 18px;
+    width: 18px;
     margin: 1px 0 0 0;
     vertical-align: middle;
     flex-shrink: 0;
+    color: ${p => p.theme.accent.primary};
     opacity: ${props => (props.disabled ? '.5' : 1)};
   }
-  ${props =>
-    props.disabled
-      ? 'pointer-events: none;'
-      : `
+  cursor: pointer;
   &:hover,
-  &.focus-visible {
-    color: white;
-    background: ${props.theme.accent.primary};
-    box-shadow: none;
-    cursor: pointer;
-    svg {
-      fill: ${props.theme.text.primary};
-    }
+  &.focus-visible,
+  :focus {
+    background: ${p => p.theme.background.ternary};
   }
-  &:focus {
-    color: white;
-    background: ${props.theme.accent.primary};
-  }
-  `};
 `;
 
 export default MenuItem;

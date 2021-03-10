@@ -12,11 +12,12 @@ import {
   loadLogoRender,
   mapEntityToSelectOptions,
   uploadLogo,
+  validateForm,
 } from 'src/utils';
 import fetcher from 'src/utils/fetcher';
 import styled from 'styled-components';
 import { ModalIdentity, SelectOption } from 'typings';
-import { object, string, ValidationError } from 'yup';
+import { object, string } from 'yup';
 
 const schema = object().shape({
   name: string().required('Naming your service is requiered'),
@@ -35,28 +36,9 @@ const baseFormState = {
 
 interface NewServiceModalProps {
   title: string;
-  onRequestClose: (m: ModalIdentity<any>) => void;
+  onRequestClose: <T>(m: ModalIdentity<T>) => void;
   modalIdentity: ModalIdentity<typeof baseFormState>;
 }
-
-const validateForm = (
-  yupSchema: typeof schema,
-  values: typeof baseFormState | undefined,
-) => {
-  return yupSchema
-    .validate(values, { abortEarly: false })
-    .then(() => null)
-    .catch((error: ValidationError) => {
-      if (error.inner.length) {
-        throw error.inner.reduce((acc: any, curr) => {
-          if (curr.path) {
-            acc[curr.path] = curr.message;
-          }
-          return acc;
-        }, {});
-      }
-    });
-};
 
 const NewServiceModal: FC<NewServiceModalProps> = ({
   title,
@@ -64,18 +46,30 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   modalIdentity,
 }) => {
   const { data: config, sync: syncConfig } = configStore();
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const { activeModals, setUiStore } = uiStore();
+
+  const ctxModalIndex = uiStore(s => s.activeModals.indexOf(modalIdentity));
+  const setUiStore = uiStore(s => s.setUiStore);
 
   const [valitationState, setValitationState] = useState<
     { [key in keyof typeof baseFormState]: string } | Record<string, never>
   >({});
 
-  const ctxModalIndex = activeModals.findIndex(m => m.id === modalIdentity.id);
   const logoRenderRef = useRef<any>();
   const logoBlobRef = useRef<any>();
+  const categoriesOptions = mapEntityToSelectOptions(config?.categories);
 
   useEffect(() => {
+    if (logoRenderRef.current) {
+      fetch(logoRenderRef.current.src)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], 'logoPlaceHolder.png', {
+            type: 'image/png',
+          });
+          logoBlobRef.current = file;
+        });
+    }
+
     setUiStore(d => {
       d.activeModals[ctxModalIndex].data = baseFormState;
     });
@@ -85,8 +79,9 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
     const target = ev.target;
 
     if (target.type === 'file') {
-      logoBlobRef.current = target.files[0];
-      loadLogoRender(target.files[0], logoRenderRef);
+      const file = target.files[0];
+      logoBlobRef.current = file;
+      loadLogoRender(file, logoRenderRef);
     }
 
     setUiStore(d => {
@@ -97,8 +92,6 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       };
     });
   };
-
-  const categoriesOptions = mapEntityToSelectOptions(config?.categories);
 
   const categoryChangeHandler = (option: SelectOption) => {
     setUiStore(d => {
@@ -114,42 +107,28 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   ) => {
     ev.preventDefault();
 
-    try {
-      await validateForm(schema, modalIdentity.data);
-    } catch (err) {
-      setValitationState(err);
-      return;
-    }
-
     if (modalIdentity.data) {
-      const logoPath = await uploadLogo(logoBlobRef.current);
-
-      setUiStore(d => {
-        d.activeModals[ctxModalIndex].data = {
-          ...d.activeModals[ctxModalIndex].data,
-          logo: logoPath,
-        };
-      });
-
       const { target, category, ...formData } = modalIdentity.data;
 
-      const newService: Service = {
-        ...formData,
-        target: !!target ? '_blank' : '',
-        logo: logoPath,
-        category: config?.categories.find(c => c.id === category) as Category,
-      };
-      fetcher(['Service'], { data: newService }).then(() => {
+      try {
+        await validateForm(schema, modalIdentity.data);
+        const logoPath = await uploadLogo(logoBlobRef.current);
+
+        const newService: Service = {
+          ...formData,
+          target: !!target ? '_blank' : '',
+          logo: logoPath,
+          category: config?.categories.find(c => c.id === category) as Category,
+        };
+        await fetcher(['Service'], { data: newService });
         syncConfig();
-        setLogoFile(null);
         onRequestClose(modalIdentity);
-      });
+      } catch (err) {
+        setValitationState(err);
+        return;
+      }
     }
   };
-
-  useEffect(() => {
-    console.log(valitationState);
-  }, [valitationState]);
 
   return (
     <Modal
@@ -283,18 +262,6 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   );
 };
 
-// const lightStyles = css`
-//   background: ${p => p.theme.background.primary};
-//   box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
-//     rgba(0, 0, 0, 0.1) 0px 4px 8px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
-// `;
-
-// const darkStyles = css`
-//   background: ${p => p.theme.background.secondary};
-//   box-shadow: 0 0 0 1px ${p => invert(p.theme.text.primary)},
-//     0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
-// `;
-
 const FormFooter = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -302,48 +269,6 @@ const FormFooter = styled.div`
   box-shadow: inset 0 1px 0 0 ${p => p.theme.border.primary};
   padding: 24px;
 `;
-
-// const Select = styled.div`
-//   display: flex;
-//   width: 100%;
-
-//   [role='listbox'] {
-//     ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};
-//     width: 100%;
-//     border-radius: 6px;
-//     z-index: 991;
-//     display: flex;
-//     justify-content: flex-start;
-//     flex-direction: column;
-//     box-sizing: border-box;
-
-//     padding: 6px;
-//     position: relative;
-//   }
-
-//   [role='option'] {
-//     height: 36px;
-//     min-height: 36px;
-//     max-height: 36px;
-//     padding: 0 12px;
-//     font-size: 14px;
-//     display: flex;
-//     align-items: center;
-//     position: relative;
-//     border-radius: 4px;
-//   }
-
-//   [role='option']:hover {
-//     color: white;
-//     background: ${p => p.theme.accent.primary};
-//     cursor: pointer;
-//   }
-
-//   [role='combobox']:focus + [role='listbox'] [aria-selected='true'] {
-//     color: white;
-//     background: ${p => p.theme.accent.primary};
-//   }
-// `;
 
 const Row = styled.div`
   display: flex;
@@ -371,16 +296,13 @@ const Group = styled.div`
     background: ${p => p.theme.border.primary};
     position: absolute;
   }
-  /* :not(:last-child) {
-    box-shadow: inset 0 -1px 0 0 ${p => p.theme.border.primary};
-  } */
 
   h5 {
     margin: 0 0 18px 0;
     padding: 0;
     font-size: 14px;
     font-weight: 500;
-    color: ${p => p.theme.text.secondary};
+    color: ${p => p.theme.text.primary};
   }
 `;
 

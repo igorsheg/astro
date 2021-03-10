@@ -84,13 +84,17 @@ const ApperanceMenu = forwardRef<HTMLButtonElement>((props, ref) => {
         <MenuItem {...menu} as="checbox" onClick={() => setThemeFun('light')}>
           <Flex justify="space-between" auto>
             Light
-            {activeTheme === 'light' && <RadixIcons.CheckIcon />}
+            {activeTheme === 'light' && (
+              <RadixIcons.CheckIcon role="selected-icon" />
+            )}
           </Flex>
         </MenuItem>
         <MenuItem {...menu} onClick={() => setThemeFun('dark')}>
           <Flex justify="space-between" auto>
             Dark
-            {activeTheme === 'dark' && <RadixIcons.CheckIcon />}
+            {activeTheme === 'dark' && (
+              <RadixIcons.CheckIcon role="selected-icon" />
+            )}
           </Flex>
         </MenuItem>
       </ContextMenu>
@@ -117,8 +121,6 @@ const Seperator = styled(MenuSeparator)`
     width: calc(100% - 24px);
     background: ${p => p.theme.border.primary};
   }
-  /* display: inline-block; */
-  /* position: relative; */
 `;
 
 export default TopbarMenu;

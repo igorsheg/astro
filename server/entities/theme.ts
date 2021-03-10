@@ -21,7 +21,7 @@ export default class Theme {
   accent!: { primary: string; secondary: string };
 
   @Column('simple-json')
-  background!: { primary: string; secondary: string };
+  background!: { primary: string; secondary: string; ternary: string };
 
   @Column('simple-json')
   text!: { primary: string; secondary: string };
