@@ -19,7 +19,9 @@
 *.pem
 *.sqlite3
 public/logos/*
-!public/logos/logoPlaceHolder.png
+!public/logos/demo-*.png
+!public/logos/placeholder.png
+
 
 # debug
 npm-debug.log*

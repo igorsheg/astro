@@ -31,7 +31,7 @@ const baseFormState = {
   target: true,
   url: '',
   category: '',
-  logo: '/logos/logoPlaceHolder.png',
+  logo: '/logos/placeholder.png',
 };
 
 interface NewServiceModalProps {
@@ -63,7 +63,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       fetch(logoRenderRef.current.src)
         .then(res => res.blob())
         .then(blob => {
-          const file = new File([blob], 'logoPlaceHolder.png', {
+          const file = new File([blob], 'placeholder.png', {
             type: 'image/png',
           });
           logoBlobRef.current = file;
