@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/imgs/logo.png?raw=true" height="256" alt="Astro Logo" />
+  <img src="/imgs/logo.png?raw=true" height="128" alt="Astro Logo" />
 </p>
 <p align="center">
   <i>An open, extensible, dashboard for all of your homelab services.</i>
