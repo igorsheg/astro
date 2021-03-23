@@ -18,9 +18,13 @@ const Index: FC = () => {
     return null;
   }
 
+  function tpmt(x: number) {
+    return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
+  }
+
   const transitions = useTransition(activeTab, item => item, {
     from: {
-      transform: 'translate3d(0,15px,0)',
+      transform: 'translate3d(0,25px,0)',
       opacity: 0,
     },
     enter: {
@@ -28,10 +32,13 @@ const Index: FC = () => {
       opacity: 1,
     },
     leave: {
-      transform: 'translate3d(0,-15px,0)',
+      transform: 'translate3d(0,-25px,0)',
       opacity: 0,
     },
-    config: { tension: 500, friction: 30 },
+    config: {
+      duration: 420,
+      easing: (t: number) => 1 - tpmt(t),
+    },
   });
 
   const categoriesWithAllTab = useCallback(() => {
@@ -39,9 +46,6 @@ const Index: FC = () => {
       withRest: true,
     });
   }, [config]);
-  // const categoriesWithAllTab = servicesUtils(
-  //   config.categories,
-  // ).getAllTabServices({ withRest: true });
 
   const onCategoryClickHandler = (category: Category['id']) => {
     setUiStore(d => {
@@ -54,9 +58,6 @@ const Index: FC = () => {
       d.searchTerm = ev.target.value;
     });
   };
-
-  const ctxItems = categoriesWithAllTab().find(c => c.id === activeTab)
-    ?.services as Service[];
 
   return (
     <>
@@ -72,9 +73,14 @@ const Index: FC = () => {
         <Grid>
           <Padder y={18} />
           <div>
-            {transitions.map(({ props, key }) => (
+            {transitions.map(({ props, key, item }) => (
               <AnimatedWrap key={key} style={props}>
-                <ServiceList items={ctxItems} />
+                <ServiceList
+                  items={
+                    categoriesWithAllTab().find(c => c.id === item)
+                      ?.services as any
+                  }
+                />
               </AnimatedWrap>
             ))}
           </div>

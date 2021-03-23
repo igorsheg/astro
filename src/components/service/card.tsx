@@ -16,12 +16,7 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
         <StyledCard>
           <Title>
             <Logo>
-              <Image
-                layout="fixed"
-                width="42px"
-                height="42px"
-                src={'/logos' + '/' + item.logo}
-              />
+              <img src={'/logos' + '/' + item.logo} />
             </Logo>
             <Padder x={12} />
             <Description>
@@ -65,6 +60,11 @@ const Logo = styled.div`
   min-height: 42px;
   min-width: 42px;
   width: 42px;
+
+  img {
+    display: block;
+    height: 100%;
+  }
 `;
 const Title = styled.div`
   display: flex;

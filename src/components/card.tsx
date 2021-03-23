@@ -3,22 +3,26 @@ import styled, { css } from 'styled-components';
 
 const lightStyles = css`
   background: ${p => p.theme.background.primary};
-  box-shadow: 0 1px 2px 0px ${p => transparentize(0.95, p.theme.text.primary)},
-    0 0 0 1px ${p => p.theme.border.primary} inset;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.02),
+    0 2px 2px -1px rgba(0, 0, 0, 0.05), 0 0 0 1px ${p => p.theme.border.primary};
 
   :hover {
-    box-shadow: 0 2px 9px 0px ${p => transparentize(0.95, p.theme.text.primary)},
-      0 0 0 1px ${p => p.theme.border.primary} inset;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.07),
+      0 2px 2px -1px rgba(0, 0, 0, 0.05),
+      0 0 0 1px ${p => p.theme.border.primary};
   }
 `;
 
 const darkStyles = css`
   background: ${p => p.theme.background.primary};
-  box-shadow: 0 0 0 1px ${p => invert(p.theme.text.primary)},
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0), 0 2px 2px -1px rgba(0, 0, 0, 0),
+    0 0 0 1px ${p => invert(p.theme.text.primary)},
     0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
 
   :hover {
-    box-shadow: 0 3px 12px 0px ${p => invert(p.theme.text.primary)},
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15),
+      0 2px 2px -1px rgba(0, 0, 0, 0.3),
+      0 0 0 1px ${p => invert(p.theme.text.primary)},
       0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
   }
 `;

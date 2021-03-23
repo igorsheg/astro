@@ -13,6 +13,7 @@ import styled, { css } from 'styled-components';
 import { SelectOption } from 'typings';
 import { Input } from '.';
 import Flex from '../flex';
+import Padder from '../padder';
 
 interface SelectProps extends Pick<ReakitInputProps, 'aria-errormessage'> {
   options: SelectOption[];
@@ -55,6 +56,12 @@ const Select: FC<SelectProps> = ({
 
   return (
     <Flex column auto>
+      {label && (
+        <>
+          <InputLabel>{label}</InputLabel>
+          <Padder y={6} />
+        </>
+      )}
       <StyledSelect>
         <Combobox
           {...combobox}
@@ -89,6 +96,11 @@ const Select: FC<SelectProps> = ({
     </Flex>
   );
 };
+
+const InputLabel = styled.label`
+  font-size: 13px;
+  font-weight: 600;
+`;
 
 const ValidationMessage = styled.span`
   font-size: 12px;

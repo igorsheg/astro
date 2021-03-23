@@ -46,6 +46,10 @@ const Modal: FC<ModalProps> = ({
   const isOpen =
     activeModals.find(m => m.id === modalIdentity.id)?.state === 'expnanded';
 
+  const activeModalIndex = activeModals.findIndex(
+    m => m.id === modalIdentity.id,
+  );
+
   const getModalDimentions = () => {
     if (modalRef && modalRef.current) {
       return modalRef.current?.getBoundingClientRect().toJSON();
@@ -77,6 +81,9 @@ const Modal: FC<ModalProps> = ({
     config: { tension: 2000, clamp: true },
   }));
 
+  const getModalSpaceDelta = (dimention: 'height' | 'width') =>
+    getWindowDimensions()[dimention] - getModalDimentions()[dimention];
+
   const bindCanvas = useDrag(
     ({ offset, down }) => {
       if (down) {
@@ -89,31 +96,37 @@ const Modal: FC<ModalProps> = ({
       enabled: true,
       axis: isTucked ? 'x' : undefined,
       domTarget: ref,
-      // bounds: {
-      //   left: -(getWindowDimensions().width - 600),
-      //   right: getWindowDimensions().width - 600,
-      //   top: -(
-      //     getWindowDimensions().height -
-      //     (getModalDimentions().height + 300 || 0)
-      //   ),
-      //   bottom:
-      //     getWindowDimensions().height - (getModalDimentions().height || 0),
-      // },
+      bounds: {
+        left: -getModalSpaceDelta('width'),
+        right: getModalSpaceDelta('width'),
+        top: -getModalSpaceDelta('height') / 2,
+        bottom: getModalSpaceDelta('height') * 2 + 42,
+      },
     },
   );
 
+  function tpmt(x: number) {
+    return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
+  }
+
   const [enterAnimation, setEnterAnimation] = useSpring(() => ({
     opacity: 0,
-    transform: 'translateY(15px)',
-    config: { tension: 300, friction: 30, velocity: 20 },
+    transform: 'translate(0px, 50px) ',
+    transformOrigin: '300px 30px',
+    config: {
+      duration: 420,
+      easing: (t: number) => 1 - tpmt(t),
+    },
   }));
 
   useEffect(() => {
-    const tucked = `translateY(${
-      getWindowDimensions().height - getModalDimentions().y - 60
-    }px)`;
-    const expanded = `translateY(0px)`;
-    const collapsed = `translateY(15px)`;
+    const tucked = `translate(${
+      -getModalDimentions().x + activeModalIndex * 108
+    }px,
+      ${getWindowDimensions().height - getModalDimentions().y - 60}px) `;
+
+    const expanded = `translate(0px, 0px) `;
+    const collapsed = `translate(0px, 15px) `;
 
     setEnterAnimation({
       transform: isOpen ? expanded : isTucked ? tucked : collapsed,
@@ -186,14 +199,19 @@ const Modal: FC<ModalProps> = ({
 
 const lightStyles = css`
   background: ${p => p.theme.background.primary};
-  box-shadow: 0 1px 2px 0px ${p => transparentize(0.95, p.theme.text.primary)},
-    0 0 0 1px ${p => p.theme.border.primary} inset;
+  box-shadow: 0 40px 64px 0 rgba(65, 78, 101, 0.1),
+    0 24px 32px 0 rgba(65, 78, 101, 0.1), 0 16px 16px 0 rgba(65, 78, 101, 0.1),
+    0 8px 8px 0 rgba(65, 78, 101, 0.1), 0 4px 4px 0 rgba(65, 78, 101, 0.1),
+    0 2px 2px 0 rgba(65, 78, 101, 0.1);
 `;
 
 const darkStyles = css`
   background: ${p => p.theme.background.primary};
   box-shadow: 0 0 0 1px ${p => invert(p.theme.text.primary)},
-    0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset;
+    0 0 0 1px ${p => transparentize(0, p.theme.border.primary)} inset,
+    0 40px 64px 0 rgba(0, 0, 0, 0.2), 0 24px 32px 0 rgba(0, 0, 0, 0.2),
+    0 16px 16px 0 rgba(0, 0, 0, 0.2), 0 8px 8px 0 rgba(0, 0, 0, 0.2),
+    0 4px 4px 0 rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.2);
 `;
 
 const Blanket = styled(DialogBackdrop)<{ isTucked: boolean }>`

@@ -161,15 +161,15 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
           <Padder y={24} />
 
           <Group>
-            <h5>General Info</h5>
             <Row>
               <RowContent>
                 <Input
-                  onChange={() => false}
                   name="name"
+                  label="Service Name"
+                  onChange={() => false}
+                  placeholder="Plex Media Server"
                   aria-errormessage={valitationState['name']}
                   value={modalIdentity?.data?.name}
-                  placeholder="Service Name"
                 />
               </RowContent>
 
@@ -177,10 +177,11 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
 
               <RowContent>
                 <Input
+                  label="Service Url"
                   name="url"
+                  placeholder="https://plex.example.com"
                   value={modalIdentity?.data?.url}
                   aria-errormessage={valitationState['url']}
-                  placeholder="Service Url"
                 />
               </RowContent>
             </Row>
@@ -188,11 +189,12 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
             <Row>
               <RowContent>
                 <Input
+                  label="Description"
                   as="textarea"
                   name="description"
                   value={modalIdentity?.data?.description}
                   aria-errormessage={valitationState['description']}
-                  placeholder="Service Description"
+                  placeholder="write a bit about your service..."
                 />
               </RowContent>
             </Row>
@@ -217,8 +219,6 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
           <Padder y={24} />
 
           <Group>
-            <h5>Settings</h5>
-
             <Row>
               <RowLabel>
                 <Flex align="center">

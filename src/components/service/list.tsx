@@ -16,6 +16,10 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
     return filterServicesItems(items, searchTerm);
   }, [searchTerm, items]);
 
+  function tpmt(x: number) {
+    return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
+  }
+
   const transitions = useTransition(filteredData(), item => item.name, {
     from: { transform: 'translate3d(0,15px,0)', opacity: 0 },
     enter: {
@@ -27,11 +31,10 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
       opacity: 0,
     },
     config: {
-      tension: 500,
-      friction: 30,
-      duration: searchTerm.length ? 0 : undefined,
+      duration: searchTerm.length ? 0 : 420,
+      easing: (t: number) => 1 - tpmt(t),
     },
-    trail: searchTerm.length ? 0 : 20,
+    trail: searchTerm.length ? 0 : 25,
   });
 
   return (
