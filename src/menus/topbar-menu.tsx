@@ -1,5 +1,5 @@
 import * as RadixIcons from '@radix-ui/react-icons';
-import React, { FC, forwardRef } from 'react';
+import React, { FC, forwardRef, useEffect } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
 import { ModalTypes } from 'typings';
 import generateUuid from 'src/utils/generateUuid';
@@ -10,11 +10,33 @@ import { localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
 
 const TopbarMenu: FC = () => {
-  const { setUiStore } = uiStore();
+  const { setUiStore, activeModals } = uiStore();
   const menu = useMenuState({
     animated: 120,
     modal: false,
   });
+
+  const createNewModal = (modalType: ModalTypes) => {
+    const existingModalTypeIndex = activeModals.findIndex(
+      d => d.label === modalType,
+    );
+    const hasExistingModalType = existingModalTypeIndex !== -1;
+
+    if (hasExistingModalType) {
+      setUiStore(d => {
+        d.activeModals[existingModalTypeIndex].state = 'expnanded';
+      });
+      return;
+    } else {
+      setUiStore(d => {
+        d.activeModals.push({
+          id: generateUuid(),
+          label: modalType,
+          state: 'expnanded',
+        });
+      });
+    }
+  };
 
   return (
     <>
@@ -34,25 +56,16 @@ const TopbarMenu: FC = () => {
       <ContextMenu aria-label="Manage Astro Menu" {...menu}>
         <MenuItem
           {...menu}
-          onClick={() =>
-            setUiStore(d => {
-              const ctxModal = d.activeModals.findIndex(
-                d => d.id === 'new-service',
-              );
-              ctxModal !== -1
-                ? (d.activeModals[ctxModal].state = 'expnanded')
-                : d.activeModals.push({
-                    id: generateUuid(),
-                    title: 'Create New Service',
-                    label: ModalTypes['new-service'],
-                    state: 'expnanded',
-                  });
-            })
-          }
+          onClick={() => createNewModal(ModalTypes['new-service'])}
         >
           New Service
         </MenuItem>
-        <MenuItem {...menu}>New Category</MenuItem>
+        <MenuItem
+          onClick={() => createNewModal(ModalTypes['new-category'])}
+          {...menu}
+        >
+          New Category
+        </MenuItem>
         <MenuItem {...menu}>New Note</MenuItem>
 
         <Seperator />
