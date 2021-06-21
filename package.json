@@ -7,7 +7,7 @@
     "db:init": "ts-node --project tsconfig.server.json ./server/config/initDb.ts",
     "dev": "NODE_ENV=development ts-node-dev --ignore-watch .next --project tsconfig.server.json server/index.ts",
     "build": "next build && tsc --project tsconfig.server.json",
-    "start": "NODE_ENV=production next start",
+    "start": "NODE_ENV=production node bin/index.js",
     "typeorm": "ts-node --project tsconfig.server.json ./node_modules/typeorm/cli.js"
   },
   "husky": {

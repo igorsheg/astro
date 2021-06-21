@@ -35,13 +35,11 @@ const baseFormState = {
 };
 
 interface NewServiceModalProps {
-  title: string;
   onRequestClose: <T>(m: ModalIdentity<T>) => void;
   modalIdentity: ModalIdentity<typeof baseFormState>;
 }
 
 const NewServiceModal: FC<NewServiceModalProps> = ({
-  title,
   onRequestClose,
   modalIdentity,
 }) => {
@@ -133,7 +131,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   return (
     <Modal
       onRequestClose={onRequestClose}
-      title={title}
+      title={'Create New Service'}
       modalIdentity={modalIdentity}
     >
       <form onChange={onFormChange}>

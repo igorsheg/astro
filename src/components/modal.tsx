@@ -93,8 +93,7 @@ const Modal: FC<ModalProps> = ({
     },
 
     {
-      enabled: true,
-      axis: isTucked ? 'x' : undefined,
+      enabled: !isTucked,
       domTarget: ref,
       bounds: {
         left: -getModalSpaceDelta('width'),
@@ -239,7 +238,7 @@ const StyledModal = styled(animated(Dialog))<{ ref: any }>`
   position: absolute;
   border-radius: 6px;
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
   opacity: 1;
   flex-direction: column;
   max-height: calc(100vh - 96px);
@@ -274,8 +273,8 @@ const Header = styled.div`
 const Body = styled.div`
   display: flex;
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
+  /* overflow-x: hidden; */
+  /* overflow-y: auto; */
   flex-direction: column;
 `;
 

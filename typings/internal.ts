@@ -31,4 +31,5 @@ export interface ModalIdentity<T> {
 export interface SelectOption {
   id: string;
   value: string;
+  icon?: RadixIconTypes;
 }

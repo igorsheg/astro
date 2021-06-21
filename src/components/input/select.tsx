@@ -11,9 +11,11 @@ import {
 } from 'reakit';
 import styled, { css } from 'styled-components';
 import { SelectOption } from 'typings';
+import { RadixIconTypes } from 'typings/radixIconsTypes';
 import { Input } from '.';
 import Flex from '../flex';
 import Padder from '../padder';
+import * as RadixIcons from '@radix-ui/react-icons';
 
 interface SelectProps extends Pick<ReakitInputProps, 'aria-errormessage'> {
   options: SelectOption[];
@@ -48,6 +50,8 @@ const Select: FC<SelectProps> = ({
   const animationProps = useSpring({
     opacity: combobox.visible ? 1 : 0,
     transform: `translateY(${combobox.visible ? '0px' : '-2px'})`,
+    overflow: 'scroll',
+    maxHeight: 240,
     config: {
       duration: 240,
       easing: (t: number) => 1 - tpmt(t),
@@ -75,18 +79,19 @@ const Select: FC<SelectProps> = ({
 
         <ComboboxPopover {...combobox} aria-label={label}>
           <animated.div style={animationProps}>
-            {options.map(option => (
-              <ComboboxOption
-                key={option.id}
-                id={option.id}
-                aria-selected={option.id === defaultOptionId}
-                value={option.value}
-                {...combobox}
-              >
-                {option.value}
-                {option.id === defaultOptionId && <CheckIcon />}
-              </ComboboxOption>
-            ))}
+            {options.map(option => {
+              return (
+                <ComboboxOption
+                  key={option.id}
+                  id={option.id}
+                  aria-selected={option.id === defaultOptionId}
+                  value={option.value}
+                  {...combobox}
+                >
+                  <Option defaultOptionId={defaultOptionId} option={option} />
+                </ComboboxOption>
+              );
+            })}
           </animated.div>
         </ComboboxPopover>
       </StyledSelect>
@@ -96,6 +101,72 @@ const Select: FC<SelectProps> = ({
     </Flex>
   );
 };
+
+interface OptionContentTypes extends Pick<SelectProps, 'defaultOptionId'> {
+  option: SelectOption;
+}
+
+const Option: FC<OptionContentTypes> = ({ option, defaultOptionId }) => {
+  return (
+    <OptionContent>
+      <OptionBody>
+        {option.icon && <IconPrefix iconId={option.icon} />}
+        {option.value}
+      </OptionBody>
+      <OptionSuffix>
+        {option.id === defaultOptionId && <CheckIcon />}
+      </OptionSuffix>
+    </OptionContent>
+  );
+};
+
+const IconPrefix = ({ iconId }: { iconId: RadixIconTypes }) => {
+  const RadixIcon = RadixIcons[iconId];
+  return (
+    <Icon>
+      <RadixIcon />
+    </Icon>
+  );
+};
+
+const OptionContent = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  height: 100%;
+  align-items: center;
+`;
+
+const OptionBody = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+const Icon = styled.span`
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 12px 0 0;
+
+  svg {
+    color: ${p => p.theme.text.primary};
+    display: block;
+    height: auto;
+  }
+`;
+const OptionSuffix = styled.span`
+  display: flex;
+  align-self: center;
+  justify-self: flex-end;
+  width: 21px;
+  height: 21px;
+  svg {
+    width: 21px;
+    height: 21px;
+    color: ${p => p.theme.accent.primary};
+  }
+`;
 
 const InputLabel = styled.label`
   font-size: 13px;
@@ -150,12 +221,6 @@ const StyledSelect = styled.div`
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
-
-    svg {
-      width: 21px;
-      height: 21px;
-      color: ${p => p.theme.accent.primary};
-    }
   }
 
   &[aria-invalid='true'] {

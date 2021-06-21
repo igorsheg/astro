@@ -6,6 +6,7 @@ import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
 import Loader from 'src/components/fullpage-loader';
 import { PageTransition } from 'src/components/page-transition';
+import NewCategoryModal from 'src/modals/new-category';
 import {
   configStore,
   localSrorageStore,
@@ -58,7 +59,7 @@ const MyApp = () => {
 
   const MODALS = {
     [ModalTypes['new-service']]: NewServiceModal,
-    [ModalTypes['new-category']]: NewServiceModal,
+    [ModalTypes['new-category']]: NewCategoryModal,
   };
 
   // useEffect(() => {
@@ -90,7 +91,6 @@ const MyApp = () => {
               key={modal.id}
               onRequestClose={modalCloseRequest}
               modalIdentity={modal}
-              title={modal.title || ''}
             />
           );
         })}
