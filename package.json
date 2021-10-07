@@ -40,6 +40,7 @@
     "axios": "^0.21.1",
     "compression": "^1.7.4",
     "dotenv": "^8.2.0",
+    "framer-motion": "^4.1.17",
     "immer": "^8.0.1",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",

@@ -22,7 +22,7 @@ export const SearchInput: FC<SearchInputProps> = ({
         <MagnifyingGlassIcon />
       </Prefix>
       <input
-        value={value}
+        defaultValue={value}
         onChange={onChange}
         placeholder="Search by service name or tags"
         tabIndex={0}

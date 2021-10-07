@@ -1,6 +1,8 @@
 import * as RadixIcons from '@radix-ui/react-icons';
+import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import { transparentize } from 'polished';
-import React, { ChangeEvent, FC, useState } from 'react';
+import React, { ChangeEvent, FC, useEffect, useState } from 'react';
 import { SAMPLE_CONFIG } from 'server/config/seed-data';
 import { Category } from 'server/entities';
 import Button from 'src/components/button';
@@ -14,7 +16,7 @@ import styled from 'styled-components';
 import { ModalIdentity, SelectOption } from 'typings';
 import { RadixIconTypes } from 'typings/radixIconsTypes';
 import { object, string } from 'yup';
-import { List, ListRowProps } from 'react-virtualized';
+
 const baseFormState: {
   name: string;
   description: string;
@@ -106,13 +108,14 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
       title={'Create New Category'}
       modalIdentity={modalIdentity}
     >
-      <form onChange={onFormChange}>
+      <form>
         <FormBody>
           <Group>
             <RowContent>
               <Input
                 label="Category Name"
                 name="name"
+                onChange={debounce(onFormChange, 200)}
                 placeholder="Home Media"
                 aria-errormessage={valitationState['name']}
               />
@@ -123,24 +126,18 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
                 <label>Category Icon</label>
                 <IconListBody>
                   <SearchInput
-                    onChange={ev => filter(ev.target.value)}
+                    onChange={throttle(ev => filter(ev.target.value), 200)}
                     placeholder="Search for icons..."
                   />
                   <IconsList>
-                    <List
-                      width={538}
-                      rowCount={297}
-                      height={420}
-                      rowHeight={42}
-                      rowRenderer={vitrualProps => (
-                        <RowItem
-                          options={iconsOptions}
-                          modalIdentity={modalIdentity}
-                          onIconChangeHandler={onIconChangeHandler}
-                          {...vitrualProps}
-                        />
-                      )}
-                    />
+                    {iconsOptions.map(iconOpt => (
+                      <RowItem
+                        key={iconOpt.id}
+                        option={iconOpt}
+                        modalIdentity={modalIdentity}
+                        onIconChangeHandler={onIconChangeHandler}
+                      />
+                    ))}
                   </IconsList>
                 </IconListBody>
               </IconsListWrap>
@@ -178,33 +175,30 @@ interface IconOption {
   value: string;
   id: string;
 }
-interface IconListProps extends ListRowProps {
-  options: IconOption[];
+interface IconListProps {
+  option: IconOption;
   modalIdentity: ModalIdentity<typeof baseFormState>;
   onIconChangeHandler: (opt: IconOption) => void;
 }
 const RowItem: FC<IconListProps> = ({
-  options,
+  option,
   modalIdentity,
   onIconChangeHandler,
-  ...vitrualProps
 }) => {
-  const IconRender = RadixIcons[options[vitrualProps.index].icon];
-  const ctxOption = options[vitrualProps.index];
+  const IconRender = RadixIcons[option.icon];
 
   return (
     <IconItem
-      selected={modalIdentity.data?.icon === ctxOption.id}
+      selected={modalIdentity.data?.icon === option.id}
       tabIndex={0}
-      onClick={() => onIconChangeHandler(ctxOption)}
-      {...vitrualProps}
+      onClick={() => onIconChangeHandler(option)}
     >
       <Flex align="center" data-icon-content>
         <IconRender />
-        {ctxOption.value}
+        {option.value}
       </Flex>
       <Flex data-icon-checkmark>
-        {modalIdentity.data?.icon === ctxOption.id && <RadixIcons.CheckIcon />}
+        {modalIdentity.data?.icon === option.id && <RadixIcons.CheckIcon />}
       </Flex>
     </IconItem>
   );
@@ -250,10 +244,10 @@ const IconsList = styled.div`
   position: relative;
   background: ${p => p.theme.background.secondary};
   display: flex;
-  min-height: 420px;
-  max-height: 420px;
+  max-height: calc(100vh - 500px);
+  height: 100%;
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   flex-direction: column;
   border-radius: 6px;
   padding: 6px;

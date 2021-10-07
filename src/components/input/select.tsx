@@ -1,5 +1,5 @@
 import * as RadixIcons from '@radix-ui/react-icons';
-import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { CheckIcon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
 import React, { FC, useEffect } from 'react';
 import { animated, useSpring } from 'react-spring';
@@ -49,7 +49,7 @@ const Select: FC<SelectProps> = ({
   const animationProps = useSpring({
     opacity: combobox.visible ? 1 : 0,
     transform: `translateY(${combobox.visible ? '0px' : '-2px'})`,
-    overflow: 'scroll',
+    overflow: 'auto',
     maxHeight: 240,
     config: {
       duration: 240,

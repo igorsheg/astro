@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { AppProps } from 'next/dist/next-server/lib/router/router';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
 import Loader from 'src/components/fullpage-loader';
-import { PageTransition } from 'src/components/page-transition';
-import NewCategoryModal from 'src/modals/new-category';
-// import DeleteModal from 'src/modals/delete-modal';
 import {
   configStore,
   localSrorageStore,
@@ -18,15 +16,19 @@ import GlobalStyle from 'src/styles/global';
 import { ThemeProvider } from 'styled-components';
 import { ModalIdentity, ModalTypes } from 'typings/internal';
 
-const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
-  ssr: false,
+const ServiceModal = dynamic(() => import('src/modals/new-service'), {
+  ssr: true,
 });
 
 const DeleteModal = dynamic(() => import('src/modals/delete-modal'), {
   ssr: false,
 });
 
-const MyApp = () => {
+const CategoryModal = dynamic(() => import('src/modals/new-category'), {
+  ssr: false,
+});
+
+const MyApp = ({ Component, pageProps }: AppProps) => {
   const { activeTheme } = localSrorageStore();
   const [mounted, mount] = useState(false);
 
@@ -63,12 +65,10 @@ const MyApp = () => {
   };
 
   const MODALS = {
-    [ModalTypes['new-service']]: NewServiceModal,
-    [ModalTypes['new-category']]: NewCategoryModal,
+    [ModalTypes['new-service']]: ServiceModal,
+    [ModalTypes['new-category']]: CategoryModal,
     [ModalTypes['new-delete']]: DeleteModal,
   };
-
-  console.log(activeModals);
 
   return (
     <>
@@ -98,13 +98,7 @@ const MyApp = () => {
             />
           );
         })}
-        {!configData || !mounted ? (
-          <Loader />
-        ) : (
-          <PageTransition>
-            {({ Component, pageProps }) => <Component {...pageProps} />}
-          </PageTransition>
-        )}
+        {!configData || !mounted ? <Loader /> : <Component {...pageProps} />}
       </ThemeProvider>
     </>
   );
