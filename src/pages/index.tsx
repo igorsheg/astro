@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useCallback } from 'react';
+import React, { ChangeEvent, FC, useEffect } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Category } from 'server/entities';
 import Flex from 'src/components/flex';
@@ -6,20 +6,21 @@ import Grid from 'src/components/grid';
 import Padder from 'src/components/padder';
 import { ServiceList } from 'src/components/service';
 import NavBar from 'src/components/topbar';
-import { configStore, uiStore } from 'src/stores';
+import { configStore, serviceStore, uiStore } from 'src/stores';
 import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
-
+import debounce from 'lodash/debounce';
 const Index: FC = () => {
   const { activeTab, searchTerm, setUiStore } = uiStore();
   const { data: config } = configStore();
+  const { data: services, sync: syncServices } = serviceStore();
+
+  useEffect(() => {
+    syncServices();
+  }, [syncServices]);
 
   if (!config) {
     return null;
-  }
-
-  function tpmt(x: number) {
-    return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
   }
 
   const transitions = useTransition(activeTab, {
@@ -36,16 +37,15 @@ const Index: FC = () => {
       opacity: 0,
     },
     config: {
-      duration: 680,
-      easing: (t: number) => 1 - tpmt(t),
+      tension: 300,
     },
   });
 
-  const categoriesWithAllTab = useCallback(() => {
-    return servicesUtils(config.categories).getAllTabServices({
-      withRest: true,
-    });
-  }, [config.categories]);
+  const categoriesWithAllTab = servicesUtils(
+    config.categories,
+  ).getAllTabServices({
+    withRest: true,
+  });
 
   const onCategoryClickHandler = (category: Category['id']) => {
     setUiStore(d => {
@@ -62,11 +62,11 @@ const Index: FC = () => {
   return (
     <>
       <NavBar
-        catagories={categoriesWithAllTab()}
+        catagories={categoriesWithAllTab}
         activeCategory={activeTab}
         onCategoryClick={onCategoryClickHandler}
         searchTerm={searchTerm}
-        onSearchTermChange={onSearchTermChangeHandler}
+        onSearchTermChange={debounce(ev => onSearchTermChangeHandler(ev), 200)}
       />
       <Padder y={204} />
       <Flex align="center" justify="center" column>
@@ -77,8 +77,9 @@ const Index: FC = () => {
               <AnimatedWrap style={style}>
                 <ServiceList
                   items={
-                    categoriesWithAllTab().find(c => c.id === item)?.services ||
-                    []
+                    activeTab === 0
+                      ? services || []
+                      : services?.filter(s => s.category.id === activeTab) || []
                   }
                 />
               </AnimatedWrap>

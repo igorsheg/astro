@@ -1,4 +1,6 @@
 import { UploadIcon } from '@radix-ui/react-icons';
+import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { Checkbox as ReakitCheckbox } from 'reakit/Checkbox';
 import { Category, Service } from 'server/entities';
@@ -7,7 +9,7 @@ import Flex from 'src/components/flex';
 import { Input, Select } from 'src/components/input';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { configStore, uiStore } from 'src/stores';
+import { categoryStore, serviceStore, uiStore } from 'src/stores';
 import {
   loadLogoRender,
   mapEntityToSelectOptions,
@@ -22,7 +24,9 @@ import { object, string } from 'yup';
 const schema = object().shape({
   name: string().required('Naming your service is requiered'),
   url: string().url().required('Linking you service is reqieried'),
-  category: string().required('Adding your service to a category is reqiered'),
+  categoryId: string().required(
+    'Adding your service to a category is reqiered',
+  ),
 });
 
 const baseFormState = {
@@ -30,7 +34,7 @@ const baseFormState = {
   description: '',
   target: true,
   url: '',
-  category: 0,
+  categoryId: 0,
   logo: '/logos/placeholder.png',
 };
 
@@ -43,7 +47,12 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   onRequestClose,
   modalIdentity,
 }) => {
-  const { data: config, sync: syncConfig } = configStore();
+  const { sync: syncServices } = serviceStore();
+  const { data: categories, sync: syncCategories } = categoryStore();
+
+  useEffect(() => {
+    syncCategories();
+  }, []);
 
   const ctxModalIndex = uiStore(s => s.activeModals.indexOf(modalIdentity));
   const setUiStore = uiStore(s => s.setUiStore);
@@ -54,7 +63,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
 
   const logoRenderRef = useRef<any>();
   const logoBlobRef = useRef<any>();
-  const categoriesOptions = mapEntityToSelectOptions(config?.categories);
+  const categoriesOptions = mapEntityToSelectOptions(categories || []);
 
   useEffect(() => {
     if (logoRenderRef.current) {
@@ -95,7 +104,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
     setUiStore(d => {
       d.activeModals[ctxModalIndex].data = {
         ...d.activeModals[ctxModalIndex].data,
-        category: option.id,
+        categoryId: option.id,
       };
     });
   };
@@ -105,8 +114,8 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   ) => {
     ev.preventDefault();
 
-    if (modalIdentity.data) {
-      const { target, category, ...formData } = modalIdentity.data;
+    if (modalIdentity.data && categories) {
+      const { target, categoryId, ...formData } = modalIdentity.data;
 
       try {
         await validateForm(schema, modalIdentity.data);
@@ -116,10 +125,11 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
           ...formData,
           target: !!target ? '_blank' : '',
           logo: logoPath,
-          category: config?.categories.find(c => c.id === category) as Category,
+          category: categories.find(c => c.id === categoryId) as Category,
         };
+
         await fetcher(['Service'], { data: newService });
-        syncConfig();
+        await syncServices();
         onRequestClose(modalIdentity);
       } catch (err: any) {
         setValitationState(err);
@@ -135,7 +145,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       title={'Create New Service'}
       modalIdentity={modalIdentity}
     >
-      <form onChange={onFormChange}>
+      <form onChange={debounce(ev => onFormChange(ev), 200)}>
         <FormBody>
           <Group>
             <Row>
@@ -165,10 +175,9 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                 <Input
                   name="name"
                   label="Service Name"
-                  onChange={() => false}
                   placeholder="Plex Media Server"
                   aria-errormessage={valitationState['name']}
-                  value={modalIdentity?.data?.name}
+                  defaultValue={modalIdentity.data?.name}
                 />
               </RowContent>
 
@@ -179,8 +188,8 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                   label="Service Url"
                   name="url"
                   placeholder="https://plex.example.com"
-                  value={modalIdentity?.data?.url}
                   aria-errormessage={valitationState['url']}
+                  defaultValue={modalIdentity.data?.url}
                 />
               </RowContent>
             </Row>
@@ -191,7 +200,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                   label="Description"
                   as="textarea"
                   name="description"
-                  value={modalIdentity?.data?.description}
+                  defaultValue={modalIdentity?.data?.description}
                   aria-errormessage={valitationState['description']}
                   placeholder="write a bit about your service..."
                 />
@@ -202,13 +211,15 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
 
             <Row>
               <RowContent>
-                <Select
-                  label="Categories"
-                  options={categoriesOptions}
-                  aria-errormessage={valitationState['category']}
-                  defaultOptionId={modalIdentity.data?.category || 0}
-                  onChange={categoryChangeHandler}
-                />
+                {modalIdentity.data && (
+                  <Select
+                    label="Categories"
+                    options={categoriesOptions}
+                    aria-errormessage={valitationState['categoryId']}
+                    defaultOptionId={modalIdentity.data?.categoryId}
+                    onChange={categoryChangeHandler}
+                  />
+                )}
               </RowContent>
             </Row>
 

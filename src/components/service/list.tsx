@@ -1,5 +1,6 @@
+import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion';
 import React, { FC, useCallback } from 'react';
-import { animated, useTransition } from 'react-spring';
+import { a, useTransition } from 'react-spring';
 import { Service } from 'server/entities';
 import { uiStore } from 'src/stores';
 import { filterServicesItems } from 'src/utils';
@@ -34,31 +35,27 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
       duration: searchTerm.length ? 0 : 680,
       easing: (t: number) => 1 - tpmt(t),
     },
-    trail: searchTerm.length ? 0 : 25,
+    // trail: searchTerm.length ? 0 : 25,
   });
 
   return (
     <StyledList>
-      {transitions((style, item, t, i) => (
-        <AnimatedCard
-          index={i}
-          style={{ ...style, zIndex: filteredData()?.length - i }}
-        >
-          {/* {console.log(filteredData()[i])} */}
-          <ServiceCard item={items[i]} />
+      {filteredData().map((s, i) => (
+        <AnimatedCard key={s.id} style={{ zIndex: filteredData()?.length - i }}>
+          <ServiceCard item={s} />
         </AnimatedCard>
       ))}
     </StyledList>
   );
 };
 
-const StyledList = styled.section`
+const StyledList = styled(a.section)`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
 `;
 
-const AnimatedCard = styled(animated.div)<{ index: number }>`
+const AnimatedCard = styled(a.div)`
   flex: 1;
   display: flex;
   position: relative;

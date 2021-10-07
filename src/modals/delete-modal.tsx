@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import Button from 'src/components/button';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { configStore } from 'src/stores';
+import { configStore, serviceStore } from 'src/stores';
 import { fetcher } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity } from 'typings';
@@ -25,7 +25,7 @@ const DeleteModal: FC<DeleteModalProps> = ({
   onRequestClose,
   modalIdentity,
 }) => {
-  const { sync: syncConfig } = configStore();
+  const { sync: syncServices } = serviceStore();
 
   const onConfirmHandler = async () => {
     if (modalIdentity.data && modalIdentity.data.item) {
@@ -33,7 +33,7 @@ const DeleteModal: FC<DeleteModalProps> = ({
         data: modalIdentity.data.item,
         method: 'DELETE',
       });
-      syncConfig();
+      syncServices();
       onRequestClose(modalIdentity);
     }
   };

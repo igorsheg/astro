@@ -23,8 +23,6 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
 
   if (!item) return null;
 
-  // console.log(item);
-
   return (
     <WrapPadder>
       <a
