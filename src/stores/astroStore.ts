@@ -27,7 +27,7 @@ const baseStore = <T>(key: FetcherRequestKeys, store: ZustandStoreApi<T>) => ({
       store.set({ data: syncReq.data });
       return syncReq.status;
     } catch (err) {
-      return new Error(err);
+      return new Error(err as any);
     }
   },
 });
@@ -44,4 +44,8 @@ const serviceStore = create<AstroStoreProps<Service[]>>((set, get) => ({
   ...baseStore(['Service'], { set, get }),
 }));
 
-export { configStore, themeStore, serviceStore };
+const categoryStore = create<AstroStoreProps<Service[]>>((set, get) => ({
+  ...baseStore(['Service'], { set, get }),
+}));
+
+export { configStore, themeStore, serviceStore, categoryStore };

@@ -28,7 +28,6 @@ const secondary = css`
   box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px;
   border: 1px solid ${p => p.theme.border.primary};
   color: ${p => p.theme.text.primary};
-
   transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
   :hover {
     background: ${p => darken(0.01, p.theme.background.secondary)};
@@ -55,7 +54,7 @@ const hierarchyStyles: {
   ternary,
 };
 
-const StyledButton = styled(ReakitButton)<StyledButtonProps>`
+const StyledButton: any = styled(ReakitButton)<StyledButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;

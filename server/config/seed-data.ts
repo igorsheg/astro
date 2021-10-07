@@ -10,14 +10,14 @@ const SAMPLE_CONFIG: Config = {
 
 const SAMPLE_CATEGORIES: Category[] = [
   {
-    id: 'home-media',
+    id: 1,
     name: 'Home Media',
     description: 'Global streaming service',
     config: SAMPLE_CONFIG,
     icon: 'VideoIcon',
   },
   {
-    id: 'utilities',
+    id: 2,
     name: 'Utilities',
     description: 'A movie collection manager for Usenet and BitTorrent users',
     config: SAMPLE_CONFIG,
@@ -35,7 +35,7 @@ const SAMPLE_SERVICES: Service[] = [
     category: SAMPLE_CATEGORIES[0],
   },
   {
-    name: 'Raddar',
+    name: 'Radarr',
     description: 'A movie collection manager for Usenet and BitTorrent users',
     tags: ['app'],
     url: 'https://radarr.video',
@@ -43,7 +43,7 @@ const SAMPLE_SERVICES: Service[] = [
     category: SAMPLE_CATEGORIES[0],
   },
   {
-    name: 'Sonnar',
+    name: 'Sonarr',
     description: 'A PVR for Usenet and BitTorrent users',
     tags: ['app', 'api'],
     url: 'https://sonarr.tv',

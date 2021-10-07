@@ -27,6 +27,7 @@ interface ModalProps {
   title: ReactText | ReactNode;
   modalIdentity: ModalIdentity<unknown>;
   onRequestClose: (modal: ModalIdentity<unknown>) => void;
+  collapsable?: boolean;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -34,6 +35,7 @@ const Modal: FC<ModalProps> = ({
   onRequestClose,
   children,
   modalIdentity,
+  collapsable = false,
 }) => {
   const dialog = useDialogState({ animated: 240 });
   const { activeModals, setUiStore } = uiStore();
@@ -169,22 +171,24 @@ const Modal: FC<ModalProps> = ({
                 </Button>
               </Tooltip>
 
-              <Tooltip
-                tabIndex={-1}
-                label={isTucked ? 'Expand modal' : 'Hide modal'}
-              >
-                <Button
-                  style={{ width: '30px', padding: 0 }}
+              {collapsable && (
+                <Tooltip
                   tabIndex={-1}
-                  hierarchy="ternary"
-                  onClick={onRequestHide}
+                  label={isTucked ? 'Expand modal' : 'Hide modal'}
                 >
-                  {isTucked ? <SizeIcon /> : <MinusIcon />}
-                </Button>
-              </Tooltip>
+                  <Button
+                    style={{ width: '30px', padding: 0 }}
+                    tabIndex={-1}
+                    hierarchy="ternary"
+                    onClick={onRequestHide}
+                  >
+                    {isTucked ? <SizeIcon /> : <MinusIcon />}
+                  </Button>
+                </Tooltip>
+              )}
             </Flex>
             <h1>{title}</h1>
-            <Padder x={30} />
+            <Padder x={60} />
           </Header>
 
           <Body>

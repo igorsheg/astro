@@ -1,21 +1,20 @@
-import { CheckIcon } from '@radix-ui/react-icons';
+import * as RadixIcons from '@radix-ui/react-icons';
+import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
 import React, { FC, useEffect } from 'react';
-import { useSpring, animated } from 'react-spring';
+import { animated, useSpring } from 'react-spring';
 import {
+  InputProps as ReakitInputProps,
   unstable_Combobox as Combobox,
   unstable_ComboboxOption as ComboboxOption,
   unstable_ComboboxPopover as ComboboxPopover,
   unstable_useComboboxState as useComboboxState,
-  InputProps as ReakitInputProps,
 } from 'reakit';
 import styled, { css } from 'styled-components';
 import { SelectOption } from 'typings';
 import { RadixIconTypes } from 'typings/radixIconsTypes';
 import { Input } from '.';
 import Flex from '../flex';
-import Padder from '../padder';
-import * as RadixIcons from '@radix-ui/react-icons';
 
 interface SelectProps extends Pick<ReakitInputProps, 'aria-errormessage'> {
   options: SelectOption[];
@@ -63,7 +62,6 @@ const Select: FC<SelectProps> = ({
       {label && (
         <>
           <InputLabel>{label}</InputLabel>
-          <Padder y={6} />
         </>
       )}
       <StyledSelect>
@@ -71,6 +69,7 @@ const Select: FC<SelectProps> = ({
           {...combobox}
           name="category"
           type="select"
+          value={options.find(opt => opt.id === defaultOptionId)?.value}
           as={Input}
           aria-label={label}
           placeholder="Select Category"
@@ -83,7 +82,7 @@ const Select: FC<SelectProps> = ({
               return (
                 <ComboboxOption
                   key={option.id}
-                  id={option.id}
+                  id={option.id as any}
                   aria-selected={option.id === defaultOptionId}
                   value={option.value}
                   {...combobox}
@@ -95,6 +94,7 @@ const Select: FC<SelectProps> = ({
           </animated.div>
         </ComboboxPopover>
       </StyledSelect>
+
       {props['aria-errormessage']?.length && (
         <ValidationMessage>{props['aria-errormessage']}</ValidationMessage>
       )}
@@ -134,6 +134,7 @@ const OptionContent = styled.div`
   width: 100%;
   justify-content: flex-start;
   height: 100%;
+
   align-items: center;
 `;
 
@@ -169,8 +170,11 @@ const OptionSuffix = styled.span`
 `;
 
 const InputLabel = styled.label`
-  font-size: 13px;
+  margin: 0 0 12px 0;
+  padding: 0;
+  font-size: 14px;
   font-weight: 600;
+  color: ${p => p.theme.text.primary};
 `;
 
 const ValidationMessage = styled.span`
@@ -195,7 +199,7 @@ const darkStyles = css`
 const StyledSelect = styled.div`
   display: flex;
   width: 100%;
-
+  position: relative;
   [role='listbox'] {
     ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};
     width: 100%;

@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import {
   Tooltip as Tip,
+  TooltipInitialState,
   TooltipReference,
   useTooltipState,
 } from 'reakit/Tooltip';
@@ -9,14 +10,21 @@ import styled from 'styled-components';
 interface TooltipProps {
   label: string;
   tabIndex: number;
+  placement?: TooltipInitialState['placement'];
 }
 
-const Tooltip: FC<TooltipProps> = ({ children, label, tabIndex }) => {
+const Tooltip: FC<TooltipProps> = ({
+  children,
+  label,
+  tabIndex,
+  placement,
+}) => {
   const tool = useTooltipState({
-    placement: 'auto',
+    placement: placement || 'auto',
     unstable_preventOverflow: true,
     gutter: 5,
     animated: 250,
+    unstable_timeout: 500,
   });
 
   return (

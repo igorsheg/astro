@@ -7,6 +7,7 @@ import { Theme } from 'server/entities';
 import Loader from 'src/components/fullpage-loader';
 import { PageTransition } from 'src/components/page-transition';
 import NewCategoryModal from 'src/modals/new-category';
+// import DeleteModal from 'src/modals/delete-modal';
 import {
   configStore,
   localSrorageStore,
@@ -18,6 +19,10 @@ import { ThemeProvider } from 'styled-components';
 import { ModalIdentity, ModalTypes } from 'typings/internal';
 
 const NewServiceModal = dynamic(() => import('src/modals/new-service'), {
+  ssr: false,
+});
+
+const DeleteModal = dynamic(() => import('src/modals/delete-modal'), {
   ssr: false,
 });
 
@@ -60,11 +65,10 @@ const MyApp = () => {
   const MODALS = {
     [ModalTypes['new-service']]: NewServiceModal,
     [ModalTypes['new-category']]: NewCategoryModal,
+    [ModalTypes['new-delete']]: DeleteModal,
   };
 
-  // useEffect(() => {
-  //   console.log(activeModals);
-  // }, [activeModals]);
+  console.log(activeModals);
 
   return (
     <>

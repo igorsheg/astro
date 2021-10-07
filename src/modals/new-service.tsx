@@ -30,7 +30,7 @@ const baseFormState = {
   description: '',
   target: true,
   url: '',
-  category: '',
+  category: 0,
   logo: '/logos/placeholder.png',
 };
 
@@ -121,7 +121,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
         await fetcher(['Service'], { data: newService });
         syncConfig();
         onRequestClose(modalIdentity);
-      } catch (err) {
+      } catch (err: any) {
         setValitationState(err);
         return;
       }
@@ -130,6 +130,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
 
   return (
     <Modal
+      collapsable
       onRequestClose={onRequestClose}
       title={'Create New Service'}
       modalIdentity={modalIdentity}
@@ -183,7 +184,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                 />
               </RowContent>
             </Row>
-            <Padder y={12} />
+            <Padder y={18} />
             <Row>
               <RowContent>
                 <Input
@@ -197,7 +198,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
               </RowContent>
             </Row>
 
-            <Padder y={12} />
+            <Padder y={18} />
 
             <Row>
               <RowContent>
@@ -205,7 +206,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                   label="Categories"
                   options={categoriesOptions}
                   aria-errormessage={valitationState['category']}
-                  defaultOptionId={modalIdentity.data?.category || ''}
+                  defaultOptionId={modalIdentity.data?.category || 0}
                   onChange={categoryChangeHandler}
                 />
               </RowContent>
@@ -407,8 +408,12 @@ const Upload = styled.div`
     border: 1px dashed ${p => p.theme.border.primary};
     background: ${p => p.theme.background.secondary};
     display: flex;
+    overflow: hidden;
     img {
+      border-radius: 7px;
+      /* height: 100%; */
       width: 100%;
+      height: auto;
       display: block;
     }
   }

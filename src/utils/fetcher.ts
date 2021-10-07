@@ -18,7 +18,11 @@ const fetcher = async <T>(
 
   const req = await axios({
     url: url,
-    method: reqOptions ? 'POST' : 'GET',
+    method: reqOptions?.method
+      ? reqOptions?.method
+      : reqOptions
+      ? 'POST'
+      : 'GET',
     ...reqOptions,
   });
 

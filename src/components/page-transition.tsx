@@ -19,7 +19,7 @@ export const PageTransition = ({
 }: PageTransitionProps): JSX.Element => {
   const router = useRouter() as EnchancedRouter;
 
-  const transitions = useTransition(router, router => router.pathname, {
+  const transitions = useTransition(router, {
     initial: { opacity: 1, transform: 'translateX(0px)' },
     from: { opacity: 0, transform: 'translateX(15px)' },
     enter: { opacity: 1, transform: 'translateX(0px)' },
@@ -37,15 +37,14 @@ export const PageTransition = ({
 
   return (
     <>
-      {transitions.map(({ item, props: style, key }) => {
+      {transitions((style, item) => {
         const { Component, props } = item.components[item.pathname] || {};
-
         return (
-          <animated.main key={key} style={style}>
-            {children(
-              item ? { Component, pageProps: props && props.pageProps } : {},
-            )}
-          </animated.main>
+          // <animated.main style={style}>
+          children(
+            item ? { Component, pageProps: props && props.pageProps } : {},
+          )
+          // </animated.main>
         );
       })}
     </>

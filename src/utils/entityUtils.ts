@@ -2,7 +2,7 @@ import axios from 'axios';
 import { RefObject } from 'react';
 import { Category } from 'server/entities';
 import { SelectOption } from 'typings';
-import { ValidationError, AnySchema } from 'yup';
+import { AnySchema } from 'yup';
 
 const mapEntityToSelectOptions = (
   entitiyList: Category[] | undefined,
@@ -45,7 +45,7 @@ const validateForm = async <T>(
   try {
     await schema.validate(values, { abortEarly: false });
     return null;
-  } catch (error) {
+  } catch (error: any) {
     if (error.inner.length) {
       throw error.inner.reduce(
         (acc: { [x: string]: string }, curr: { [x: string]: string }) => {

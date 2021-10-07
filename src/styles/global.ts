@@ -7,6 +7,8 @@ interface GlobalStylesProps {
 }
 const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
 
+
+
 @font-face {
   font-family: 'Inter var';
   font-weight: 100 900;
@@ -110,6 +112,31 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
 *:focus:not(.focus-visible) {
   outline: none;
 }
+
+&::-webkit-scrollbar {
+    width: 18px;
+    background-color:  ${p => p.theme.background.secondary};
+	box-shadow: inset 1px 0 0  ${p => p.theme.border.secondary};
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    /* https://stackoverflow.com/a/16829330/5343330 */
+    background-color: ${p => p.theme.border.primary};
+    background-clip: content-box;
+    border-radius: calc(5px * 2); // we need to double border-radius to receive 5px
+    border: 5px solid transparent; // for width emulation
+    height: 72px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${p => p.theme.text.secondary};
+  }
+  &::-webkit-scrollbar-thumb:active {
+    background-color: ${p => p.theme.text.primary};
+  }
+
 
 `;
 

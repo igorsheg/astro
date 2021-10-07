@@ -1,17 +1,51 @@
+import { useState } from 'react';
 import { SAMPLE_CONFIG } from 'server/config/seed-data';
 import { Category, Service } from 'server/entities';
 
 const filterServicesItems = (
-  data: Service[] | null,
+  data: Service[] | [],
   term: string,
-): Service[] | null => {
+): Service[] | [] => {
   if (!data) {
-    return null;
+    return [];
   }
 
-  return data.filter(({ name }) => {
-    const searchData = [name].join(' ').toLowerCase();
+  return data.filter(({ name, tags }) => {
+    const searchData = [name, tags].join(' ').toLowerCase();
     const searchQuery = term.trim().toLowerCase();
+
+    if (searchQuery && searchData.indexOf(searchQuery) === -1) {
+      return false;
+    }
+    return true;
+  });
+};
+
+const useFilteredList = ({
+  list,
+}: {
+  list: string[];
+}): [string[], (term: string) => void] => {
+  const [filteredList, setFilteredList] = useState(list);
+  const filter = (term: string) =>
+    setFilteredList(() => {
+      return list.filter(key => {
+        const searchData = [key].join(' ').toLowerCase();
+        const searchQuery = term.split(' ').join('').trim().toLowerCase();
+
+        if (searchQuery && searchData.indexOf(searchQuery) === -1) {
+          return false;
+        }
+        return true;
+      });
+    });
+  return [filteredList, filter];
+};
+
+const filterList = (data: string[], term: string): string[] => {
+  return data.filter(key => {
+    const searchData = [key].join(' ').toLowerCase();
+    const searchQuery = term.split(' ').join('').trim().toLowerCase();
 
     if (searchQuery && searchData.indexOf(searchQuery) === -1) {
       return false;
@@ -27,7 +61,7 @@ interface ServiceUtilsReturnProps {
 
 const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
   const allServicesTab: Category = {
-    id: 'all-services',
+    id: 0,
     name: 'All Services',
     icon: 'MixIcon',
     description: 'All services in one list',
@@ -46,7 +80,7 @@ const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
   };
 
   const getActiveServicesTab = (activeTab: Category['id']) => {
-    if (activeTab === 'all-services') {
+    if (activeTab === 0) {
       return allServicesTab;
     } else {
       const activeServiceIndex = caregories.findIndex(
@@ -59,4 +93,4 @@ const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
   return { getAllTabServices, getActiveServicesTab };
 };
 
-export { filterServicesItems, servicesUtils };
+export { filterServicesItems, servicesUtils, filterList, useFilteredList };

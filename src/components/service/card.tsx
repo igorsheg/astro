@@ -1,29 +1,53 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
+import { animated, useSpring, a } from 'react-spring';
 import { Service } from 'server/entities';
 import Card from 'src/components/card';
+import Flex from 'src/components/flex';
+import ServiceMenu from 'src/menus/service-menu';
+import { uiStore } from 'src/stores';
 import styled from 'styled-components';
 import Padder from '../padder';
-import Image from 'next/image';
 
 interface CardProps {
-  item: Service;
+  item: Service | null;
 }
 
 const ServiceCard: FC<CardProps> = ({ item }) => {
+  const { inEditMode } = uiStore();
+
+  const props = useSpring({
+    opacity: inEditMode ? '1' : '0',
+    display: inEditMode ? 'block' : 'none',
+    config: { duration: 120 },
+  });
+
+  if (!item) return null;
+
+  // console.log(item);
+
   return (
     <WrapPadder>
-      <a href={item.url} target={item.target}>
+      <a
+        onClick={ev => (inEditMode ? ev.preventDefault() : true)}
+        href={item.url}
+        target={item.target}
+      >
         <StyledCard>
           <Title>
-            <Logo>
-              <img src={'/logos' + '/' + item.logo} />
-            </Logo>
+            <Flex>
+              <Logo>
+                <img src={'/logos' + '/' + item.logo} />
+              </Logo>
+              <Padder x={12} />
+              <Description>
+                <h4>{item.name}</h4>
+                <p>{item.url}</p>
+              </Description>
+            </Flex>
             <Padder x={12} />
-            <Description>
-              <h4>{item.name}</h4>
-              <p>{item.url}</p>
-            </Description>
-            <Padder x={12} />
+            <animated.div style={props}>
+              <ServiceActions item={item} />
+            </animated.div>
           </Title>
           <TagList>
             {item.tags &&
@@ -37,8 +61,24 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
   );
 };
 
+interface ServiceActionsProps {
+  item: Service;
+}
+const ServiceActions: FC<ServiceActionsProps> = ({ item }) => {
+  return (
+    <Menu>
+      <ServiceMenu item={item} />
+    </Menu>
+  );
+};
+
+const Menu = styled.div`
+  z-index: 99999991;
+`;
+
 const WrapPadder = styled.div`
   width: 100%;
+  transform-origin: center 80px;
   max-width: 100%;
 `;
 
@@ -60,7 +100,8 @@ const Logo = styled.div`
   min-height: 42px;
   min-width: 42px;
   width: 42px;
-
+  overflow: hidden;
+  border-radius: 12px;
   img {
     display: block;
     height: 100%;
@@ -68,7 +109,7 @@ const Logo = styled.div`
 `;
 const Title = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   flex-direction: row;
   margin: 0 0 18px 0;
@@ -110,6 +151,8 @@ const TagList = styled.ul`
   margin: 0;
   padding: 0;
   display: flex;
+  min-height: 24px;
+  max-height: 24px;
   overflow-x: scroll;
   -ms-overflow-style: none;
   scrollbar-width: none;

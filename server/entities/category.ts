@@ -5,17 +5,17 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { RadixIconTypes } from 'typings/radixIconsTypes';
 import Config from './config';
 import Service from './service';
-import { RadixIconTypes } from 'typings/radixIconsTypes';
 
 @Entity()
 export default class Category {
-  @PrimaryColumn({ nullable: false, type: 'varchar', length: 200 })
-  id: string;
+  @PrimaryGeneratedColumn()
+  id?: number;
 
   @Column({ nullable: true })
   name: string;

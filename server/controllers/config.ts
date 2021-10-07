@@ -37,7 +37,7 @@ export default (): ControllerReturnProps => {
         .execute();
 
       return (ctx.status = 200);
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err);
     }
   };

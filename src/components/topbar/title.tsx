@@ -15,7 +15,7 @@ const HeaderTitle: FC<HeaderTitleProps> = ({ activeTheme, config }) => {
   }
 
   return (
-    <Flex auto align="center">
+    <Flex align="center">
       <LogoIcon activeTheme={activeTheme}>
         <img src="/logo.svg" />
       </LogoIcon>

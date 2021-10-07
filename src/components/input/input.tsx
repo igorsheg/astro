@@ -1,9 +1,9 @@
-import { darken, transparentize } from 'polished';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { transparentize } from 'polished';
 import React, { FC } from 'react';
 import { Input as ReakitInput, InputProps as ReakitInputProps } from 'reakit';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import Flex from '../flex';
-import Padder from '../padder';
 
 interface InputProps extends ReakitInputProps {
   as?: 'textarea' | 'file';
@@ -16,10 +16,14 @@ const Input: FC<InputProps> = ({ ...props }) => {
       {props.label && (
         <>
           <InputLabel>{props.label}</InputLabel>
-          <Padder y={6} />
         </>
       )}
       <InputWrap isTucked={!!props.value}>
+        {props.type === 'select' && (
+          <Suffix>
+            <ChevronDownIcon />
+          </Suffix>
+        )}
         <StyledInput
           aria-label={props.placeholder}
           aria-invalid={!!props['aria-errormessage']?.length}
@@ -35,14 +39,37 @@ const Input: FC<InputProps> = ({ ...props }) => {
   );
 };
 
+const Suffix = styled.span`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9991;
+  width: 42px;
+  pointer-events: none;
+  right: 0;
+  height: 100%;
+  color: ${p => p.theme.text.secondary};
+  :hover {
+    cursor: pointer;
+  }
+  svg {
+    color: currentColor;
+  }
+`;
+
 const InputLabel = styled.label`
-  font-size: 13px;
+  margin: 0 0 12px 0;
+  padding: 0;
+  font-size: 14px;
   font-weight: 600;
+  color: ${p => p.theme.text.primary};
 `;
 const InputWrap = styled.div<{ isTucked: boolean }>`
   display: flex;
   flex-direction: column;
   flex: auto;
+  position: relative;
   justify-content: center;
 
   textarea {
@@ -50,7 +77,7 @@ const InputWrap = styled.div<{ isTucked: boolean }>`
   }
 `;
 
-const StyledInput = styled(ReakitInput)<InputProps>`
+const StyledInput: any = styled(ReakitInput)<InputProps>`
   width: 100%;
   height: 42px;
   border: 1px solid ${p => p.theme.border.primary};
@@ -67,8 +94,6 @@ const StyledInput = styled(ReakitInput)<InputProps>`
     border: 1px solid ${p => transparentize(0.5, p.theme.text.primary)};
   }
   :focus {
-    /* border: 1px solid ${p => transparentize(0.5, p.theme.text.primary)}; */
-    /* background: ${p => darken(0.02, p.theme.background.secondary)}; */
     border: 1px solid ${p => transparentize(0, p.theme.text.primary)};
   }
   ::placeholder {

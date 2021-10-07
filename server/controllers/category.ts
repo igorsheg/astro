@@ -1,64 +1,49 @@
 import { Context } from 'koa';
 import { getManager } from 'typeorm';
-import { Service } from '../entities';
-import path from 'path';
+import { Category } from '../entities';
 
 interface ControllerReturnProps {
-  list: (ctx: Context) => Promise<Service[] | undefined>;
-  get: (ctx: Context) => Promise<Service | undefined>;
-  post: (ctx: Context) => Promise<Service | undefined>;
-  deleteEntity: (ctx: Context) => Promise<boolean>;
+  list: (ctx: Context) => Promise<Category[] | undefined>;
+  get: (ctx: Context) => Promise<Category | undefined>;
+  post: (ctx: Context) => Promise<Category | undefined>;
 }
 
 export default (): ControllerReturnProps => {
-  const serviceRepo = getManager().getRepository(Service);
+  const serviceRepo = getManager().getRepository(Category);
 
   const list = async (ctx: Context) => {
     const data = await serviceRepo.find({
-      relations: ['category'],
+      relations: ['services'],
     });
     return (ctx.body = data);
   };
 
   const get = async (ctx: Context) => {
     const { id } = ctx.params;
-
     const data = await serviceRepo.findOne({
-      relations: ['category'],
+      relations: ['services'],
       where: { id },
     });
     return (ctx.body = data);
   };
 
   const post = async (ctx: Context) => {
-    const reqBody: Service = ctx.request.body;
+    const reqBody: Category = ctx.request.body;
 
     const draftService = serviceRepo.create({
       ...reqBody,
-      logo: path.basename(reqBody.logo as string),
     });
 
     try {
       return serviceRepo.insert(draftService).then(res => (ctx.body = res));
-    } catch (err) {
+    } catch (err: any) {
       return (ctx.body = err.message);
-    }
-  };
-
-  const deleteEntity = async (ctx: Context) => {
-    const { id } = ctx.params;
-    try {
-      await serviceRepo.delete(id);
-      return (ctx.body = true);
-    } catch {
-      return (ctx.body = false);
     }
   };
 
   return {
     list,
     get,
-    deleteEntity,
     post,
   };
 };

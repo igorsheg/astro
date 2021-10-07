@@ -1,19 +1,33 @@
 import * as RadixIcons from '@radix-ui/react-icons';
-import React, { FC, FormEvent, useEffect } from 'react';
-import { ChangeEvent } from 'react';
-import { Input, Select } from 'src/components/input';
+import { transparentize } from 'polished';
+import React, { ChangeEvent, FC, useState } from 'react';
+import { SAMPLE_CONFIG } from 'server/config/seed-data';
+import { Category } from 'server/entities';
+import Button from 'src/components/button';
+import Flex from 'src/components/flex';
+import { Input } from 'src/components/input';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
 import { configStore, uiStore } from 'src/stores';
+import { fetcher, useFilteredList, validateForm } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity, SelectOption } from 'typings';
 import { RadixIconTypes } from 'typings/radixIconsTypes';
-
-const baseFormState = {
+import { object, string } from 'yup';
+import { List, ListRowProps } from 'react-virtualized';
+const baseFormState: {
+  name: string;
+  description: string;
+  icon: RadixIconTypes;
+} = {
   name: '',
   description: '',
-  icon: '',
+  icon: 'ActivityLogIcon',
 };
+
+const schema = object().shape({
+  name: string().required('Naming your service is requiered'),
+});
 
 interface NewCategoryModalProps {
   onRequestClose: <T>(m: ModalIdentity<T>) => void;
@@ -28,6 +42,10 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
   const ctxModalIndex = uiStore(s => s.activeModals.indexOf(modalIdentity));
   const setUiStore = uiStore(s => s.setUiStore);
 
+  const [valitationState, setValitationState] = useState<
+    { [key in keyof typeof baseFormState]: string } | Record<string, never>
+  >({});
+
   const onIconChangeHandler = (option: SelectOption) => {
     setUiStore(d => {
       d.activeModals[ctxModalIndex].data = {
@@ -36,10 +54,6 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
       };
     });
   };
-
-  useEffect(() => {
-    console.log(modalIdentity);
-  }, [modalIdentity]);
 
   const onFormChange = (ev: ChangeEvent<HTMLFormElement>) => {
     setUiStore(d => {
@@ -52,19 +66,42 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
     return null;
   };
   const iconList = Object.keys(RadixIcons);
+  const [filteredIconList, filter] = useFilteredList({ list: iconList });
 
-  const iconsOptions = React.useCallback(
-    () =>
-      iconList.map(x => ({
-        id: x,
-        value: x.replace(/([a-z])([A-Z])/g, '$1 $2'),
-        icon: x as RadixIconTypes,
-      })),
-    [iconList],
-  );
+  const iconsOptions = filteredIconList.map(x => ({
+    id: x,
+    value: x.replace(/([a-z])([A-Z])/g, '$1 $2'),
+    icon: x as RadixIconTypes,
+  }));
+
+  const submitFormHandler = async (
+    ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    ev.preventDefault();
+
+    if (modalIdentity.data) {
+      const { ...formData } = modalIdentity.data;
+
+      try {
+        await validateForm(schema, modalIdentity.data);
+
+        const newCategory: Category = {
+          config: SAMPLE_CONFIG,
+          ...formData,
+        };
+        await fetcher(['Category'], { data: newCategory });
+        syncConfig();
+        onRequestClose(modalIdentity);
+      } catch (err: any) {
+        setValitationState(err);
+        return;
+      }
+    }
+  };
 
   return (
     <Modal
+      collapsable
       onRequestClose={onRequestClose}
       title={'Create New Category'}
       modalIdentity={modalIdentity}
@@ -77,23 +114,182 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
                 label="Category Name"
                 name="name"
                 placeholder="Home Media"
+                aria-errormessage={valitationState['name']}
               />
             </RowContent>
-            <Padder y={12} />
+            <Padder y={18} />
             <RowContent>
-              <Select
-                label="Icon"
-                options={iconsOptions()}
-                defaultOptionId={modalIdentity.data?.icon || iconList[0]}
-                onChange={onIconChangeHandler}
-              ></Select>
+              <IconsListWrap>
+                <label>Category Icon</label>
+                <IconListBody>
+                  <SearchInput
+                    onChange={ev => filter(ev.target.value)}
+                    placeholder="Search for icons..."
+                  />
+                  <IconsList>
+                    <List
+                      width={538}
+                      rowCount={297}
+                      height={420}
+                      rowHeight={42}
+                      rowRenderer={vitrualProps => (
+                        <RowItem
+                          options={iconsOptions}
+                          modalIdentity={modalIdentity}
+                          onIconChangeHandler={onIconChangeHandler}
+                          {...vitrualProps}
+                        />
+                      )}
+                    />
+                  </IconsList>
+                </IconListBody>
+              </IconsListWrap>
             </RowContent>
           </Group>
         </FormBody>
+        <FormFooter>
+          <Button
+            tabIndex={0}
+            onClick={() => onRequestClose(modalIdentity)}
+            hierarchy="secondary"
+          >
+            Cancel
+          </Button>
+
+          <Padder x={12} />
+
+          <Button
+            role="button"
+            tabIndex={0}
+            type="submit"
+            hierarchy="primary"
+            onClick={submitFormHandler}
+          >
+            Submit
+          </Button>
+        </FormFooter>
       </form>
     </Modal>
   );
 };
+
+interface IconOption {
+  icon: RadixIconTypes;
+  value: string;
+  id: string;
+}
+interface IconListProps extends ListRowProps {
+  options: IconOption[];
+  modalIdentity: ModalIdentity<typeof baseFormState>;
+  onIconChangeHandler: (opt: IconOption) => void;
+}
+const RowItem: FC<IconListProps> = ({
+  options,
+  modalIdentity,
+  onIconChangeHandler,
+  ...vitrualProps
+}) => {
+  const IconRender = RadixIcons[options[vitrualProps.index].icon];
+  const ctxOption = options[vitrualProps.index];
+
+  return (
+    <IconItem
+      selected={modalIdentity.data?.icon === ctxOption.id}
+      tabIndex={0}
+      onClick={() => onIconChangeHandler(ctxOption)}
+      {...vitrualProps}
+    >
+      <Flex align="center" data-icon-content>
+        <IconRender />
+        {ctxOption.value}
+      </Flex>
+      <Flex data-icon-checkmark>
+        {modalIdentity.data?.icon === ctxOption.id && <RadixIcons.CheckIcon />}
+      </Flex>
+    </IconItem>
+  );
+};
+const IconListBody = styled.div`
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: ${p => p.theme.background.secondary};
+  border: 1px solid ${p => p.theme.border.primary};
+`;
+const IconsListWrap = styled.div`
+  flex-direction: column;
+  display: flex;
+  label {
+    margin: 0 0 12px 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: ${p => p.theme.text.primary};
+  }
+`;
+const SearchInput = styled.input`
+  height: 42px;
+  min-height: 42px;
+  top: 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  padding: 0 12px;
+  background: ${p => p.theme.background.secondary};
+  color: ${p => p.theme.text.primary};
+  border: none;
+  box-shadow: inset 0 -1px 0 0 ${p => p.theme.border.primary};
+  border-bottom: 1px ${p => p.theme.border.primary};
+  font-size: 14px;
+  ::placeholder {
+    color: ${p => transparentize(0.7, p.theme.text.primary)};
+  }
+`;
+const IconsList = styled.div`
+  position: relative;
+  background: ${p => p.theme.background.secondary};
+  display: flex;
+  min-height: 420px;
+  max-height: 420px;
+  width: 100%;
+  overflow-y: scroll;
+  flex-direction: column;
+  border-radius: 6px;
+  padding: 6px;
+`;
+const IconItem = styled.div<{ selected: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  font-weight: ${p => (p.selected ? 500 : 400)};
+  color: ${p => (p.selected ? p.theme.accent.primary : p.theme.text.primary)};
+  :focus {
+    background: ${p => p.theme.background.ternary};
+  }
+  :hover {
+    background: ${p => p.theme.background.ternary};
+    cursor: pointer;
+  }
+  [data-icon-content] {
+    svg {
+      margin: 0 12px 0 0;
+    }
+  }
+  [data-icon-checkmark] {
+    width: 21px;
+    height: 21px;
+    svg {
+      height: 21px;
+      width: 21px;
+    }
+    color: ${p => p.theme.accent.primary};
+  }
+`;
 
 const FormBody = styled.div`
   display: flex;
@@ -118,26 +314,20 @@ const Group = styled.div`
     background: ${p => p.theme.border.primary};
     position: absolute;
   }
-
-  h5 {
-    margin: 0 0 18px 0;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: ${p => p.theme.text.primary};
-  }
 `;
 const RowContent = styled.div`
   display: flex;
   flex: 1;
   position: relative;
+  flex-direction: column;
 `;
-const Row = styled.div`
+
+const FormFooter = styled.div`
   display: flex;
-  width: 100%;
-  flex-direction: row;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: flex-end;
+  align-items: center;
+  box-shadow: inset 0 1px 0 0 ${p => p.theme.border.primary};
+  padding: 24px;
 `;
+
 export default NewCategoryModal;

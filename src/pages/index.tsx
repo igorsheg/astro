@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FC, useCallback } from 'react';
 import { animated, useTransition } from 'react-spring';
-import { Category, Service } from 'server/entities';
+import { Category } from 'server/entities';
 import Flex from 'src/components/flex';
 import Grid from 'src/components/grid';
 import Padder from 'src/components/padder';
@@ -22,7 +22,7 @@ const Index: FC = () => {
     return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
   }
 
-  const transitions = useTransition(activeTab, item => item, {
+  const transitions = useTransition(activeTab, {
     from: {
       transform: 'translate3d(0,25px,0)',
       opacity: 0,
@@ -36,7 +36,7 @@ const Index: FC = () => {
       opacity: 0,
     },
     config: {
-      duration: 420,
+      duration: 680,
       easing: (t: number) => 1 - tpmt(t),
     },
   });
@@ -45,7 +45,7 @@ const Index: FC = () => {
     return servicesUtils(config.categories).getAllTabServices({
       withRest: true,
     });
-  }, [config]);
+  }, [config.categories]);
 
   const onCategoryClickHandler = (category: Category['id']) => {
     setUiStore(d => {
@@ -73,12 +73,12 @@ const Index: FC = () => {
         <Grid>
           <Padder y={18} />
           <div>
-            {transitions.map(({ props, key, item }) => (
-              <AnimatedWrap key={key} style={props}>
+            {transitions((style, item) => (
+              <AnimatedWrap style={style}>
                 <ServiceList
                   items={
-                    categoriesWithAllTab().find(c => c.id === item)
-                      ?.services as any
+                    categoriesWithAllTab().find(c => c.id === item)?.services ||
+                    []
                   }
                 />
               </AnimatedWrap>

@@ -47,7 +47,7 @@ const ContextMenu: FC<Props> = ({ children, ...rest }) => {
 
 const Position = styled(animated.div)`
   position: absolute;
-  z-index: 9991;
+  z-index: 999999999999991;
 `;
 
 const lightStyles = css`

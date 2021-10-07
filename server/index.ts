@@ -23,7 +23,6 @@ nextapp.prepare().then(async () => {
   //@ts-ignore
   server.use(koaConnect(compression()));
   server.use(serve('./public'));
-
   server.use(logger(winston));
   server.use(
     koaBody({

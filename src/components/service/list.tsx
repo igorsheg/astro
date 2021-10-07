@@ -20,7 +20,7 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
     return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
   }
 
-  const transitions = useTransition(filteredData(), item => item.name, {
+  const transitions = useTransition(filteredData(), {
     from: { transform: 'translate3d(0,15px,0)', opacity: 0 },
     enter: {
       transform: 'translate3d(0,0px,0)',
@@ -31,7 +31,7 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
       opacity: 0,
     },
     config: {
-      duration: searchTerm.length ? 0 : 420,
+      duration: searchTerm.length ? 0 : 680,
       easing: (t: number) => 1 - tpmt(t),
     },
     trail: searchTerm.length ? 0 : 25,
@@ -39,9 +39,13 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
 
   return (
     <StyledList>
-      {transitions.map(({ item, props, key }, index) => (
-        <AnimatedCard index={index} key={key} style={props}>
-          <ServiceCard item={item} />
+      {transitions((style, item, t, i) => (
+        <AnimatedCard
+          index={i}
+          style={{ ...style, zIndex: filteredData()?.length - i }}
+        >
+          {/* {console.log(filteredData()[i])} */}
+          <ServiceCard item={items[i]} />
         </AnimatedCard>
       ))}
     </StyledList>
@@ -57,6 +61,7 @@ const StyledList = styled.section`
 const AnimatedCard = styled(animated.div)<{ index: number }>`
   flex: 1;
   display: flex;
+  position: relative;
   width: 25%;
   min-width: 25%;
   max-width: 25%;

@@ -43,7 +43,12 @@ const TopBar: FC<TopBarProps> = ({
           activeItem={activeCategory}
         />
         <Flex align="center" justify="flex-end">
-          <SearchInput value={searchTerm} onChange={onSearchTermChange} />
+          <SearchInput
+            height={30}
+            growOnFocus
+            value={searchTerm}
+            onChange={onSearchTermChange}
+          />
         </Flex>
       </Panel>
     </HeaderWrap>

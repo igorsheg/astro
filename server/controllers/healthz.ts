@@ -16,7 +16,7 @@ export default (): HealthzControllerProps => {
   const ping = async (ctx: Context) => {
     try {
       return (ctx.body = healthcheck);
-    } catch (e) {
+    } catch (e: any) {
       ctx.status = 503;
       healthcheck.message = e.message;
       return (ctx.body = healthcheck);
@@ -28,7 +28,7 @@ export default (): HealthzControllerProps => {
 
     try {
       return (ctx.body = dbConnection.get().isConnected);
-    } catch (e) {
+    } catch (e: any) {
       ctx.status = 503;
       return (ctx.body = e.message);
     }

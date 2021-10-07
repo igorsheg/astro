@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import * as Entities from '../server/entities';
 import { RadixIconTypes } from './radixIconsTypes';
 
@@ -6,7 +7,10 @@ declare module 'styled-components' {
   interface DefaultTheme extends Entities.Theme {}
 }
 
-export type FetcherRequestKeys = [enity: keyof typeof Entities, id?: string];
+export type FetcherRequestKeys = [
+  enity: keyof typeof Entities,
+  id?: string | number,
+];
 
 export interface SideBarMenuItem {
   label: string;
@@ -17,6 +21,7 @@ export interface SideBarMenuItem {
 export enum ModalTypes {
   'new-service' = 'new-service',
   'new-category' = 'new-category',
+  'new-delete' = 'new-delete',
 }
 export type ModalState = 'expnanded' | 'tucked' | 'closed';
 
@@ -26,10 +31,11 @@ export interface ModalIdentity<T> {
   title?: string;
   state: ModalState;
   data?: T;
+  body: string | ReactNode;
 }
 
 export interface SelectOption {
-  id: string;
+  id: string | number;
   value: string;
   icon?: RadixIconTypes;
 }

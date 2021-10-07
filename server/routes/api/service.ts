@@ -10,6 +10,10 @@ router.get('/service/:id', async ctx => {
   return ServiceController().get(ctx);
 });
 
+router.del('/service/:id', async ctx => {
+  return ServiceController().deleteEntity(ctx);
+});
+
 router.post('/service', async ctx => {
   return ServiceController().post(ctx);
 });
