@@ -1,7 +1,7 @@
 import { Context } from 'koa';
+import path from 'path';
 import { getManager } from 'typeorm';
 import { Service } from '../entities';
-import path from 'path';
 
 interface ControllerReturnProps {
   list: (ctx: Context) => Promise<Service[] | undefined>;
@@ -40,7 +40,7 @@ export default (): ControllerReturnProps => {
 
     try {
       return serviceRepo.insert(draftService).then(res => (ctx.body = res));
-    } catch (err) {
+    } catch (err: any) {
       return (ctx.body = err.message);
     }
   };

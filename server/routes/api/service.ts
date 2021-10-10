@@ -1,5 +1,5 @@
-import { ServiceController } from '../../controllers';
 import Router from '@koa/router';
+import { ServiceController } from '../../controllers';
 const router = new Router();
 
 router.get('/service', async ctx => {

@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import { Config } from 'server/entities';
-import styled from 'styled-components';
 import Flex from 'src/components/flex';
 import Padder from 'src/components/padder';
+import styled from 'styled-components';
 
 interface HeaderTitleProps {
   activeTheme: string;

@@ -4,14 +4,13 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import { createConnection, EntityManager, EntityTarget } from 'typeorm';
 import { Category, Config, Service, Theme } from '../entities';
-import { serverConfig } from './serverConfig';
-
 import {
   SAMPLE_CATEGORIES,
   SAMPLE_CONFIG,
   SAMPLE_SERVICES,
   SAMPLE_THEMES,
 } from './seed-data';
+import { serverConfig } from './serverConfig';
 
 interface SeedProps<T> {
   entity: EntityTarget<T>;

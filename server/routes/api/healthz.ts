@@ -1,5 +1,5 @@
-import { HealthzController } from '../../controllers';
 import Router from '@koa/router';
+import { HealthzController } from '../../controllers';
 const router = new Router();
 
 router.get('/healthz', async ctx => {

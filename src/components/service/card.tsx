@@ -1,5 +1,5 @@
-import React, { FC, useEffect } from 'react';
-import { animated, useSpring, a } from 'react-spring';
+import React, { FC } from 'react';
+import { animated, useSpring } from 'react-spring';
 import { Service } from 'server/entities';
 import Card from 'src/components/card';
 import Flex from 'src/components/flex';

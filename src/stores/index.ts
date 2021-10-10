@@ -1,12 +1,11 @@
+import {
+  categoryStore,
+  configStore,
+  serviceStore,
+  themeStore,
+} from './astroStore';
 import localSrorageStore from './localStore';
 import uiStore from './uiStore';
-
-import {
-  configStore,
-  themeStore,
-  serviceStore,
-  categoryStore,
-} from './astroStore';
 
 export {
   localSrorageStore,

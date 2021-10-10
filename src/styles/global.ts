@@ -1,6 +1,6 @@
 import 'reset-css';
-import { createGlobalStyle } from 'styled-components';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
+import { createGlobalStyle } from 'styled-components';
 
 interface GlobalStylesProps {
   theme: typeof SAMPLE_THEMES['dark'];

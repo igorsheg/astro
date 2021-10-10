@@ -2,7 +2,7 @@ import * as RadixIcons from '@radix-ui/react-icons';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import { transparentize } from 'polished';
-import React, { ChangeEvent, FC, useEffect, useState } from 'react';
+import React, { ChangeEvent, FC, useState } from 'react';
 import { SAMPLE_CONFIG } from 'server/config/seed-data';
 import { Category } from 'server/entities';
 import Button from 'src/components/button';
@@ -244,8 +244,7 @@ const IconsList = styled.div`
   position: relative;
   background: ${p => p.theme.background.secondary};
   display: flex;
-  max-height: calc(100vh - 500px);
-  height: 100%;
+  height: 300px;
   width: 100%;
   overflow-y: auto;
   flex-direction: column;

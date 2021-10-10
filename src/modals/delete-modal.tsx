@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import Button from 'src/components/button';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { configStore, serviceStore } from 'src/stores';
+import { serviceStore } from 'src/stores';
 import { fetcher } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity } from 'typings';

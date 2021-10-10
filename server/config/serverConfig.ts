@@ -4,7 +4,7 @@ import { Category, Config, Link, Note, Service, Theme } from '../entities';
 
 dotenv.config({ path: '.env' });
 
-const isDevMode = process.env.NODE_ENV == 'development';
+const isDevMode = process.env.NODE_ENV === 'development';
 
 export interface ServerConfig {
   port: number;

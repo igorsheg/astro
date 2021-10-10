@@ -1,5 +1,5 @@
-import { ConfigController } from '../../controllers';
 import Router from '@koa/router';
+import { ConfigController } from '../../controllers';
 const router = new Router();
 
 router.get('/config', async ctx => {

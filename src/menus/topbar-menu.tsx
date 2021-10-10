@@ -1,13 +1,13 @@
 import * as RadixIcons from '@radix-ui/react-icons';
-import React, { FC, forwardRef, useEffect } from 'react';
+import React, { FC, forwardRef } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
-import { ModalTypes } from 'typings';
-import generateUuid from 'src/utils/generateUuid';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { ContextMenu, MenuItem } from 'src/components/menu';
 import { localSrorageStore, uiStore } from 'src/stores';
+import generateUuid from 'src/utils/generateUuid';
 import styled from 'styled-components';
+import { ModalTypes } from 'typings';
 
 const TopbarMenu: FC = () => {
   const { setUiStore, activeModals } = uiStore();

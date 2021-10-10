@@ -1,7 +1,7 @@
 import { Context } from 'koa';
-import { isDevMode } from './serverConfig';
-import winston, { transports, format } from 'winston';
 import * as path from 'path';
+import winston, { format, transports } from 'winston';
+import { isDevMode } from './serverConfig';
 
 const logger = (
   winstonInstance: typeof winston,

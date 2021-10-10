@@ -1,6 +1,5 @@
 import { UploadIcon } from '@radix-ui/react-icons';
 import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
 import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { Checkbox as ReakitCheckbox } from 'reakit/Checkbox';
 import { Category, Service } from 'server/entities';

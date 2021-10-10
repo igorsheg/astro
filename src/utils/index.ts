@@ -1,10 +1,10 @@
+import fetcher from './fetcher';
 import {
+  filterList,
   filterServicesItems,
   servicesUtils,
-  filterList,
   useFilteredList,
 } from './serviceUtils';
-import fetcher from './fetcher';
 
 export * from './entityUtils';
 export {

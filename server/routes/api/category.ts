@@ -1,5 +1,5 @@
-import { CategoryController } from '../../controllers';
 import Router from '@koa/router';
+import { CategoryController } from '../../controllers';
 const router = new Router();
 
 router.get('/category', async ctx => {

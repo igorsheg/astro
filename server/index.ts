@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-console */
 import Router from '@koa/router';
+import compression from 'compression';
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaConnect from 'koa-connect';
+import serve from 'koa-static';
+import path from 'path';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import winston from 'winston';
@@ -12,9 +15,6 @@ import { serverConfig } from './config/serverConfig';
 import nextapp from './nextapp';
 import apiRouter from './routes/api';
 import appRouter from './routes/app';
-import compression from 'compression';
-import path from 'path';
-import serve from 'koa-static';
 
 nextapp.prepare().then(async () => {
   const server = new Koa();

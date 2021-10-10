@@ -12,14 +12,14 @@ import React, {
 import { animated, interpolate, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
 import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
-import { ModalIdentity } from 'typings';
+import { VisuallyHidden } from 'reakit/VisuallyHidden';
 import { uiStore } from 'src/stores';
 import styled, { css } from 'styled-components';
+import { ModalIdentity } from 'typings';
 import Button from './button';
 import Flex from './flex';
 import Padder from './padder';
 import Tooltip from './tooltip';
-import { VisuallyHidden } from 'reakit/VisuallyHidden';
 
 const trans = ([x, y]: [number, number]) => `translate3d(${x}px, ${y}px, 0)`;
 
@@ -223,6 +223,7 @@ const Blanket = styled(DialogBackdrop)<{ isTucked: boolean }>`
   position: absolute;
   pointer-events: ${p => (p.isTucked ? 'none' : 'all')};
   top: 0;
+  z-index: 991;
   display: flex;
   align-items: center;
   justify-content: center;

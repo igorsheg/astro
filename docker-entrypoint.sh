@@ -1,3 +1,3 @@
 #!/bin/sh
 node bin/server/config/initDb.js &&
-node bin/server/index.js
+NODE_ENV=production node bin/server/index.js

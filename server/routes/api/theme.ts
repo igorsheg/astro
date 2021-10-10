@@ -1,5 +1,5 @@
-import { ThemeController } from '../../controllers';
 import Router from '@koa/router';
+import { ThemeController } from '../../controllers';
 const router = new Router();
 
 router.get('/theme', async ctx => {

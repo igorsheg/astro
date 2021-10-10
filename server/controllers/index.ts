@@ -1,9 +1,9 @@
+import CategoryController from './category';
 import ConfigController from './config';
+import FileUploadController from './file';
+import HealthzController from './healthz';
 import ServiceController from './service';
 import ThemeController from './theme';
-import HealthzController from './healthz';
-import FileUploadController from './file';
-import CategoryController from './category';
 
 export {
   ServiceController,

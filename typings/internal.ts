@@ -31,7 +31,7 @@ export interface ModalIdentity<T> {
   title?: string;
   state: ModalState;
   data?: T;
-  body: string | ReactNode;
+  body?: string | ReactNode;
 }
 
 export interface SelectOption {

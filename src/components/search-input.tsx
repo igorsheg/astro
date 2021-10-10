@@ -1,9 +1,12 @@
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { transparentize } from 'polished';
-import React, { ChangeEvent, FC } from 'react';
+import React, { ChangeEvent, FC, useRef } from 'react';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import useKeypress from 'react-use-keypress';
 import Flex from 'src/components/flex';
+import { uiStore } from 'src/stores';
 import styled from 'styled-components';
-
 interface SearchInputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string;
@@ -16,15 +19,38 @@ export const SearchInput: FC<SearchInputProps> = ({
   growOnFocus = false,
   ...rest
 }) => {
+  const { activeModals } = uiStore();
+
+  const isThereOpenModal = activeModals
+    .map(m => m.state)
+    .filter(m => m === 'expnanded');
+
+  const inputRef = useRef<any>();
+
+  useKeypress('/', (ev: KeyboardEvent) => {
+    if (
+      document.activeElement !== inputRef.current &&
+      inputRef.current &&
+      !isThereOpenModal.length
+    ) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      inputRef.current.focus();
+    } else {
+      return;
+    }
+  });
+
   return (
     <PseudoInput {...rest} growOnFocus={growOnFocus}>
       <Prefix>
         <MagnifyingGlassIcon />
       </Prefix>
       <input
+        ref={inputRef}
         defaultValue={value}
         onChange={onChange}
-        placeholder="Search by service name or tags"
+        placeholder="Search by service name"
         tabIndex={0}
         type="text"
       />

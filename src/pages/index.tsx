@@ -1,3 +1,4 @@
+import debounce from 'lodash/debounce';
 import React, { ChangeEvent, FC, useEffect } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Category } from 'server/entities';
@@ -6,22 +7,33 @@ import Grid from 'src/components/grid';
 import Padder from 'src/components/padder';
 import { ServiceList } from 'src/components/service';
 import NavBar from 'src/components/topbar';
-import { configStore, serviceStore, uiStore } from 'src/stores';
+import { configStore, serviceStore, themeStore, uiStore } from 'src/stores';
 import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
-import debounce from 'lodash/debounce';
+import { ModalIdentity, ModalTypes } from 'typings';
+import dynamic from 'next/dynamic';
+
+const ServiceModal = dynamic(() => import('src/modals/new-service'), {
+  ssr: true,
+});
+
+const DeleteModal = dynamic(() => import('src/modals/delete-modal'), {
+  ssr: false,
+});
+
+const CategoryModal = dynamic(() => import('src/modals/new-category'), {
+  ssr: false,
+});
+
 const Index: FC = () => {
-  const { activeTab, searchTerm, setUiStore } = uiStore();
-  const { data: config } = configStore();
+  const { activeModals, activeTab, searchTerm, setUiStore } = uiStore();
+  const { data: config, sync: syncConfig } = configStore();
   const { data: services, sync: syncServices } = serviceStore();
 
   useEffect(() => {
     syncServices();
-  }, [syncServices]);
-
-  if (!config) {
-    return null;
-  }
+    syncConfig();
+  }, []);
 
   const transitions = useTransition(activeTab, {
     from: {
@@ -41,12 +53,6 @@ const Index: FC = () => {
     },
   });
 
-  const categoriesWithAllTab = servicesUtils(
-    config.categories,
-  ).getAllTabServices({
-    withRest: true,
-  });
-
   const onCategoryClickHandler = (category: Category['id']) => {
     setUiStore(d => {
       d.activeTab = category;
@@ -59,8 +65,46 @@ const Index: FC = () => {
     });
   };
 
+  const modalCloseRequest = (modal: ModalIdentity<any>) => {
+    const ctxModalIndex = activeModals.findIndex(m => m.id === modal.id);
+    setUiStore(d => {
+      d.activeModals[ctxModalIndex].state = 'closed';
+    });
+    setTimeout(() => {
+      setUiStore(d => {
+        d.activeModals.splice(ctxModalIndex, 1);
+      });
+    }, 240);
+  };
+
+  const MODALS = {
+    [ModalTypes['new-service']]: ServiceModal,
+    [ModalTypes['new-category']]: CategoryModal,
+    [ModalTypes['new-delete']]: DeleteModal,
+  };
+
+  if (!config) {
+    return null;
+  }
+  const categoriesWithAllTab = servicesUtils(
+    config.categories,
+  ).getAllTabServices({
+    withRest: true,
+  });
+
   return (
     <>
+      {activeModals.map(modal => {
+        const CtxModal = MODALS[modal.label];
+        return (
+          <CtxModal
+            key={modal.id}
+            onRequestClose={modalCloseRequest}
+            modalIdentity={modal}
+          />
+        );
+      })}
+
       <NavBar
         catagories={categoriesWithAllTab}
         activeCategory={activeTab}
@@ -73,7 +117,7 @@ const Index: FC = () => {
         <Grid>
           <Padder y={18} />
           <div>
-            {transitions((style, item) => (
+            {transitions(style => (
               <AnimatedWrap style={style}>
                 <ServiceList
                   items={
