@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SAMPLE_CONFIG } from 'server/config/seed-data';
 import { Category, Service } from 'server/entities';
+import { ALL_SERVICES_TAB, BASE_STATE } from 'src/consts/entityBaseState';
 
 const filterServicesItems = (
   data: Service[] | [],
@@ -61,11 +62,7 @@ interface ServiceUtilsReturnProps {
 
 const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
   const allServicesTab: Category = {
-    id: 0,
-    name: 'All Services',
-    icon: 'MixIcon',
-    description: 'All services in one list',
-    config: SAMPLE_CONFIG,
+    ...ALL_SERVICES_TAB,
     services: caregories
       .map(category => category.services)
       .reduce((prev, current) => {
@@ -80,7 +77,7 @@ const servicesUtils = (caregories: Category[]): ServiceUtilsReturnProps => {
   };
 
   const getActiveServicesTab = (activeTab: Category['id']) => {
-    if (activeTab === 0) {
+    if (activeTab === ALL_SERVICES_TAB.id) {
       return allServicesTab;
     } else {
       const activeServiceIndex = caregories.findIndex(

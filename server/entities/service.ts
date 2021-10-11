@@ -10,8 +10,8 @@ import Category from './category';
 
 @Entity()
 export default class Service {
-  @PrimaryGeneratedColumn()
-  id?: number;
+  @PrimaryGeneratedColumn('uuid')
+  public readonly id?: string;
 
   @Column({ nullable: false })
   name: string;
@@ -39,7 +39,10 @@ export default class Service {
   })
   logo?: string;
 
-  @ManyToOne(() => Category, { eager: true })
-  @JoinColumn({ referencedColumnName: 'id' })
+  @ManyToOne(() => Category, category => category.services, {
+    eager: true,
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   category: Category;
 }

@@ -9,13 +9,13 @@ const SAMPLE_CONFIG: Config = {
 
 const SAMPLE_CATEGORIES: Category[] = [
   {
-    id: 1,
+    id: 'home-media',
     name: 'Home Media',
     description: 'Global streaming service',
     icon: 'VideoIcon',
   },
   {
-    id: 2,
+    id: 'utilities',
     name: 'Utilities',
     description: 'A movie collection manager for Usenet and BitTorrent users',
     icon: 'MixerVerticalIcon',

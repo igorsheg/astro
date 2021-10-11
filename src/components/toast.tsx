@@ -3,7 +3,6 @@ import { invert, transparentize } from 'polished';
 import { FC } from 'react';
 import { useToaster } from 'react-hot-toast';
 import styled, { css } from 'styled-components';
-import Card from './card';
 
 const DEFAULT_OFFSET = 16;
 
@@ -95,8 +94,8 @@ const StyledToast = styled.div`
   }
   .toastPrefix {
     color: rgb(48, 209, 88);
-    width: 24px;
-    height: 24px;
+    width: 21px;
+    height: 21px;
     margin: 0 6px 0 0;
   }
 

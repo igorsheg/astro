@@ -1,7 +1,7 @@
 import * as RadixIcons from '@radix-ui/react-icons';
 import React, { FC } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
-import { Service } from 'server/entities';
+import { Category, Service } from 'server/entities';
 import Button from 'src/components/button';
 import { ContextMenu, MenuItem } from 'src/components/menu';
 import Tooltip from 'src/components/tooltip';
@@ -10,7 +10,7 @@ import generateUuid from 'src/utils/generateUuid';
 import styled from 'styled-components';
 import { ModalTypes } from 'typings';
 
-const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
+const CategoryMenu: FC<{ item: Category }> = ({ item }) => {
   const { setUiStore, activeModals } = uiStore();
   const menu = useMenuState({
     animated: 120,
@@ -49,12 +49,9 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
           label: modalType,
           state: 'expnanded',
           title: `Delete Service`,
-          body: `Are you sure you want to delete '${item.name}' service?`,
-          entityType: 'Service',
-          baseState: {
-            ...item,
-            categoryId: item.category.id,
-          },
+          body: `Note: Deleting a category will delete all services related to it. Are you sure you want to delete '${item.name}' category?`,
+          entityType: 'Category',
+          baseState: item,
         });
       });
     }
@@ -64,7 +61,7 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
     <>
       <MenuButton {...menu}>
         {props => (
-          <Tooltip placement="bottom" tabIndex={0} label="Service actions">
+          <Tooltip placement="bottom" tabIndex={0} label="Category actions">
             <Button
               style={{ minWidth: '36px' }}
               hierarchy="secondary"
@@ -80,7 +77,7 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
       <ContextMenu aria-label="Manage Astro Menu" {...menu}>
         <MenuItem
           {...menu}
-          onClick={() => createEditModal(ModalTypes['edit-service'])}
+          onClick={() => createEditModal(ModalTypes['edit-category'])}
         >
           Edit
         </MenuItem>
@@ -117,4 +114,4 @@ const Seperator = styled(MenuSeparator)`
   }
 `;
 
-export default ServiceMenu;
+export default CategoryMenu;

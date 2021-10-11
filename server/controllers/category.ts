@@ -1,18 +1,20 @@
 import { Context } from 'koa';
 import { getManager } from 'typeorm';
-import { Category } from '../entities';
+import { Category, Service } from '../entities';
 
 interface ControllerReturnProps {
   list: (ctx: Context) => Promise<Category[] | undefined>;
   get: (ctx: Context) => Promise<Category | undefined>;
   post: (ctx: Context) => Promise<Category | undefined>;
+  del: (ctx: Context) => Promise<boolean>;
+  update: (ctx: Context) => Promise<boolean>;
 }
 
 export default (): ControllerReturnProps => {
-  const serviceRepo = getManager().getRepository(Category);
+  const categoryRepo = getManager().getRepository(Category);
 
   const list = async (ctx: Context) => {
-    const data = await serviceRepo.find({
+    const data = await categoryRepo.find({
       relations: ['services'],
     });
     return (ctx.body = data);
@@ -20,7 +22,7 @@ export default (): ControllerReturnProps => {
 
   const get = async (ctx: Context) => {
     const { id } = ctx.params;
-    const data = await serviceRepo.findOne({
+    const data = await categoryRepo.findOne({
       relations: ['services'],
       where: { id },
     });
@@ -30,14 +32,46 @@ export default (): ControllerReturnProps => {
   const post = async (ctx: Context) => {
     const reqBody: Category = ctx.request.body;
 
-    const draftService = serviceRepo.create({
+    const draftService = categoryRepo.create({
       ...reqBody,
     });
 
     try {
-      return serviceRepo.insert(draftService).then(res => (ctx.body = res));
+      return categoryRepo.insert(draftService).then(res => (ctx.body = res));
     } catch (err: any) {
       return (ctx.body = err.message);
+    }
+  };
+
+  const update = async (ctx: Context) => {
+    const reqBody: Category = ctx.request.body;
+
+    try {
+      return await categoryRepo
+        .update({ id: reqBody.id }, reqBody)
+        .then(res => (ctx.body = res));
+    } catch (err: any) {
+      return (ctx.body = err.message);
+    }
+  };
+
+  const del = async (ctx: Context) => {
+    const { id } = ctx.params;
+
+    try {
+      getManager()
+        .createQueryBuilder()
+        .delete()
+        .from(Service)
+        .where('category.id = :id', { id })
+        .delete()
+        .from(Category)
+        .where('id = :id', { id })
+        .execute();
+
+      return (ctx.body = true);
+    } catch {
+      return (ctx.body = false);
     }
   };
 
@@ -45,5 +79,7 @@ export default (): ControllerReturnProps => {
     list,
     get,
     post,
+    update,
+    del,
   };
 };

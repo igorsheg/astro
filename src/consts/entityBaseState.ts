@@ -22,6 +22,13 @@ const SERVICE: Service = {
   logo: 'placeholder.png',
 };
 
+const ALL_SERVICES_TAB: Category = {
+  id: 'all-services',
+  name: 'All Services',
+  icon: 'MixIcon',
+  description: 'All services in one list',
+};
+
 const BASE_STATE = { SERVICE, CATEGORY, CONFIG };
 
-export { BASE_STATE };
+export { BASE_STATE, ALL_SERVICES_TAB };

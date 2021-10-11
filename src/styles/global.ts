@@ -136,6 +136,9 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
   &::-webkit-scrollbar-thumb:active {
     background-color: ${p => p.theme.text.primary};
   }
+  div[role="tooltip"] {
+	  z-index: 99999999999991;
+  }
 
 
 `;

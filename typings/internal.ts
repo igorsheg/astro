@@ -22,6 +22,7 @@ export enum ModalTypes {
   'new-category' = 'new-category',
   'new-delete' = 'new-delete',
   'edit-service' = 'edit-service',
+  'edit-category' = 'edit-category',
 }
 export type ModalState = 'expnanded' | 'tucked' | 'closed';
 

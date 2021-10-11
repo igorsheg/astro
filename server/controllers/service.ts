@@ -48,7 +48,6 @@ export default (): ControllerReturnProps => {
 
   const update = async (ctx: Context) => {
     const reqBody: Service = ctx.request.body;
-    console.log('From Patch --->');
     try {
       return await serviceRepo
         .update(
@@ -63,8 +62,6 @@ export default (): ControllerReturnProps => {
 
   const deleteEntity = async (ctx: Context) => {
     const { id } = ctx.params;
-    console.log('From Delete --->');
-
     try {
       await serviceRepo.delete(id);
       return (ctx.body = true);

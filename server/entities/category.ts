@@ -11,8 +11,8 @@ import Service from './service';
 
 @Entity()
 export default class Category {
-  @PrimaryGeneratedColumn()
-  id?: number;
+  @PrimaryGeneratedColumn('uuid')
+  public readonly id?: string;
 
   @Column({ nullable: true })
   name: string;
@@ -23,7 +23,7 @@ export default class Category {
   @Column({ nullable: false, default: 'CircleIcon' })
   icon: RadixIconTypes;
 
-  @OneToMany(() => Service, service => service.category)
+  @OneToMany(() => Service, service => service.category, {})
   services?: Service[];
 
   @CreateDateColumn()

@@ -41,7 +41,7 @@ const Tooltip: FC<TooltipProps> = ({
 
 const Wrap = styled.div`
   font-size: 12px;
-  z-index: 991;
+  z-index: 9999999999999999999991;
   background: black;
   color: white;
   border-radius: 4px;

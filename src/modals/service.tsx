@@ -9,6 +9,7 @@ import Flex from 'src/components/flex';
 import { Input, Select } from 'src/components/input';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
+import { BASE_STATE } from 'src/consts/entityBaseState';
 import { categoryStore, uiStore } from 'src/stores';
 import {
   loadLogoRender,
@@ -62,17 +63,21 @@ const ServiceModal: FC<ServiceModalProps> = ({
     }
   }, []);
 
-  useEffect(() => {
-    console.log(modalIdentity);
-  }, [modalIdentity]);
-
   const onFormChange = (ev: ChangeEvent<HTMLFormElement>) => {
     const target = ev.target;
 
     if (target.type === 'file') {
       const file = target.files[0];
+
       logoBlobRef.current = file;
       loadLogoRender(file, logoRenderRef);
+
+      setUiStore(d => {
+        d.activeModals[ctxModalIndex].draft = {
+          ...d.activeModals[ctxModalIndex].draft,
+          logo: BASE_STATE.SERVICE.logo,
+        };
+      });
     } else if (target.type === 'checkbox') {
       setUiStore(d => {
         d.activeModals[ctxModalIndex].draft = {
@@ -91,8 +96,6 @@ const ServiceModal: FC<ServiceModalProps> = ({
   };
 
   const categoryChangeHandler = (option: SelectOption) => {
-    console.log(option);
-
     setUiStore(d => {
       d.activeModals[ctxModalIndex].draft = {
         ...d.activeModals[ctxModalIndex].draft,
@@ -111,7 +114,11 @@ const ServiceModal: FC<ServiceModalProps> = ({
 
       try {
         await validateForm(schema, modalIdentity.draft);
-        const logoPath = await uploadLogo(logoBlobRef.current);
+        let logoPath = modalIdentity.baseState?.logo;
+
+        if (!isEqual(modalIdentity.baseState?.logo, modalIdentity.draft.logo)) {
+          logoPath = await uploadLogo(logoBlobRef.current);
+        }
 
         const newService: Service = {
           ...formData,

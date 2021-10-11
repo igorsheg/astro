@@ -1,20 +1,26 @@
 import debounce from 'lodash/debounce';
 import dynamic from 'next/dynamic';
-import React, { ChangeEvent, FC, useCallback, useEffect } from 'react';
+import React, {
+  ChangeEvent,
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
+import toast, { ToastOptions } from 'react-hot-toast';
 import { animated, useTransition } from 'react-spring';
-import { Category } from 'server/entities';
 import Flex from 'src/components/flex';
+import Loader from 'src/components/fullpage-loader';
 import Grid from 'src/components/grid';
 import Padder from 'src/components/padder';
 import { ServiceList } from 'src/components/service';
+import { AstroToast } from 'src/components/toast';
 import NavBar from 'src/components/topbar';
-import { categoryStore, configStore, serviceStore, uiStore } from 'src/stores';
+import { categoryStore, configStore, uiStore } from 'src/stores';
 import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity, ModalTypes } from 'typings';
-import toast, { ToastOptions } from 'react-hot-toast';
-import { AstroToast } from 'src/components/toast';
-import Loader from 'src/components/fullpage-loader';
 
 const ServiceModal = dynamic(() => import('src/modals/service'), {
   ssr: true,
@@ -35,34 +41,14 @@ const TOAST_OPTS: ToastOptions = {
 const Index: FC = () => {
   const { activeModals, activeTabId, searchTerm, setUiStore } = uiStore();
   const { sync: syncConfig } = configStore();
-  // const { , sync: syncServices } = serviceStore();
   const { data: categories, sync: syncCategories } = categoryStore();
 
   useEffect(() => {
     syncConfig();
-    // syncServices();
     syncCategories();
   }, []);
 
-  const transitions = useTransition(activeTabId, {
-    from: {
-      transform: 'translate3d(0,25px,0)',
-      opacity: 0,
-    },
-    enter: {
-      transform: 'translate3d(0,0px,0)',
-      opacity: 1,
-    },
-    leave: {
-      transform: 'translate3d(0,-25px,0)',
-      opacity: 0,
-    },
-    config: {
-      tension: 300,
-    },
-  });
-
-  const onCategoryClickHandler = (categoryId: number) => {
+  const onCategoryClickHandler = (categoryId: string) => {
     setUiStore(d => {
       d.activeTabId = categoryId;
     });
@@ -98,10 +84,11 @@ const Index: FC = () => {
     [ModalTypes['new-category']]: CategoryModal,
     [ModalTypes['new-delete']]: DeleteModal,
     [ModalTypes['edit-service']]: ServiceModal,
+    [ModalTypes['edit-category']]: CategoryModal,
   };
 
   const categoriesWithAllTab = useCallback(() => {
-    if (!categories) {
+    if (!categories?.length) {
       return [];
     } else {
       return servicesUtils(categories).getAllTabServices({
@@ -110,13 +97,40 @@ const Index: FC = () => {
     }
   }, [categories]);
 
-  const pages = (style: any) =>
-    categoriesWithAllTab().map(category => (
-      <AnimatedWrap key={category.id} style={style}>
-        <ServiceList items={category.services || []} />
-      </AnimatedWrap>
-    ));
+  const activeTabIndex = categoriesWithAllTab().findIndex(
+    c => c.id === activeTabId,
+  );
 
+  const transitions = useTransition(activeTabIndex, {
+    from: {
+      transform: 'translate3d(0,25px,0)',
+      opacity: 0,
+    },
+    enter: {
+      transform: 'translate3d(0,0px,0)',
+      opacity: 1,
+    },
+    leave: {
+      transform: 'translate3d(0,-25px,0)',
+      opacity: 0,
+    },
+    config: {
+      tension: 300,
+    },
+  });
+
+  const pages = useCallback(
+    style => {
+      return categoriesWithAllTab().map(category => (
+        <AnimatedWrap key={category.id} style={style}>
+          <ServiceList items={category.services || []} />
+        </AnimatedWrap>
+      ));
+    },
+    [categories],
+  );
+
+  if (!categories) return <Loader />;
   return (
     <>
       <AstroToast />
@@ -137,6 +151,7 @@ const Index: FC = () => {
         searchTerm={searchTerm}
         onSearchTermChange={debounce(ev => onSearchTermChangeHandler(ev), 50)}
       />
+
       <Padder y={204} />
       <Flex align="center" justify="center" column>
         <Grid>

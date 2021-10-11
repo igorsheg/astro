@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import Head from 'next/head';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
 import { Theme } from 'server/entities';
 import { localSrorageStore, themeStore } from 'src/stores';
@@ -8,15 +8,18 @@ import GlobalStyle from 'src/styles/global';
 import { ThemeProvider } from 'styled-components';
 
 const MyApp = ({ Component, pageProps }: any) => {
-  const { data: themes } = themeStore();
+  const { data: themes, sync: syncThemes } = themeStore();
   const { activeTheme } = localSrorageStore();
 
-  const ctxTheme =
-    themes && themes.length
-      ? themes.find(t => t.id === activeTheme)
-      : activeTheme && activeTheme.length
-      ? SAMPLE_THEMES[activeTheme as keyof typeof SAMPLE_THEMES]
-      : SAMPLE_THEMES.dark;
+  useEffect(() => {
+    syncThemes();
+  }, []);
+
+  const ctxTheme = useCallback(() => {
+    return (
+      (themes && themes.find(t => t.id === activeTheme)) || SAMPLE_THEMES.dark
+    );
+  }, [activeTheme]);
 
   return (
     <>
@@ -34,7 +37,7 @@ const MyApp = ({ Component, pageProps }: any) => {
           content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"
         />
       </Head>
-      <ThemeProvider theme={ctxTheme as Theme}>
+      <ThemeProvider theme={ctxTheme() as Theme}>
         <GlobalStyle />
         <Component {...pageProps} />
       </ThemeProvider>

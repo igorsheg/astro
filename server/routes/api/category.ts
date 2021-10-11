@@ -14,4 +14,11 @@ router.post('/category', async ctx => {
   return CategoryController().post(ctx);
 });
 
+router.del('/category/:id', async ctx => {
+  return CategoryController().del(ctx);
+});
+router.patch('/category/:id', async ctx => {
+  return CategoryController().update(ctx);
+});
+
 export default router;

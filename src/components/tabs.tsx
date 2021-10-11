@@ -1,12 +1,17 @@
 import * as RadixIcons from '@radix-ui/react-icons';
 import React, { FC } from 'react';
 import { Category } from 'server/entities';
+import { ALL_SERVICES_TAB } from 'src/consts/entityBaseState';
+import CategoryMenu from 'src/menus/category-menu';
 import styled, { css } from 'styled-components';
+import Flex from './flex';
+import Tooltip from './tooltip';
 
 interface TabsProps {
   items: Category[];
   activeItem: Category['id'];
-  onItemClick: (item: number) => void;
+  onItemClick: (item: string) => void;
+  inEditMode: boolean;
 }
 
 const Tabs: FC<TabsProps> = ({ items, ...props }) => {
@@ -21,22 +26,39 @@ const Tabs: FC<TabsProps> = ({ items, ...props }) => {
 
 interface TabProps extends Omit<TabsProps, 'items'> {
   item: Category;
+  inEditMode: boolean;
 }
 
-const Tab: FC<TabProps> = ({ item, activeItem, onItemClick }) => {
+const Tab: FC<TabProps> = ({ item, activeItem, onItemClick, inEditMode }) => {
   const Icon = RadixIcons[item.icon];
 
+  const eligbleForEdit = inEditMode && item.id !== ALL_SERVICES_TAB.id;
+
   return (
-    <StyledTab
-      onClick={() => onItemClick(item.id as number)}
-      isActive={item.id === activeItem}
-      hasSeperator={false}
-    >
-      <Icon />
-      <span>{item.name}</span>
+    <StyledTab isActive={item.id === activeItem}>
+      <a onClick={() => onItemClick(item.id as string)}>
+        <Icon />
+        <span>{item.name}</span>
+      </a>
+      {eligbleForEdit && (
+        <TabIctions>
+          <CategoryMenu item={item} />
+        </TabIctions>
+      )}
     </StyledTab>
   );
 };
+
+const TabIctions = styled.div`
+  display: flex;
+  position: relative;
+  button {
+    border: none;
+    svg {
+      margin: 0 !important;
+    }
+  }
+`;
 
 const StyledUl = styled.ul`
   display: flex;
@@ -44,26 +66,15 @@ const StyledUl = styled.ul`
   align-items: flex-start;
   font-size: 14px;
   margin: 0;
+  position: relative;
   padding: 0;
 `;
 
-const withSeperatorCss = css`
-  margin: 0 30px 0 0;
-  :after {
-    content: '';
-    position: absolute;
-    right: -15px;
-    height: 60%;
-    width: 1px;
-    background: ${p => p.theme.border.primary};
-  }
-`;
-
-const StyledTab = styled.li<{ isActive: boolean; hasSeperator: boolean }>`
+const StyledTab = styled.li<{ isActive: boolean }>`
   align-items: center;
   position: relative;
   display: flex;
-  padding: 9px;
+
   height: 30px;
   margin: 0 6px 0 0;
   border-radius: 4px;
@@ -71,8 +82,13 @@ const StyledTab = styled.li<{ isActive: boolean; hasSeperator: boolean }>`
   font-weight: 500;
   transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
   background: ${p => (p.isActive ? p.theme.background.ternary : 'transparent')};
-  ${p => p.hasSeperator && withSeperatorCss}
 
+  a {
+    padding: 9px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   :hover {
     cursor: pointer;
   }

@@ -1,6 +1,6 @@
-import React, { ChangeEvent, FC, useEffect } from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { Category } from 'server/entities';
-import { configStore, localSrorageStore } from 'src/stores';
+import { configStore, localSrorageStore, uiStore } from 'src/stores';
 import styled from 'styled-components';
 import Flex from '../flex';
 import SearchInput from '../search-input';
@@ -11,8 +11,8 @@ import HeaderTitle from './title';
 
 interface TopBarProps {
   catagories: Category[];
-  onCategoryClick: (categoryId: number) => void;
-  activeCategoryId: number;
+  onCategoryClick: (categoryId: string) => void;
+  activeCategoryId: string;
   searchTerm: string;
   onSearchTermChange: (ev: ChangeEvent<HTMLInputElement>) => void;
 }
@@ -25,15 +25,17 @@ const TopBar: FC<TopBarProps> = ({
 }) => {
   const { activeTheme } = localSrorageStore();
   const { data: config } = configStore();
+  const { inEditMode } = uiStore();
 
   return (
     <HeaderWrap>
-      <Panel style={{ zIndex: 99999191, position: 'relative' }} height="96px">
+      <Panel style={{ zIndex: 991, position: 'relative' }} height="96px">
         {config && <HeaderTitle config={config} activeTheme={activeTheme} />}
         <Actions />
       </Panel>
       <Panel height="60px">
         <Tabs
+          inEditMode={inEditMode}
           onItemClick={onCategoryClick}
           items={catagories}
           activeItem={activeCategoryId}

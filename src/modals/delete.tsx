@@ -2,21 +2,12 @@ import React, { FC } from 'react';
 import Button from 'src/components/button';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { serviceStore } from 'src/stores';
+import { categoryStore, serviceStore } from 'src/stores';
 import { fetcher } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity } from 'typings';
 import * as Entities from '../../server/entities';
-import toast from 'react-hot-toast';
-import { BASE_STATE } from 'src/consts/entityBaseState';
 
-// const baseFormState: {
-//   entity: keyof typeof Entities;
-//   item: Entities.Service | Entities.Category | null;
-// } = {
-//   entity: 'Service',
-//   item: null,
-// };
 interface BaseState
   extends Pick<Entities.Service, 'id' | 'name'>,
     Pick<Entities.Category, 'id' | 'name'> {
@@ -32,7 +23,7 @@ const DeleteModal: FC<DeleteModalProps> = ({
   onRequestClose,
   modalIdentity,
 }) => {
-  const { sync: syncServices } = serviceStore();
+  const { sync: syncCategories } = categoryStore();
 
   const onConfirmHandler = async () => {
     if (modalIdentity.baseState && modalIdentity.baseState.id) {
@@ -40,7 +31,7 @@ const DeleteModal: FC<DeleteModalProps> = ({
         data: modalIdentity.baseState,
         method: 'DELETE',
       });
-      syncServices();
+      syncCategories();
       onRequestClose({
         ...modalIdentity,
         closeNotification: {

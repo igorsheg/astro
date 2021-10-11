@@ -1,20 +1,19 @@
 import * as RadixIcons from '@radix-ui/react-icons';
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 import throttle from 'lodash/throttle';
 import { transparentize } from 'polished';
 import React, { ChangeEvent, FC, useState } from 'react';
-import { SAMPLE_CONFIG } from 'server/config/seed-data';
 import { Category } from 'server/entities';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { Input } from 'src/components/input';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { BASE_STATE } from 'src/consts/entityBaseState';
-import { categoryStore, configStore, uiStore } from 'src/stores';
+import { categoryStore, uiStore } from 'src/stores';
 import { fetcher, useFilteredList, validateForm } from 'src/utils';
 import styled from 'styled-components';
-import { ModalIdentity, SelectOption } from 'typings';
+import { ModalIdentity, ModalTypes, SelectOption } from 'typings';
 import { RadixIconTypes } from 'typings/radixIconsTypes';
 import { object, string } from 'yup';
 
@@ -31,9 +30,9 @@ const CategoryModal: FC<CategoryModalProps> = ({
   onRequestClose,
   modalIdentity,
 }) => {
-  const { sync: syncCategories } = categoryStore();
-  const ctxModalIndex = uiStore(s => s.activeModals.indexOf(modalIdentity));
+  const syncCategories = categoryStore(s => s.sync);
   const setUiStore = uiStore(s => s.setUiStore);
+  const ctxModalIndex = uiStore(s => s.activeModals.indexOf(modalIdentity));
 
   const [valitationState, setValitationState] = useState<
     { [key in keyof Category]: string } | Record<string, never>
@@ -67,25 +66,49 @@ const CategoryModal: FC<CategoryModalProps> = ({
     icon: x as RadixIconTypes,
   }));
 
+  const updateCategory = async (item: Category) => {
+    await fetcher(['Category', item.id], {
+      data: {
+        id: item.id,
+        name: item.name,
+        icon: item.icon,
+      },
+      method: 'PATCH',
+    });
+
+    onRequestClose({
+      ...modalIdentity,
+      closeNotification: {
+        type: 'success',
+        message: `Updated '${item.name}' category`,
+      },
+    });
+  };
+
+  const createCategory = async (item: Category) => {
+    await fetcher(['Category'], { data: item });
+    onRequestClose({
+      ...modalIdentity,
+      closeNotification: {
+        type: 'success',
+        message: `Updated '${item.name}' category`,
+      },
+    });
+  };
+
   const submitFormHandler = async (
     ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     ev.preventDefault();
 
     if (modalIdentity.draft) {
-      const { ...formData } = modalIdentity.draft;
-
+      const { draft } = modalIdentity;
       try {
-        await validateForm(schema, modalIdentity.draft);
-
-        const newCategory: Category = {
-          ...formData,
-        };
-        console.log(newCategory);
-
-        await fetcher(['Category'], { data: newCategory });
+        await validateForm(schema, draft);
+        modalIdentity.label === ModalTypes['edit-category']
+          ? updateCategory(draft)
+          : createCategory(draft);
         syncCategories();
-        onRequestClose(modalIdentity);
       } catch (err: any) {
         setValitationState(err);
         return;
@@ -110,6 +133,7 @@ const CategoryModal: FC<CategoryModalProps> = ({
                 onChange={debounce(onFormChange, 50)}
                 placeholder="Home Media"
                 aria-errormessage={valitationState['name']}
+                defaultValue={modalIdentity.draft?.name}
               />
             </RowContent>
             <Padder y={18} />
@@ -153,6 +177,7 @@ const CategoryModal: FC<CategoryModalProps> = ({
             type="submit"
             hierarchy="primary"
             onClick={submitFormHandler}
+            disabled={isEqual(modalIdentity.baseState, modalIdentity.draft)}
           >
             Submit
           </Button>
