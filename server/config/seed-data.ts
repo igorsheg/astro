@@ -5,7 +5,6 @@ const SAMPLE_CONFIG: Config = {
   title: 'Astro',
   subtitle: 'Your personal space',
   columns: 4,
-  categories: [],
 };
 
 const SAMPLE_CATEGORIES: Category[] = [
@@ -13,14 +12,12 @@ const SAMPLE_CATEGORIES: Category[] = [
     id: 1,
     name: 'Home Media',
     description: 'Global streaming service',
-    config: SAMPLE_CONFIG,
     icon: 'VideoIcon',
   },
   {
     id: 2,
     name: 'Utilities',
     description: 'A movie collection manager for Usenet and BitTorrent users',
-    config: SAMPLE_CONFIG,
     icon: 'MixerVerticalIcon',
   },
 ];

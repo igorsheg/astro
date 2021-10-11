@@ -39,7 +39,6 @@ const primary = css`
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px;
   border: none;
   color: white;
-
   transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
   :hover {
     background: ${p => p.theme.accent.secondary};
@@ -72,6 +71,9 @@ const StyledButton: any = styled(ReakitButton)<StyledButtonProps>`
     cursor: pointer;
   }
 
+  :disabled {
+    filter: grayscale(100%);
+  }
   ${p => hierarchyStyles[p.hierarchy || 'primary']}
 `;
 

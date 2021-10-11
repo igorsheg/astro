@@ -17,5 +17,8 @@ router.del('/service/:id', async ctx => {
 router.post('/service', async ctx => {
   return ServiceController().post(ctx);
 });
+router.patch('/service/:id', async ctx => {
+  return ServiceController().update(ctx);
+});
 
 export default router;

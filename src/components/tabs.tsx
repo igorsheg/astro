@@ -6,7 +6,7 @@ import styled, { css } from 'styled-components';
 interface TabsProps {
   items: Category[];
   activeItem: Category['id'];
-  onItemClick: (item: Category['id']) => void;
+  onItemClick: (item: number) => void;
 }
 
 const Tabs: FC<TabsProps> = ({ items, ...props }) => {
@@ -28,7 +28,7 @@ const Tab: FC<TabProps> = ({ item, activeItem, onItemClick }) => {
 
   return (
     <StyledTab
-      onClick={() => onItemClick(item.id)}
+      onClick={() => onItemClick(item.id as number)}
       isActive={item.id === activeItem}
       hasSeperator={false}
     >

@@ -3,14 +3,14 @@ FROM mhart/alpine-node AS builder
 WORKDIR /app
 
 COPY  package.json /app
-RUN yarn --production --quiet && yarn add -D typescript @types/node @types/react figlet
+RUN yarn --production=true --quiet=true && yarn add -D typescript @types/node @types/react
 COPY . /app
 
 RUN yarn build 
 
 ######################################################
 
-FROM mhart/alpine-node as prod
+FROM mhart/alpine-node:slim as prod
 ENV NODE_ENV=production
 
 COPY --from=builder /app/node_modules ./node_modules

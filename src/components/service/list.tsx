@@ -1,10 +1,11 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 import { a } from 'react-spring';
 import { Service } from 'server/entities';
 import { uiStore } from 'src/stores';
 import { filterServicesItems } from 'src/utils';
 import styled from 'styled-components';
 import ServiceCard from './card';
+import ServiceEmptyState from './empty-state';
 
 interface ServiceListProps {
   items: Service[];
@@ -18,11 +19,18 @@ const ServiceList: FC<ServiceListProps> = ({ items }) => {
 
   return (
     <StyledList>
-      {filteredData().map((s: Service, i: number) => (
-        <AnimatedCard key={s.id} style={{ zIndex: filteredData()?.length - i }}>
-          <ServiceCard item={s} />
-        </AnimatedCard>
-      ))}
+      {!filteredData().length ? (
+        <ServiceEmptyState />
+      ) : (
+        filteredData().map((s: Service, i: number) => (
+          <AnimatedCard
+            key={s.id}
+            style={{ zIndex: filteredData()?.length - i }}
+          >
+            <ServiceCard item={s} />
+          </AnimatedCard>
+        ))
+      )}
     </StyledList>
   );
 };

@@ -67,7 +67,6 @@ const Select: FC<SelectProps> = ({
       <StyledSelect>
         <Combobox
           {...combobox}
-          name="category"
           type="select"
           value={options.find(opt => opt.id === defaultOptionId)?.value}
           as={Input}

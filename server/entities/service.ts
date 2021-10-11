@@ -5,9 +5,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { TargetType } from 'typings';
 import Category from './category';
-
-export type TargetType = '_blank' | '';
 
 @Entity()
 export default class Service {
@@ -40,7 +39,7 @@ export default class Service {
   })
   logo?: string;
 
-  @ManyToOne(() => Category)
+  @ManyToOne(() => Category, { eager: true })
   @JoinColumn({ referencedColumnName: 'id' })
   category: Category;
 }

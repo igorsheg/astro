@@ -10,48 +10,39 @@ import Flex from 'src/components/flex';
 import { Input } from 'src/components/input';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { configStore, uiStore } from 'src/stores';
+import { BASE_STATE } from 'src/consts/entityBaseState';
+import { categoryStore, configStore, uiStore } from 'src/stores';
 import { fetcher, useFilteredList, validateForm } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity, SelectOption } from 'typings';
 import { RadixIconTypes } from 'typings/radixIconsTypes';
 import { object, string } from 'yup';
 
-const baseFormState: {
-  name: string;
-  description: string;
-  icon: RadixIconTypes;
-} = {
-  name: '',
-  description: '',
-  icon: 'ActivityLogIcon',
-};
-
 const schema = object().shape({
   name: string().required('Naming your service is requiered'),
 });
 
-interface NewCategoryModalProps {
+interface CategoryModalProps {
   onRequestClose: <T>(m: ModalIdentity<T>) => void;
-  modalIdentity: ModalIdentity<typeof baseFormState>;
+  modalIdentity: ModalIdentity<Category>;
 }
 
-const NewCategoryModal: FC<NewCategoryModalProps> = ({
+const CategoryModal: FC<CategoryModalProps> = ({
   onRequestClose,
   modalIdentity,
 }) => {
-  const { data: config, sync: syncConfig } = configStore();
+  const { sync: syncCategories } = categoryStore();
   const ctxModalIndex = uiStore(s => s.activeModals.indexOf(modalIdentity));
   const setUiStore = uiStore(s => s.setUiStore);
 
   const [valitationState, setValitationState] = useState<
-    { [key in keyof typeof baseFormState]: string } | Record<string, never>
+    { [key in keyof Category]: string } | Record<string, never>
   >({});
 
   const onIconChangeHandler = (option: SelectOption) => {
     setUiStore(d => {
-      d.activeModals[ctxModalIndex].data = {
-        ...d.activeModals[ctxModalIndex].data,
+      d.activeModals[ctxModalIndex].draft = {
+        ...d.activeModals[ctxModalIndex].draft,
         icon: option.id,
       };
     });
@@ -59,8 +50,8 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
 
   const onFormChange = (ev: ChangeEvent<HTMLFormElement>) => {
     setUiStore(d => {
-      d.activeModals[ctxModalIndex].data = {
-        ...d.activeModals[ctxModalIndex].data,
+      d.activeModals[ctxModalIndex].draft = {
+        ...d.activeModals[ctxModalIndex].draft,
         [ev.target.name]: ev.target.value,
       };
     });
@@ -81,18 +72,19 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
   ) => {
     ev.preventDefault();
 
-    if (modalIdentity.data) {
-      const { ...formData } = modalIdentity.data;
+    if (modalIdentity.draft) {
+      const { ...formData } = modalIdentity.draft;
 
       try {
-        await validateForm(schema, modalIdentity.data);
+        await validateForm(schema, modalIdentity.draft);
 
         const newCategory: Category = {
-          config: SAMPLE_CONFIG,
           ...formData,
         };
+        console.log(newCategory);
+
         await fetcher(['Category'], { data: newCategory });
-        syncConfig();
+        syncCategories();
         onRequestClose(modalIdentity);
       } catch (err: any) {
         setValitationState(err);
@@ -115,7 +107,7 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
               <Input
                 label="Category Name"
                 name="name"
-                onChange={debounce(onFormChange, 200)}
+                onChange={debounce(onFormChange, 50)}
                 placeholder="Home Media"
                 aria-errormessage={valitationState['name']}
               />
@@ -126,7 +118,7 @@ const NewCategoryModal: FC<NewCategoryModalProps> = ({
                 <label>Category Icon</label>
                 <IconListBody>
                   <SearchInput
-                    onChange={throttle(ev => filter(ev.target.value), 200)}
+                    onChange={throttle(ev => filter(ev.target.value), 50)}
                     placeholder="Search for icons..."
                   />
                   <IconsList>
@@ -177,7 +169,7 @@ interface IconOption {
 }
 interface IconListProps {
   option: IconOption;
-  modalIdentity: ModalIdentity<typeof baseFormState>;
+  modalIdentity: ModalIdentity<Category>;
   onIconChangeHandler: (opt: IconOption) => void;
 }
 const RowItem: FC<IconListProps> = ({
@@ -189,7 +181,7 @@ const RowItem: FC<IconListProps> = ({
 
   return (
     <IconItem
-      selected={modalIdentity.data?.icon === option.id}
+      selected={modalIdentity.draft?.icon === option.id}
       tabIndex={0}
       onClick={() => onIconChangeHandler(option)}
     >
@@ -198,7 +190,7 @@ const RowItem: FC<IconListProps> = ({
         {option.value}
       </Flex>
       <Flex data-icon-checkmark>
-        {modalIdentity.data?.icon === option.id && <RadixIcons.CheckIcon />}
+        {modalIdentity.draft?.icon === option.id && <RadixIcons.CheckIcon />}
       </Flex>
     </IconItem>
   );
@@ -323,4 +315,4 @@ const FormFooter = styled.div`
   padding: 24px;
 `;
 
-export default NewCategoryModal;
+export default CategoryModal;

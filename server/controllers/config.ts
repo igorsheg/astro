@@ -20,7 +20,6 @@ export default (): ControllerReturnProps => {
     const { id } = ctx.params;
     const data = await configRepo.findOne({
       where: { id },
-      relations: ['categories'],
     });
     return (ctx.body = data);
   };

@@ -34,9 +34,6 @@ export default class Config {
   @OneToMany(() => Theme, theme => theme.config)
   themes?: Theme[];
 
-  @OneToMany(() => Catagory, category => category.config)
-  categories: Catagory[];
-
   @CreateDateColumn()
   createdAt?: Date;
 

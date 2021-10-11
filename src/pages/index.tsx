@@ -1,5 +1,6 @@
 import debounce from 'lodash/debounce';
-import React, { ChangeEvent, FC, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import React, { ChangeEvent, FC, useCallback, useEffect } from 'react';
 import { animated, useTransition } from 'react-spring';
 import { Category } from 'server/entities';
 import Flex from 'src/components/flex';
@@ -7,35 +8,43 @@ import Grid from 'src/components/grid';
 import Padder from 'src/components/padder';
 import { ServiceList } from 'src/components/service';
 import NavBar from 'src/components/topbar';
-import { configStore, serviceStore, themeStore, uiStore } from 'src/stores';
+import { categoryStore, configStore, serviceStore, uiStore } from 'src/stores';
 import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity, ModalTypes } from 'typings';
-import dynamic from 'next/dynamic';
+import toast, { ToastOptions } from 'react-hot-toast';
+import { AstroToast } from 'src/components/toast';
+import Loader from 'src/components/fullpage-loader';
 
-const ServiceModal = dynamic(() => import('src/modals/new-service'), {
+const ServiceModal = dynamic(() => import('src/modals/service'), {
   ssr: true,
 });
 
-const DeleteModal = dynamic(() => import('src/modals/delete-modal'), {
+const DeleteModal = dynamic(() => import('src/modals/delete'), {
   ssr: false,
 });
 
-const CategoryModal = dynamic(() => import('src/modals/new-category'), {
+const CategoryModal = dynamic(() => import('src/modals/category'), {
   ssr: false,
 });
+
+const TOAST_OPTS: ToastOptions = {
+  duration: 6000,
+};
 
 const Index: FC = () => {
-  const { activeModals, activeTab, searchTerm, setUiStore } = uiStore();
-  const { data: config, sync: syncConfig } = configStore();
-  const { data: services, sync: syncServices } = serviceStore();
+  const { activeModals, activeTabId, searchTerm, setUiStore } = uiStore();
+  const { sync: syncConfig } = configStore();
+  // const { , sync: syncServices } = serviceStore();
+  const { data: categories, sync: syncCategories } = categoryStore();
 
   useEffect(() => {
-    syncServices();
     syncConfig();
+    // syncServices();
+    syncCategories();
   }, []);
 
-  const transitions = useTransition(activeTab, {
+  const transitions = useTransition(activeTabId, {
     from: {
       transform: 'translate3d(0,25px,0)',
       opacity: 0,
@@ -53,9 +62,9 @@ const Index: FC = () => {
     },
   });
 
-  const onCategoryClickHandler = (category: Category['id']) => {
+  const onCategoryClickHandler = (categoryId: number) => {
     setUiStore(d => {
-      d.activeTab = category;
+      d.activeTabId = categoryId;
     });
   };
 
@@ -75,25 +84,42 @@ const Index: FC = () => {
         d.activeModals.splice(ctxModalIndex, 1);
       });
     }, 240);
+
+    if (modal.closeNotification) {
+      const { type, message } = modal.closeNotification;
+      type === 'success'
+        ? toast.success(message, { ...TOAST_OPTS })
+        : toast(message, { ...TOAST_OPTS });
+    }
   };
 
   const MODALS = {
     [ModalTypes['new-service']]: ServiceModal,
     [ModalTypes['new-category']]: CategoryModal,
     [ModalTypes['new-delete']]: DeleteModal,
+    [ModalTypes['edit-service']]: ServiceModal,
   };
 
-  if (!config) {
-    return null;
-  }
-  const categoriesWithAllTab = servicesUtils(
-    config.categories,
-  ).getAllTabServices({
-    withRest: true,
-  });
+  const categoriesWithAllTab = useCallback(() => {
+    if (!categories) {
+      return [];
+    } else {
+      return servicesUtils(categories).getAllTabServices({
+        withRest: true,
+      });
+    }
+  }, [categories]);
+
+  const pages = (style: any) =>
+    categoriesWithAllTab().map(category => (
+      <AnimatedWrap key={category.id} style={style}>
+        <ServiceList items={category.services || []} />
+      </AnimatedWrap>
+    ));
 
   return (
     <>
+      <AstroToast />
       {activeModals.map(modal => {
         const CtxModal = MODALS[modal.label];
         return (
@@ -104,30 +130,21 @@ const Index: FC = () => {
           />
         );
       })}
-
       <NavBar
-        catagories={categoriesWithAllTab}
-        activeCategory={activeTab}
+        catagories={categoriesWithAllTab()}
+        activeCategoryId={activeTabId}
         onCategoryClick={onCategoryClickHandler}
         searchTerm={searchTerm}
-        onSearchTermChange={debounce(ev => onSearchTermChangeHandler(ev), 200)}
+        onSearchTermChange={debounce(ev => onSearchTermChangeHandler(ev), 50)}
       />
       <Padder y={204} />
       <Flex align="center" justify="center" column>
         <Grid>
           <Padder y={18} />
           <div>
-            {transitions(style => (
-              <AnimatedWrap style={style}>
-                <ServiceList
-                  items={
-                    activeTab === 0
-                      ? services || []
-                      : services?.filter(s => s.category.id === activeTab) || []
-                  }
-                />
-              </AnimatedWrap>
-            ))}
+            {transitions((style, i) => {
+              return pages(style)[i];
+            })}
           </div>
         </Grid>
       </Flex>

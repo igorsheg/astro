@@ -8,6 +8,7 @@ interface ControllerReturnProps {
   get: (ctx: Context) => Promise<Service | undefined>;
   post: (ctx: Context) => Promise<Service | undefined>;
   deleteEntity: (ctx: Context) => Promise<boolean>;
+  update: (ctx: Context) => Promise<boolean>;
 }
 
 export default (): ControllerReturnProps => {
@@ -45,8 +46,25 @@ export default (): ControllerReturnProps => {
     }
   };
 
+  const update = async (ctx: Context) => {
+    const reqBody: Service = ctx.request.body;
+    console.log('From Patch --->');
+    try {
+      return await serviceRepo
+        .update(
+          { id: reqBody.id },
+          { ...reqBody, logo: path.basename(reqBody.logo as string) },
+        )
+        .then(res => (ctx.body = res));
+    } catch (err: any) {
+      return (ctx.body = err.message);
+    }
+  };
+
   const deleteEntity = async (ctx: Context) => {
     const { id } = ctx.params;
+    console.log('From Delete --->');
+
     try {
       await serviceRepo.delete(id);
       return (ctx.body = true);
@@ -60,5 +78,6 @@ export default (): ControllerReturnProps => {
     get,
     deleteEntity,
     post,
+    update,
   };
 };

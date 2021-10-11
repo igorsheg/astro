@@ -1,3 +1,3 @@
 import ServiceList from './list';
-
-export { ServiceList };
+import ServiceEmptyState from './empty-state';
+export { ServiceList, ServiceEmptyState };

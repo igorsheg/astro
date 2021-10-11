@@ -4,7 +4,7 @@ import { ModalIdentity } from 'typings';
 import create, { State } from 'zustand';
 
 interface SessionStorageProps extends State {
-  activeTab: Entities.Category['id'];
+  activeTabId: number;
   activeSidebarMenuItem: Lowercase<keyof typeof Entities>;
   searchTerm: string;
   inEditMode: boolean;
@@ -13,7 +13,7 @@ interface SessionStorageProps extends State {
 }
 
 const uiStore = create<SessionStorageProps>(set => ({
-  activeTab: 0,
+  activeTabId: 0,
   activeSidebarMenuItem: 'service',
   searchTerm: '',
   inEditMode: false,

@@ -1,41 +1,70 @@
 import * as RadixIcons from '@radix-ui/react-icons';
 import React, { FC, forwardRef } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
+import { Category, Service } from 'server/entities';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { ContextMenu, MenuItem } from 'src/components/menu';
-import { localSrorageStore, uiStore } from 'src/stores';
+import { BASE_STATE } from 'src/consts/entityBaseState';
+import { categoryStore, localSrorageStore, uiStore } from 'src/stores';
 import generateUuid from 'src/utils/generateUuid';
 import styled from 'styled-components';
-import { ModalTypes } from 'typings';
+import { EntityTypes, ModalIdentity, ModalTypes } from 'typings';
 
 const TopbarMenu: FC = () => {
-  const { setUiStore, activeModals } = uiStore();
+  const { setUiStore, activeModals, activeTabId } = uiStore();
+  const { data: categories } = categoryStore();
   const menu = useMenuState({
     animated: 120,
     modal: false,
   });
 
-  const createNewModal = (modalType: ModalTypes) => {
-    const existingModalTypeIndex = activeModals.findIndex(
-      d => d.label === modalType,
-    );
-    const hasExistingModalType = existingModalTypeIndex !== -1;
+  const expandExistingModal = (index: number) =>
+    setUiStore(d => {
+      d.activeModals[index].state = 'expnanded';
+    });
 
-    if (hasExistingModalType) {
-      setUiStore(d => {
-        d.activeModals[existingModalTypeIndex].state = 'expnanded';
-      });
-      return;
-    } else {
-      setUiStore(d => {
-        d.activeModals.push({
-          id: generateUuid(),
-          label: modalType,
-          state: 'expnanded',
-        });
-      });
-    }
+  const createNewServiceModal = (modalType: ModalTypes) => {
+    const ctxCategory =
+      categories?.find(c => c.id === activeTabId) || BASE_STATE.CATEGORY;
+
+    const newModal: ModalIdentity<Service> = {
+      id: generateUuid(),
+      label: modalType,
+      state: 'expnanded',
+      entityType: 'Service',
+      baseState: { ...BASE_STATE.SERVICE, category: ctxCategory },
+      draft: { ...BASE_STATE.SERVICE, category: ctxCategory },
+    };
+    setUiStore(d => {
+      d.activeModals.push(newModal);
+    });
+  };
+  const createNewCategoryModal = (modalType: ModalTypes) => {
+    const newModal: ModalIdentity<Category> = {
+      id: generateUuid(),
+      label: modalType,
+      state: 'expnanded',
+      entityType: 'Category',
+      baseState: BASE_STATE.CATEGORY,
+      draft: BASE_STATE.CATEGORY,
+    };
+    setUiStore(d => {
+      d.activeModals.push(newModal);
+    });
+  };
+
+  const createNewModal = (modalType: ModalTypes, entityType: EntityTypes) => {
+    const ctxModalIndex = activeModals.findIndex(d => d.label === modalType);
+    const ctxModalExists = ctxModalIndex !== -1;
+
+    ctxModalExists
+      ? expandExistingModal(ctxModalIndex)
+      : entityType === 'Service'
+      ? createNewServiceModal(modalType)
+      : entityType === 'Category'
+      ? createNewCategoryModal(modalType)
+      : false;
   };
 
   return (
@@ -56,12 +85,12 @@ const TopbarMenu: FC = () => {
       <ContextMenu aria-label="Manage Astro Menu" {...menu}>
         <MenuItem
           {...menu}
-          onClick={() => createNewModal(ModalTypes['new-service'])}
+          onClick={() => createNewModal(ModalTypes['new-service'], 'Service')}
         >
           New Service
         </MenuItem>
         <MenuItem
-          onClick={() => createNewModal(ModalTypes['new-category'])}
+          onClick={() => createNewModal(ModalTypes['new-category'], 'Category')}
           {...menu}
         >
           New Category

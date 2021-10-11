@@ -1,14 +1,15 @@
 import { UploadIcon } from '@radix-ui/react-icons';
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { Checkbox as ReakitCheckbox } from 'reakit/Checkbox';
-import { Category, Service } from 'server/entities';
+import { Service } from 'server/entities';
 import Button from 'src/components/button';
 import Flex from 'src/components/flex';
 import { Input, Select } from 'src/components/input';
 import Modal from 'src/components/modal';
 import Padder from 'src/components/padder';
-import { categoryStore, serviceStore, uiStore } from 'src/stores';
+import { categoryStore, uiStore } from 'src/stores';
 import {
   loadLogoRender,
   mapEntityToSelectOptions,
@@ -17,47 +18,30 @@ import {
 } from 'src/utils';
 import fetcher from 'src/utils/fetcher';
 import styled from 'styled-components';
-import { ModalIdentity, SelectOption } from 'typings';
+import { ModalIdentity, ModalTypes, SelectOption } from 'typings';
 import { object, string } from 'yup';
 
 const schema = object().shape({
   name: string().required('Naming your service is requiered'),
   url: string().url().required('Linking you service is reqieried'),
-  categoryId: string().required(
-    'Adding your service to a category is reqiered',
-  ),
 });
 
-const baseFormState = {
-  name: '',
-  description: '',
-  target: true,
-  url: '',
-  categoryId: 0,
-  logo: '/logos/placeholder.png',
-};
-
-interface NewServiceModalProps {
+interface ServiceModalProps {
   onRequestClose: <T>(m: ModalIdentity<T>) => void;
-  modalIdentity: ModalIdentity<typeof baseFormState>;
+  modalIdentity: ModalIdentity<Service>;
 }
 
-const NewServiceModal: FC<NewServiceModalProps> = ({
+const ServiceModal: FC<ServiceModalProps> = ({
   onRequestClose,
   modalIdentity,
 }) => {
-  const { sync: syncServices } = serviceStore();
   const { data: categories, sync: syncCategories } = categoryStore();
-
-  useEffect(() => {
-    syncCategories();
-  }, []);
 
   const ctxModalIndex = uiStore(s => s.activeModals.indexOf(modalIdentity));
   const setUiStore = uiStore(s => s.setUiStore);
 
   const [valitationState, setValitationState] = useState<
-    { [key in keyof typeof baseFormState]: string } | Record<string, never>
+    { [key in keyof Service]: string } | Record<string, never>
   >({});
 
   const logoRenderRef = useRef<any>();
@@ -65,6 +49,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   const categoriesOptions = mapEntityToSelectOptions(categories || []);
 
   useEffect(() => {
+    syncCategories();
     if (logoRenderRef.current) {
       fetch(logoRenderRef.current.src)
         .then(res => res.blob())
@@ -75,11 +60,11 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
           logoBlobRef.current = file;
         });
     }
-
-    setUiStore(d => {
-      d.activeModals[ctxModalIndex].data = baseFormState;
-    });
   }, []);
+
+  useEffect(() => {
+    console.log(modalIdentity);
+  }, [modalIdentity]);
 
   const onFormChange = (ev: ChangeEvent<HTMLFormElement>) => {
     const target = ev.target;
@@ -88,22 +73,30 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       const file = target.files[0];
       logoBlobRef.current = file;
       loadLogoRender(file, logoRenderRef);
+    } else if (target.type === 'checkbox') {
+      setUiStore(d => {
+        d.activeModals[ctxModalIndex].draft = {
+          ...d.activeModals[ctxModalIndex].draft,
+          target: modalIdentity.draft?.target === '_blank' ? '' : '_blank',
+        };
+      });
+    } else {
+      setUiStore(d => {
+        d.activeModals[ctxModalIndex].draft = {
+          ...d.activeModals[ctxModalIndex].draft,
+          [target.name]: target.value,
+        };
+      });
     }
-
-    setUiStore(d => {
-      const value = target.type === 'checkbox' ? target.checked : target.value;
-      d.activeModals[ctxModalIndex].data = {
-        ...d.activeModals[ctxModalIndex].data,
-        [target.name]: value,
-      };
-    });
   };
 
   const categoryChangeHandler = (option: SelectOption) => {
+    console.log(option);
+
     setUiStore(d => {
-      d.activeModals[ctxModalIndex].data = {
-        ...d.activeModals[ctxModalIndex].data,
-        categoryId: option.id,
+      d.activeModals[ctxModalIndex].draft = {
+        ...d.activeModals[ctxModalIndex].draft,
+        category: categories?.find(c => c.id === option.id),
       };
     });
   };
@@ -113,23 +106,41 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
   ) => {
     ev.preventDefault();
 
-    if (modalIdentity.data && categories) {
-      const { target, categoryId, ...formData } = modalIdentity.data;
+    if (modalIdentity.draft) {
+      const { ...formData } = modalIdentity.draft;
 
       try {
-        await validateForm(schema, modalIdentity.data);
+        await validateForm(schema, modalIdentity.draft);
         const logoPath = await uploadLogo(logoBlobRef.current);
 
         const newService: Service = {
           ...formData,
-          target: !!target ? '_blank' : '',
           logo: logoPath,
-          category: categories.find(c => c.id === categoryId) as Category,
         };
 
-        await fetcher(['Service'], { data: newService });
-        await syncServices();
-        onRequestClose(modalIdentity);
+        if (modalIdentity.label === ModalTypes['edit-service']) {
+          await fetcher(['Service', newService.id], {
+            data: newService,
+            method: 'PATCH',
+          });
+          onRequestClose({
+            ...modalIdentity,
+            closeNotification: {
+              type: 'success',
+              message: `Updated '${newService.name}' service`,
+            },
+          });
+        } else {
+          await fetcher(['Service'], { data: newService });
+          onRequestClose({
+            ...modalIdentity,
+            closeNotification: {
+              type: 'success',
+              message: `Created ${modalIdentity.draft.name} service`,
+            },
+          });
+        }
+        await syncCategories();
       } catch (err: any) {
         setValitationState(err);
         return;
@@ -144,14 +155,17 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
       title={'Create New Service'}
       modalIdentity={modalIdentity}
     >
-      <form onChange={debounce(ev => onFormChange(ev), 200)}>
+      <form onChange={debounce(ev => onFormChange(ev), 50)}>
         <FormBody>
           <Group>
             <Row>
               <RowContent>
                 <Upload>
                   <div role="imagePreview">
-                    <img ref={logoRenderRef} src={modalIdentity.data?.logo} />
+                    <img
+                      ref={logoRenderRef}
+                      src={'/logos/' + modalIdentity.draft?.logo}
+                    />
                   </div>
                   <Padder x={12} />
                   <label>
@@ -176,7 +190,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                   label="Service Name"
                   placeholder="Plex Media Server"
                   aria-errormessage={valitationState['name']}
-                  defaultValue={modalIdentity.data?.name}
+                  defaultValue={modalIdentity.draft?.name}
                 />
               </RowContent>
 
@@ -188,7 +202,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                   name="url"
                   placeholder="https://plex.example.com"
                   aria-errormessage={valitationState['url']}
-                  defaultValue={modalIdentity.data?.url}
+                  defaultValue={modalIdentity.draft?.url}
                 />
               </RowContent>
             </Row>
@@ -199,7 +213,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                   label="Description"
                   as="textarea"
                   name="description"
-                  defaultValue={modalIdentity?.data?.description}
+                  defaultValue={modalIdentity?.draft?.description}
                   aria-errormessage={valitationState['description']}
                   placeholder="write a bit about your service..."
                 />
@@ -210,12 +224,12 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
 
             <Row>
               <RowContent>
-                {modalIdentity.data && (
+                {categories && (
                   <Select
                     label="Categories"
                     options={categoriesOptions}
-                    aria-errormessage={valitationState['categoryId']}
-                    defaultOptionId={modalIdentity.data?.categoryId}
+                    aria-errormessage={valitationState['category']}
+                    defaultOptionId={modalIdentity.draft?.category.id || ''}
                     onChange={categoryChangeHandler}
                   />
                 )}
@@ -233,7 +247,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
                 <Flex align="center">
                   <CheckBoxWrapper>
                     <CheckBox
-                      checked={modalIdentity?.data?.target}
+                      checked={modalIdentity?.draft?.target === '_blank'}
                       name="target"
                     />
                     <CheckBoxLabel name="target" />
@@ -262,6 +276,7 @@ const NewServiceModal: FC<NewServiceModalProps> = ({
             type="submit"
             hierarchy="primary"
             onClick={submitFormHandler}
+            disabled={isEqual(modalIdentity.baseState, modalIdentity.draft)}
           >
             Submit
           </Button>
@@ -454,4 +469,4 @@ const Upload = styled.div`
   }
 `;
 
-export default NewServiceModal;
+export default ServiceModal;

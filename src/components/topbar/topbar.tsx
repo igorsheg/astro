@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC } from 'react';
+import React, { ChangeEvent, FC, useEffect } from 'react';
 import { Category } from 'server/entities';
 import { configStore, localSrorageStore } from 'src/stores';
 import styled from 'styled-components';
@@ -11,40 +11,37 @@ import HeaderTitle from './title';
 
 interface TopBarProps {
   catagories: Category[];
-  onCategoryClick: (categoryId: Category['id']) => void;
-  activeCategory: Category['id'];
+  onCategoryClick: (categoryId: number) => void;
+  activeCategoryId: number;
   searchTerm: string;
   onSearchTermChange: (ev: ChangeEvent<HTMLInputElement>) => void;
 }
 const TopBar: FC<TopBarProps> = ({
   catagories,
   onCategoryClick,
-  activeCategory,
+  activeCategoryId,
   searchTerm,
   onSearchTermChange,
 }) => {
   const { activeTheme } = localSrorageStore();
   const { data: config } = configStore();
 
-  if (!config) {
-    return null;
-  }
-
   return (
     <HeaderWrap>
       <Panel style={{ zIndex: 99999191, position: 'relative' }} height="96px">
-        <HeaderTitle config={config} activeTheme={activeTheme} />
+        {config && <HeaderTitle config={config} activeTheme={activeTheme} />}
         <Actions />
       </Panel>
       <Panel height="60px">
         <Tabs
           onItemClick={onCategoryClick}
           items={catagories}
-          activeItem={activeCategory}
+          activeItem={activeCategoryId}
         />
         <Flex align="center" justify="flex-end">
           <SearchInput
-            height={30}
+            placeHolder="Search by service name..."
+            height={36}
             growOnFocus
             value={searchTerm}
             onChange={onSearchTermChange}

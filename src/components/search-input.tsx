@@ -7,16 +7,19 @@ import useKeypress from 'react-use-keypress';
 import Flex from 'src/components/flex';
 import { uiStore } from 'src/stores';
 import styled from 'styled-components';
+import Kbd from './kbd';
 interface SearchInputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string;
   height?: number;
   growOnFocus?: boolean;
+  placeHolder?: string;
 }
 export const SearchInput: FC<SearchInputProps> = ({
   onChange,
   value,
   growOnFocus = false,
+  placeHolder,
   ...rest
 }) => {
   const { activeModals } = uiStore();
@@ -50,28 +53,44 @@ export const SearchInput: FC<SearchInputProps> = ({
         ref={inputRef}
         defaultValue={value}
         onChange={onChange}
-        placeholder="Search by service name"
+        placeholder={placeHolder || ''}
         tabIndex={0}
         type="text"
       />
+      <FakeInput />
+      <Kbd>/</Kbd>
     </PseudoInput>
   );
 };
 
+const FakeInput = styled.span``;
 const PseudoInput = styled.div<{ height?: number; growOnFocus?: boolean }>`
   width: ${p => (p.growOnFocus ? undefined : '100%')};
   display: flex;
   align-items: center;
+  padding: 0 6px;
 
+  ${FakeInput} {
+    background: ${p => p.theme.background.secondary};
+    box-shadow: 0 0 0 1px transparent;
+    position: absolute;
+    left: 0;
+    border-radius: 4px;
+    top: 0;
+    user-select: none;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
   input {
     margin: 0;
-    padding: 0 9px 0 30px;
-    border-radius: 4px;
+    padding: 0;
     height: ${p => (p.height ? `${p.height}px` : '100%')};
     font-size: 14px;
     color: ${p => p.theme.text.primary};
-    background: ${p => p.theme.background.secondary};
-    border: 1px solid transparent;
+    background: transparent;
+    border: none;
     display: flex;
     align-items: center;
     transition: border 240ms cubic-bezier(0.19, 1, 0.22, 1),
@@ -84,23 +103,25 @@ const PseudoInput = styled.div<{ height?: number; growOnFocus?: boolean }>`
       color: ${p => transparentize(0.6, p.theme.text.primary)};
     }
 
-    :hover {
-      border: 1px solid ${p => p.theme.border.primary};
+    :hover + ${FakeInput} {
+      box-shadow: 0 0 0 1px ${p => p.theme.border.primary};
     }
     :focus {
       width: ${p => (p.growOnFocus ? '300px' : '100%')};
+    }
+    :focus + ${FakeInput} {
+      /* width: ${p => (p.growOnFocus ? '300px' : '100%')}; */
       outline: none;
-      border: 1px solid ${p => p.theme.border.primary};
+      box-shadow: 0 0 0 1px ${p => p.theme.border.primary};
     }
   }
 `;
 
 const Prefix = styled(Flex)`
-  position: absolute;
   align-items: center;
   justify-content: center;
   height: 30px;
-  width: 33px;
+  width: 30px;
 `;
 
 export default SearchInput;

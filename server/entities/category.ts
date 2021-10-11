@@ -2,14 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { RadixIconTypes } from 'typings/radixIconsTypes';
-import Config from './config';
 import Service from './service';
 
 @Entity()
@@ -26,12 +23,8 @@ export default class Category {
   @Column({ nullable: false, default: 'CircleIcon' })
   icon: RadixIconTypes;
 
-  @OneToMany(() => Service, service => service.category, { eager: true })
+  @OneToMany(() => Service, service => service.category)
   services?: Service[];
-
-  @ManyToOne(() => Config)
-  @JoinColumn({ referencedColumnName: 'id' })
-  config: Config;
 
   @CreateDateColumn()
   createdAt?: Date;

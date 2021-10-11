@@ -7,18 +7,25 @@ import { fetcher } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity } from 'typings';
 import * as Entities from '../../server/entities';
+import toast from 'react-hot-toast';
+import { BASE_STATE } from 'src/consts/entityBaseState';
 
-const baseFormState: {
-  entity: keyof typeof Entities;
-  item: Entities.Service | Entities.Category | null;
-} = {
-  entity: 'Service',
-  item: null,
-};
+// const baseFormState: {
+//   entity: keyof typeof Entities;
+//   item: Entities.Service | Entities.Category | null;
+// } = {
+//   entity: 'Service',
+//   item: null,
+// };
+interface BaseState
+  extends Pick<Entities.Service, 'id' | 'name'>,
+    Pick<Entities.Category, 'id' | 'name'> {
+  entityType: keyof typeof Entities;
+}
 
 interface DeleteModalProps {
   onRequestClose: <T>(m: ModalIdentity<T>) => void;
-  modalIdentity: ModalIdentity<typeof baseFormState>;
+  modalIdentity: ModalIdentity<BaseState>;
 }
 
 const DeleteModal: FC<DeleteModalProps> = ({
@@ -28,13 +35,21 @@ const DeleteModal: FC<DeleteModalProps> = ({
   const { sync: syncServices } = serviceStore();
 
   const onConfirmHandler = async () => {
-    if (modalIdentity.data && modalIdentity.data.item) {
-      await fetcher([modalIdentity.data.entity, modalIdentity.data.item.id], {
-        data: modalIdentity.data.item,
+    if (modalIdentity.baseState && modalIdentity.baseState.id) {
+      await fetcher([modalIdentity.entityType, modalIdentity.baseState.id], {
+        data: modalIdentity.baseState,
         method: 'DELETE',
       });
       syncServices();
-      onRequestClose(modalIdentity);
+      onRequestClose({
+        ...modalIdentity,
+        closeNotification: {
+          type: 'success',
+          message: `Deleted '${
+            modalIdentity.baseState.name
+          }' ${modalIdentity.entityType.toLowerCase()}`,
+        },
+      });
     }
   };
 

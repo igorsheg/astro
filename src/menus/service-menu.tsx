@@ -17,7 +17,21 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
     modal: false,
   });
 
-  const createNewModal = (modalType: ModalTypes) => {
+  const createEditModal = (modalType: ModalTypes) => {
+    setUiStore(d => {
+      d.activeModals.push({
+        id: item.id as number,
+        label: modalType,
+        state: 'expnanded',
+        title: `Edit Service`,
+        baseState: item,
+        draft: item,
+        entityType: 'Service',
+      });
+    });
+  };
+
+  const createDeleteModal = (modalType: ModalTypes) => {
     const existingModalTypeIndex = activeModals.findIndex(
       d => d.label === modalType,
     );
@@ -35,8 +49,12 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
           label: modalType,
           state: 'expnanded',
           title: `Delete Service`,
-          body: `Are you sure you want to delete ${item.name} service?`,
-          data: { entity: 'Service', item },
+          body: `Are you sure you want to delete '${item.name}' service?`,
+          entityType: 'Service',
+          baseState: {
+            ...item,
+            categoryId: item.category.id,
+          },
         });
       });
     }
@@ -62,13 +80,13 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
       <ContextMenu aria-label="Manage Astro Menu" {...menu}>
         <MenuItem
           {...menu}
-          onClick={() => createNewModal(ModalTypes['new-delete'])}
+          onClick={() => createEditModal(ModalTypes['edit-service'])}
         >
           Edit
         </MenuItem>
         <Seperator />
         <MenuItem
-          onClick={() => createNewModal(ModalTypes['new-delete'])}
+          onClick={() => createDeleteModal(ModalTypes['new-delete'])}
           {...menu}
         >
           Remove
