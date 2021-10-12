@@ -1,12 +1,13 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TargetType } from 'typings';
 import Category from './category';
+import ServicePing from './ping';
 
 @Entity()
 export default class Service {
@@ -45,4 +46,7 @@ export default class Service {
     onDelete: 'CASCADE',
   })
   category: Category;
+
+  @OneToMany(() => ServicePing, ping => ping.service, { eager: true })
+  ping?: ServicePing[];
 }

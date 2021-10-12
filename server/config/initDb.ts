@@ -3,11 +3,12 @@
 import chalk from 'chalk';
 import figlet from 'figlet';
 import { createConnection, EntityManager, EntityTarget } from 'typeorm';
-import { Category, Config, Service, Theme } from '../entities';
+import { Category, Config, PingLog, Service, Theme } from '../entities';
 import {
   SAMPLE_CATEGORIES,
   SAMPLE_CONFIG,
   SAMPLE_SERVICES,
+  SAMPLE_SERVICES_LOG,
   SAMPLE_THEMES,
 } from './seed-data';
 import { serverConfig } from './serverConfig';
@@ -18,7 +19,7 @@ interface SeedProps<T> {
   idKey: keyof T;
 }
 
-const seeds: SeedProps<Category | Config | Service | Theme>[] = [
+const seeds: SeedProps<Category | Config | Service | Theme | PingLog>[] = [
   {
     entity: Theme,
     data: [SAMPLE_THEMES.dark, SAMPLE_THEMES.light],
@@ -40,6 +41,11 @@ const seeds: SeedProps<Category | Config | Service | Theme>[] = [
   {
     entity: Service,
     data: SAMPLE_SERVICES,
+    idKey: 'id',
+  },
+  {
+    entity: PingLog,
+    data: SAMPLE_SERVICES_LOG,
     idKey: 'id',
   },
 ];

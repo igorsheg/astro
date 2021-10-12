@@ -24,7 +24,7 @@ import { object, string } from 'yup';
 
 const schema = object().shape({
   name: string().required('Naming your service is requiered'),
-  url: string().url().required('Linking you service is reqieried'),
+  url: string().required('Linking you service is reqieried'),
 });
 
 interface ServiceModalProps {

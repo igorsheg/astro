@@ -1,4 +1,6 @@
-import React, { FC } from 'react';
+import dynamic from 'next/dynamic';
+import { PingResponse } from 'ping';
+import React, { FC, useState } from 'react';
 import { animated, useSpring } from 'react-spring';
 import { Service } from 'server/entities';
 import Card from 'src/components/card';
@@ -7,6 +9,10 @@ import ServiceMenu from 'src/menus/service-menu';
 import { uiStore } from 'src/stores';
 import styled from 'styled-components';
 import Padder from '../padder';
+
+const AreaChart = dynamic(() => import('../area-chart'), {
+  ssr: false,
+});
 
 interface CardProps {
   item: Service | null;
@@ -22,6 +28,8 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
   });
 
   if (!item) return null;
+
+  console.log(item);
 
   return (
     <WrapPadder>
@@ -47,10 +55,21 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
               <ServiceActions item={item} />
             </animated.div>
           </Title>
+
           <TagList>
-            {item.tags &&
+            {item.ping && (
+              <AreaChart
+                data={item.ping.map(p => ({
+                  latency: p.latency,
+                  date: p.created_at as Date,
+                }))}
+                width={60}
+                height={36}
+              />
+            )}
+            {/* {item.tags &&
               item.tags.length &&
-              item.tags.map((tag, index) => <li key={index}>{tag}</li>)}
+              item.tags.map((tag, index) => <li key={index}>{tag}</li>)} */}
           </TagList>
           <span />
         </StyledCard>

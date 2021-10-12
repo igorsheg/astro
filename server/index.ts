@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-console */
 import Router from '@koa/router';
+import axios from 'axios';
 import compression from 'compression';
 import Koa from 'koa';
 import koaBody from 'koa-body';
@@ -46,6 +47,12 @@ nextapp.prepare().then(async () => {
     ctx.res.statusCode = 200;
     await next();
   });
+
+  const frequency = 6000;
+
+  // setInterval(() => {
+  //   axios.get('/api/services/ping');
+  // }, frequency);
 
   server.listen(serverConfig.port, () => {
     console.log(`> Ready on http://localhost:${serverConfig.port}`);

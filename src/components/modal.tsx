@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { animated, interpolate, useSpring } from 'react-spring';
+import { animated, interpolate, to, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
 import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
 import { VisuallyHidden } from 'reakit/VisuallyHidden';
@@ -152,7 +152,7 @@ const Modal: FC<ModalProps> = ({
           hideOnClickOutside={false}
           style={{
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            transform: interpolate([coord] as any, trans as any),
+            transform: to([coord] as any, trans as any),
           }}
           aria-label={`${title} Modal`}
           {...bindCanvas}
@@ -188,7 +188,7 @@ const Modal: FC<ModalProps> = ({
               )}
             </Flex>
             <h1>{title}</h1>
-            <Padder x={60} />
+            <Padder x={78} />
           </Header>
 
           <Body>

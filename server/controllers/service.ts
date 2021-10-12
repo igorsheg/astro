@@ -1,7 +1,8 @@
 import { Context } from 'koa';
 import path from 'path';
 import { getManager } from 'typeorm';
-import { Service } from '../entities';
+import { default as pingIt } from 'ping';
+import { PingLog, Service } from '../entities';
 
 interface ControllerReturnProps {
   list: (ctx: Context) => Promise<Service[] | undefined>;
@@ -9,6 +10,7 @@ interface ControllerReturnProps {
   post: (ctx: Context) => Promise<Service | undefined>;
   deleteEntity: (ctx: Context) => Promise<boolean>;
   update: (ctx: Context) => Promise<boolean>;
+  ping: () => Promise<void>;
 }
 
 export default (): ControllerReturnProps => {
@@ -70,11 +72,33 @@ export default (): ControllerReturnProps => {
     }
   };
 
+  const ping = async () => {
+    const services = await serviceRepo.find();
+
+    console.log('Pinging -------------->');
+
+    services.map(async service => {
+      if (!service.url) return;
+      const url = service.url.replace(/^https?:\/\//, '');
+      const pingRes = await pingIt.promise.probe(url, { timeout: 2.5 });
+      getManager()
+        .createQueryBuilder()
+        .insert()
+        .into(PingLog)
+        .values({
+          latency: pingRes.max !== 'unknown' ? parseInt(pingRes.max, 10) : 0,
+          service,
+        })
+        .execute();
+    });
+  };
+
   return {
     list,
     get,
     deleteEntity,
     post,
     update,
+    ping,
   };
 };

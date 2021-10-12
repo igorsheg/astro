@@ -1,5 +1,8 @@
 import { Context } from 'koa';
 import { getConnectionManager } from 'typeorm';
+import { performance } from 'perf_hooks';
+import axios from 'axios';
+import { default as pingIt } from 'ping';
 
 const healthcheck = {
   uptime: process.uptime(),

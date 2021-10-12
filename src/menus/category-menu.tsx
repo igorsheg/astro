@@ -48,7 +48,7 @@ const CategoryMenu: FC<{ item: Category }> = ({ item }) => {
           id: generateUuid(),
           label: modalType,
           state: 'expnanded',
-          title: `Delete Service`,
+          title: `Delete Category`,
           body: `Note: Deleting a category will delete all services related to it. Are you sure you want to delete '${item.name}' category?`,
           entityType: 'Category',
           baseState: item,

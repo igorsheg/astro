@@ -1,6 +1,14 @@
 import dotenv from 'dotenv';
 import { ConnectionOptions } from 'typeorm';
-import { Category, Config, Link, Note, Service, Theme } from '../entities';
+import {
+  Category,
+  Config,
+  Link,
+  Note,
+  Service,
+  Theme,
+  PingLog,
+} from '../entities';
 
 dotenv.config({ path: '.env' });
 
@@ -14,7 +22,7 @@ export interface ServerConfig {
 const dbConnectionOptions: ConnectionOptions = {
   type: 'sqlite',
   database: './data/db.sqlite3',
-  entities: [Config, Note, Link, Service, Category, Theme],
+  entities: [Config, Note, Link, Service, Category, Theme, PingLog],
   logging: isDevMode,
 };
 
