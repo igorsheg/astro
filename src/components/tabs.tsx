@@ -3,9 +3,7 @@ import React, { FC } from 'react';
 import { Category } from 'server/entities';
 import { ALL_SERVICES_TAB } from 'src/consts/entityBaseState';
 import CategoryMenu from 'src/menus/category-menu';
-import styled, { css } from 'styled-components';
-import Flex from './flex';
-import Tooltip from './tooltip';
+import styled from 'styled-components';
 
 interface TabsProps {
   items: Category[];

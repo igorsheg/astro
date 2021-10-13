@@ -53,7 +53,7 @@ const hierarchyStyles: {
   ternary,
 };
 
-const StyledButton: any = styled(ReakitButton)<StyledButtonProps>`
+const StyledButton = styled(ReakitButton)<StyledButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;

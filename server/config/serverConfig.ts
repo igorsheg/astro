@@ -5,9 +5,9 @@ import {
   Config,
   Link,
   Note,
+  PingLog,
   Service,
   Theme,
-  PingLog,
 } from '../entities';
 
 dotenv.config({ path: '.env' });

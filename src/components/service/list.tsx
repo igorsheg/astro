@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import React, { FC, useCallback } from 'react';
 import { a } from 'react-spring';
 import { Service } from 'server/entities';

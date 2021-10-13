@@ -6,7 +6,6 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import Catagory from './category';
 import Link from './link';
 import Note from './note';
 import Theme from './theme';

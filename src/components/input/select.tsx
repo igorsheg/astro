@@ -81,7 +81,7 @@ const Select: FC<SelectProps> = ({
               return (
                 <ComboboxOption
                   key={option.id}
-                  id={option.id as any}
+                  id={option.id as string}
                   aria-selected={option.id === defaultOptionId}
                   value={option.value}
                   {...combobox}

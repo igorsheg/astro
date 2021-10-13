@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { SAMPLE_CONFIG } from 'server/config/seed-data';
 import { Category, Service } from 'server/entities';
-import { ALL_SERVICES_TAB, BASE_STATE } from 'src/consts/entityBaseState';
+import { ALL_SERVICES_TAB } from 'src/consts/entityBaseState';
 
 const filterServicesItems = (
   data: Service[] | [],

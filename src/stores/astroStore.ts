@@ -18,9 +18,7 @@ interface ZustandStoreApi<T> {
 
 const baseStore = <T>(key: FetcherRequestKeys, store: ZustandStoreApi<T>) => ({
   data: null,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  mutate: fn => store.set(produce(fn)),
+  mutate: (fn: any) => store.set(produce(fn)),
   sync: async () => {
     try {
       const syncReq = await fetcher<T>(key);

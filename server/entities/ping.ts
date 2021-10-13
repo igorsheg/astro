@@ -20,6 +20,8 @@ export default class PingLog {
     onDelete: 'CASCADE',
   })
   service: Service;
+  @Column({ nullable: false })
+  alive: boolean;
 
   @CreateDateColumn()
   public created_at?: Date;

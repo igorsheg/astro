@@ -28,7 +28,7 @@ export const SearchInput: FC<SearchInputProps> = ({
     .map(m => m.state)
     .filter(m => m === 'expnanded');
 
-  const inputRef = useRef<any>();
+  const inputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useKeypress('/', (ev: KeyboardEvent) => {
     if (
@@ -110,7 +110,6 @@ const PseudoInput = styled.div<{ height?: number; growOnFocus?: boolean }>`
       width: ${p => (p.growOnFocus ? '300px' : '100%')};
     }
     :focus + ${FakeInput} {
-      /* width: ${p => (p.growOnFocus ? '300px' : '100%')}; */
       outline: none;
       box-shadow: 0 0 0 1px ${p => p.theme.border.primary};
     }

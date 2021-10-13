@@ -8,7 +8,6 @@ import {
   SAMPLE_CATEGORIES,
   SAMPLE_CONFIG,
   SAMPLE_SERVICES,
-  SAMPLE_SERVICES_LOG,
   SAMPLE_THEMES,
 } from './seed-data';
 import { serverConfig } from './serverConfig';
@@ -45,7 +44,7 @@ const seeds: SeedProps<Category | Config | Service | Theme | PingLog>[] = [
   },
   {
     entity: PingLog,
-    data: SAMPLE_SERVICES_LOG,
+    data: [],
     idKey: 'id',
   },
 ];

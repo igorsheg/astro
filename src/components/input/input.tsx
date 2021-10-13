@@ -77,7 +77,7 @@ const InputWrap = styled.div<{ isTucked: boolean }>`
   }
 `;
 
-const StyledInput: any = styled(ReakitInput)<InputProps>`
+const StyledInput = styled(ReakitInput)<InputProps>`
   width: 100%;
   height: 42px;
   border: 1px solid ${p => p.theme.border.primary};

@@ -48,11 +48,12 @@ nextapp.prepare().then(async () => {
     await next();
   });
 
-  const frequency = 6000;
-
-  // setInterval(() => {
-  //   axios.get('/api/services/ping');
-  // }, frequency);
+  setInterval(function () {
+    console.info('Running scheduled checks');
+    (async () => {
+      axios.get('http://localhost:3000/api/serviceping');
+    })();
+  }, 60000);
 
   server.listen(serverConfig.port, () => {
     console.log(`> Ready on http://localhost:${serverConfig.port}`);

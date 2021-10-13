@@ -1,7 +1,7 @@
 import * as RadixIcons from '@radix-ui/react-icons';
 import React, { FC } from 'react';
 import { MenuButton, MenuSeparator, useMenuState } from 'reakit/Menu';
-import { Category, Service } from 'server/entities';
+import { Category } from 'server/entities';
 import Button from 'src/components/button';
 import { ContextMenu, MenuItem } from 'src/components/menu';
 import Tooltip from 'src/components/tooltip';

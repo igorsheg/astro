@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic';
-import { PingResponse } from 'ping';
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { animated, useSpring } from 'react-spring';
 import { Service } from 'server/entities';
 import Card from 'src/components/card';
@@ -9,6 +8,7 @@ import ServiceMenu from 'src/menus/service-menu';
 import { uiStore } from 'src/stores';
 import styled from 'styled-components';
 import Padder from '../padder';
+import Tooltip from '../tooltip';
 
 const AreaChart = dynamic(() => import('../area-chart'), {
   ssr: false,
@@ -29,7 +29,13 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
 
   if (!item) return null;
 
-  console.log(item);
+  const lastPingStatus =
+    item &&
+    item.ping &&
+    item.ping.length &&
+    item.ping[item.ping.length - 1].alive;
+
+  const tooltipData = lastPingStatus ? `Service Up` : 'Service Down';
 
   return (
     <WrapPadder>
@@ -52,40 +58,24 @@ const ServiceCard: FC<CardProps> = ({ item }) => {
             </Flex>
             <Padder x={12} />
             <animated.div style={props}>
-              <ServiceActions item={item} />
+              <Menu>
+                <ServiceMenu item={item} />
+              </Menu>
             </animated.div>
           </Title>
-
-          <TagList>
-            {item.ping && (
-              <AreaChart
-                data={item.ping.map(p => ({
-                  latency: p.latency,
-                  date: p.created_at as Date,
-                }))}
-                width={60}
-                height={36}
-              />
-            )}
-            {/* {item.tags &&
-              item.tags.length &&
-              item.tags.map((tag, index) => <li key={index}>{tag}</li>)} */}
-          </TagList>
-          <span />
+          <Flex justify="space-between" align="center">
+            <TagList>
+              {item.tags &&
+                item.tags.length &&
+                item.tags.map((tag, index) => <li key={index}>{tag}</li>)}
+            </TagList>
+            <Tooltip placement="top" label={tooltipData} tabIndex={-1}>
+              <AreaChart item={item} width={42} height={24} />
+            </Tooltip>
+          </Flex>
         </StyledCard>
       </a>
     </WrapPadder>
-  );
-};
-
-interface ServiceActionsProps {
-  item: Service;
-}
-const ServiceActions: FC<ServiceActionsProps> = ({ item }) => {
-  return (
-    <Menu>
-      <ServiceMenu item={item} />
-    </Menu>
   );
 };
 

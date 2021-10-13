@@ -1,13 +1,6 @@
 import debounce from 'lodash/debounce';
 import dynamic from 'next/dynamic';
-import React, {
-  ChangeEvent,
-  FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { ChangeEvent, FC, useCallback, useEffect } from 'react';
 import toast, { ToastOptions } from 'react-hot-toast';
 import { animated, useTransition } from 'react-spring';
 import Flex from 'src/components/flex';
@@ -33,6 +26,13 @@ const DeleteModal = dynamic(() => import('src/modals/delete'), {
 const CategoryModal = dynamic(() => import('src/modals/category'), {
   ssr: false,
 });
+
+const ServiceMonitorModal = dynamic(
+  () => import('src/modals/service-monitor'),
+  {
+    ssr: false,
+  },
+);
 
 const TOAST_OPTS: ToastOptions = {
   duration: 6000,
@@ -60,7 +60,7 @@ const Index: FC = () => {
     });
   };
 
-  const modalCloseRequest = (modal: ModalIdentity<any>) => {
+  const modalCloseRequest = (modal: ModalIdentity<unknown>) => {
     const ctxModalIndex = activeModals.findIndex(m => m.id === modal.id);
     setUiStore(d => {
       d.activeModals[ctxModalIndex].state = 'closed';
@@ -85,6 +85,7 @@ const Index: FC = () => {
     [ModalTypes['new-delete']]: DeleteModal,
     [ModalTypes['edit-service']]: ServiceModal,
     [ModalTypes['edit-category']]: CategoryModal,
+    [ModalTypes['service-monitor']]: ServiceMonitorModal,
   };
 
   const categoriesWithAllTab = useCallback(() => {

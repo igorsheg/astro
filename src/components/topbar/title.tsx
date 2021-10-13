@@ -5,18 +5,18 @@ import Padder from 'src/components/padder';
 import styled from 'styled-components';
 
 interface HeaderTitleProps {
-  activeTheme: string;
+  activeThemeId: string;
   config: Config;
 }
 
-const HeaderTitle: FC<HeaderTitleProps> = ({ activeTheme, config }) => {
+const HeaderTitle: FC<HeaderTitleProps> = ({ activeThemeId, config }) => {
   if (!config) {
     return null;
   }
 
   return (
     <Flex align="center">
-      <LogoIcon activeTheme={activeTheme}>
+      <LogoIcon activeThemeId={activeThemeId}>
         <img src="/logo.svg" />
       </LogoIcon>
       <Padder x="18" />
@@ -28,9 +28,9 @@ const HeaderTitle: FC<HeaderTitleProps> = ({ activeTheme, config }) => {
   );
 };
 
-const LogoIcon = styled.div<{ activeTheme: string }>`
+const LogoIcon = styled.div<{ activeThemeId: string }>`
   img {
-    filter: ${p => (p.activeTheme === 'dark' ? 'invert(0)' : 'invert(1)')};
+    filter: ${p => (p.activeThemeId === 'dark' ? 'invert(0)' : 'invert(1)')};
     color: currentColor;
     width: 30px;
     height: 30px;

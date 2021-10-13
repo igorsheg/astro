@@ -17,8 +17,8 @@ router.del('/service/:id', async ctx => {
 router.post('/service', async ctx => {
   return ServiceController().post(ctx);
 });
-router.get('/serviceping', async () => {
-  return ServiceController().ping();
+router.get('/serviceping', async ctx => {
+  return ServiceController().ping(ctx);
 });
 router.patch('/service/:id', async ctx => {
   return ServiceController().update(ctx);

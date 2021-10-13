@@ -2,6 +2,7 @@ import { Cross2Icon, MinusIcon, SizeIcon } from '@radix-ui/react-icons';
 import { invert, transparentize } from 'polished';
 import React, {
   FC,
+  MutableRefObject,
   ReactNode,
   ReactText,
   useEffect,
@@ -9,7 +10,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { animated, interpolate, to, useSpring } from 'react-spring';
+import { animated, to, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
 import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
 import { VisuallyHidden } from 'reakit/VisuallyHidden';
@@ -40,7 +41,7 @@ const Modal: FC<ModalProps> = ({
   const dialog = useDialogState({ animated: 240 });
   const { activeModals, setUiStore } = uiStore();
 
-  const modalRef = useRef<HTMLDivElement>();
+  const modalRef = useRef() as MutableRefObject<HTMLDivElement>;
   const ref = useRef<HTMLDivElement>(null);
 
   const isTucked =
@@ -114,6 +115,7 @@ const Modal: FC<ModalProps> = ({
     opacity: 0,
     transform: 'translate(0px, 50px) ',
     transformOrigin: '300px 30px',
+    width: 600,
     config: {
       duration: 420,
       easing: (t: number) => 1 - tpmt(t),
@@ -147,6 +149,7 @@ const Modal: FC<ModalProps> = ({
     <Blanket isTucked={isTucked} {...dialog}>
       <animated.div style={enterAnimation}>
         <StyledModal
+          isTucked={isTucked}
           ref={modalRef}
           hideOnEsc={true}
           hideOnClickOutside={false}
@@ -237,8 +240,8 @@ const Blanket = styled(DialogBackdrop)<{ isTucked: boolean }>`
   }
 `;
 
-const StyledModal = styled(animated(Dialog))<{ ref: any }>`
-  width: 600px;
+const StyledModal = styled(animated(Dialog))<{ isTucked: boolean }>`
+  /* width: ${p => (p.isTucked ? 300 : 600)}px; */
   pointer-events: all;
   position: absolute;
   border-radius: 6px;
@@ -272,6 +275,9 @@ const Header = styled.div`
     font-weight: 600;
     margin: 0;
     padding: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 

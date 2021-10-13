@@ -27,6 +27,12 @@ const darkStyles = css`
   }
 `;
 
+const CardCss = css`
+  ${p => (p.theme.id === 'dark' ? darkStyles : lightStyles)};
+  transition: box-shadow 240ms cubic-bezier(0.19, 1, 0.22, 1),
+    transform 240ms cubic-bezier(0.19, 1, 0.22, 1);
+`;
+
 const Card = styled.div`
   transition: box-shadow 240ms cubic-bezier(0.19, 1, 0.22, 1),
     transform 240ms cubic-bezier(0.19, 1, 0.22, 1);
@@ -34,3 +40,4 @@ const Card = styled.div`
 `;
 
 export default Card;
+export { CardCss };

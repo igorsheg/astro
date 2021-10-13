@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import React, { useCallback, useEffect } from 'react';
 import { SAMPLE_THEMES } from 'server/config/seed-data';
@@ -7,9 +7,9 @@ import { localSrorageStore, themeStore } from 'src/stores';
 import GlobalStyle from 'src/styles/global';
 import { ThemeProvider } from 'styled-components';
 
-const MyApp = ({ Component, pageProps }: any) => {
+const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   const { data: themes, sync: syncThemes } = themeStore();
-  const { activeTheme } = localSrorageStore();
+  const { activeThemeId } = localSrorageStore();
 
   useEffect(() => {
     syncThemes();
@@ -17,9 +17,9 @@ const MyApp = ({ Component, pageProps }: any) => {
 
   const ctxTheme = useCallback(() => {
     return (
-      (themes && themes.find(t => t.id === activeTheme)) || SAMPLE_THEMES.dark
+      (themes && themes.find(t => t.id === activeThemeId)) || SAMPLE_THEMES.dark
     );
-  }, [activeTheme]);
+  }, [activeThemeId]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { Category, Config, PingLog, Service, Theme } from '../entities';
+import { Category, Config, Service, Theme } from '../entities';
 
 const SAMPLE_CONFIG: Config = {
   id: 'default-config',
@@ -98,10 +98,6 @@ const SAMPLE_SERVICES: Service[] = [
   },
 ];
 
-const SAMPLE_SERVICES_LOG: PingLog[] = [
-  { latency: 24, service: SAMPLE_SERVICES[0] },
-];
-
 const dark: Theme = {
   id: 'dark',
   label: 'Dark Theme',
@@ -125,10 +121,4 @@ const SAMPLE_THEMES: { dark: Theme; light: Theme } = {
   light,
 };
 
-export {
-  SAMPLE_CONFIG,
-  SAMPLE_THEMES,
-  SAMPLE_CATEGORIES,
-  SAMPLE_SERVICES,
-  SAMPLE_SERVICES_LOG,
-};
+export { SAMPLE_CONFIG, SAMPLE_THEMES, SAMPLE_CATEGORIES, SAMPLE_SERVICES };

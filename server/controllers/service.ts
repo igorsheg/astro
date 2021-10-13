@@ -1,7 +1,8 @@
 import { Context } from 'koa';
+import omit from 'lodash/omit';
 import path from 'path';
 import { getManager } from 'typeorm';
-import { default as pingIt } from 'ping';
+import check from 'uptime-check';
 import { PingLog, Service } from '../entities';
 
 interface ControllerReturnProps {
@@ -10,7 +11,7 @@ interface ControllerReturnProps {
   post: (ctx: Context) => Promise<Service | undefined>;
   deleteEntity: (ctx: Context) => Promise<boolean>;
   update: (ctx: Context) => Promise<boolean>;
-  ping: () => Promise<void>;
+  ping: (ctx: Context) => Promise<any>;
 }
 
 export default (): ControllerReturnProps => {
@@ -51,11 +52,15 @@ export default (): ControllerReturnProps => {
   const update = async (ctx: Context) => {
     const reqBody: Service = ctx.request.body;
     try {
-      return await serviceRepo
-        .update(
-          { id: reqBody.id },
-          { ...reqBody, logo: path.basename(reqBody.logo as string) },
-        )
+      return getManager()
+        .createQueryBuilder()
+        .update(Service)
+        .set({
+          ...omit(reqBody, ['ping']),
+          logo: path.basename(reqBody.logo as string),
+        })
+        .where('id = :id', { id: reqBody.id })
+        .execute()
         .then(res => (ctx.body = res));
     } catch (err: any) {
       return (ctx.body = err.message);
@@ -72,25 +77,32 @@ export default (): ControllerReturnProps => {
     }
   };
 
-  const ping = async () => {
+  const ping = async (ctx: Context) => {
     const services = await serviceRepo.find();
 
-    console.log('Pinging -------------->');
+    await Promise.all(
+      services.map(async service => {
+        if (!service.url) return;
 
-    services.map(async service => {
-      if (!service.url) return;
-      const url = service.url.replace(/^https?:\/\//, '');
-      const pingRes = await pingIt.promise.probe(url, { timeout: 2.5 });
-      getManager()
-        .createQueryBuilder()
-        .insert()
-        .into(PingLog)
-        .values({
-          latency: pingRes.max !== 'unknown' ? parseInt(pingRes.max, 10) : 0,
-          service,
-        })
-        .execute();
-    });
+        const pingRes = await check({
+          url: service.url,
+          redirectsLimit: 10,
+        });
+
+        getManager()
+          .createQueryBuilder()
+          .insert()
+          .into(PingLog)
+          .values({
+            latency: parseInt((pingRes.totalTime * 60).toFixed(), 10),
+            service,
+            alive: pingRes.status,
+          })
+          .execute();
+      }),
+    )
+      .then(() => (ctx.body = 'Pinged Monitored Services'))
+      .catch(err => ((ctx.body = 'Failed Pinging Services'), err));
   };
 
   return {

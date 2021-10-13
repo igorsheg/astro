@@ -107,11 +107,11 @@ const TopbarMenu: FC = () => {
 
 const ApperanceMenu = forwardRef<HTMLButtonElement>((props, ref) => {
   const menu = useMenuState();
-  const { setLocalStorage, activeTheme } = localSrorageStore();
+  const { setLocalStorage, activeThemeId } = localSrorageStore();
 
   const setThemeFun = (theme: string) => {
     setLocalStorage(draft => {
-      draft.activeTheme = theme;
+      draft.activeThemeId = theme;
     });
   };
 
@@ -126,7 +126,7 @@ const ApperanceMenu = forwardRef<HTMLButtonElement>((props, ref) => {
         <MenuItem {...menu} as="checbox" onClick={() => setThemeFun('light')}>
           <Flex justify="space-between" auto>
             Light
-            {activeTheme === 'light' && (
+            {activeThemeId === 'light' && (
               <RadixIcons.CheckIcon role="selected-icon" />
             )}
           </Flex>
@@ -134,7 +134,7 @@ const ApperanceMenu = forwardRef<HTMLButtonElement>((props, ref) => {
         <MenuItem {...menu} onClick={() => setThemeFun('dark')}>
           <Flex justify="space-between" auto>
             Dark
-            {activeTheme === 'dark' && (
+            {activeThemeId === 'dark' && (
               <RadixIcons.CheckIcon role="selected-icon" />
             )}
           </Flex>

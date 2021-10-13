@@ -23,14 +23,16 @@ const TopBar: FC<TopBarProps> = ({
   searchTerm,
   onSearchTermChange,
 }) => {
-  const { activeTheme } = localSrorageStore();
+  const { activeThemeId } = localSrorageStore();
   const { data: config } = configStore();
   const { inEditMode } = uiStore();
 
   return (
     <HeaderWrap>
       <Panel style={{ zIndex: 991, position: 'relative' }} height="96px">
-        {config && <HeaderTitle config={config} activeTheme={activeTheme} />}
+        {config && (
+          <HeaderTitle config={config} activeThemeId={activeThemeId} />
+        )}
         <Actions />
       </Panel>
       <Panel height="60px">

@@ -2,9 +2,9 @@ import { UploadIcon } from '@radix-ui/react-icons';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
-import { Checkbox as ReakitCheckbox } from 'reakit/Checkbox';
 import { Service } from 'server/entities';
 import Button from 'src/components/button';
+import { AstroCheckbox } from 'src/components/checkbox';
 import Flex from 'src/components/flex';
 import { Input, Select } from 'src/components/input';
 import Modal from 'src/components/modal';
@@ -24,7 +24,7 @@ import { object, string } from 'yup';
 
 const schema = object().shape({
   name: string().required('Naming your service is requiered'),
-  url: string().required('Linking you service is reqieried'),
+  url: string().url().required('Linking you service is reqieried'),
 });
 
 interface ServiceModalProps {
@@ -253,11 +253,10 @@ const ServiceModal: FC<ServiceModalProps> = ({
               <RowLabel>
                 <Flex align="center">
                   <CheckBoxWrapper>
-                    <CheckBox
-                      checked={modalIdentity?.draft?.target === '_blank'}
+                    <AstroCheckbox
                       name="target"
+                      checked={modalIdentity?.draft?.target === '_blank'}
                     />
-                    <CheckBoxLabel name="target" />
                   </CheckBoxWrapper>
                   <Padder x={12} />
                   <span>Should it open in a new tab?</span>
@@ -364,60 +363,8 @@ const CheckBoxWrapper = styled.div`
   position: relative;
   display: flex;
   height: 36px;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-
-  input {
-    width: 42px;
-  }
-`;
-const CheckBoxLabel = styled.label<{ name: string }>`
-  position: absolute;
-  left: 0;
-  width: 42px;
-  max-height: 24px;
-  border-radius: 15px;
-  background: ${p => p.theme.background.secondary};
-  box-shadow: 0 0 0 1px ${p => p.theme.border.secondary};
-
-  cursor: pointer;
-  &::after {
-    content: '';
-    display: block;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    margin: 3px;
-    background: #ffffff;
-    background: ${p => p.theme.text.secondary};
-    box-shadow: 1px 3px 3px 1px rgba(0, 0, 0, 0.2);
-    transition: all 240ms cubic-bezier(0.19, 1, 0.22, 1);
-  }
-  :hover::after {
-    background: ${p => p.theme.text.primary};
-  }
-`;
-const CheckBox = styled(ReakitCheckbox)<{ name: string }>`
-  opacity: 0;
-  z-index: 1;
-  border-radius: 15px;
-  width: 42px;
-  max-width: 42px;
-  max-height: 24px;
-
-  &:checked + ${CheckBoxLabel} {
-    background: ${p => p.theme.text.primary};
-    &::after {
-      content: '';
-      display: block;
-      background: ${p => p.theme.background.primary};
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      margin-left: 21px;
-      transition: all 240ms cubic-bezier(0.19, 1, 0.22, 1);
-    }
-  }
 `;
 
 const Upload = styled.div`
@@ -443,7 +390,6 @@ const Upload = styled.div`
     overflow: hidden;
     img {
       border-radius: 7px;
-      /* height: 100%; */
       width: 100%;
       height: auto;
       display: block;

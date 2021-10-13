@@ -4,3 +4,6 @@ bin
 .next
 *.sqlite3
 *.log
+public/logos/*
+!public/logos/demo-*.png
+!public/logos/placeholder.png

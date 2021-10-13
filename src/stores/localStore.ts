@@ -4,14 +4,14 @@ import create from 'zustand';
 import { persist } from 'zustand/middleware';
 
 type UiStoreProps = {
-  activeTheme: Theme['id'];
+  activeThemeId: Theme['id'];
   setLocalStorage: (fn: (draft: UiStoreProps) => void) => void;
 };
 
 const localSrorageStore = create<UiStoreProps>(
   persist(
     set => ({
-      activeTheme: 'dark',
+      activeThemeId: 'dark',
       setLocalStorage: fn => {
         return set(produce(fn));
       },

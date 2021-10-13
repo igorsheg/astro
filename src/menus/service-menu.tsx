@@ -30,6 +30,19 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
       });
     });
   };
+  const createServiceMonitorModal = (modalType: ModalTypes) => {
+    setUiStore(d => {
+      d.activeModals.push({
+        id: item.id as string,
+        label: modalType,
+        state: 'expnanded',
+        title: `Service Uptime Stats`,
+        baseState: item,
+        draft: item,
+        entityType: 'Service',
+      });
+    });
+  };
 
   const createDeleteModal = (modalType: ModalTypes) => {
     const existingModalTypeIndex = activeModals.findIndex(
@@ -60,6 +73,8 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
     }
   };
 
+  const hasPingLog = !!item.ping && !!item.ping.length;
+
   return (
     <>
       <MenuButton {...menu}>
@@ -84,6 +99,17 @@ const ServiceMenu: FC<{ item: Service }> = ({ item }) => {
         >
           Edit
         </MenuItem>
+
+        {hasPingLog && (
+          <MenuItem
+            {...menu}
+            onClick={() =>
+              createServiceMonitorModal(ModalTypes['service-monitor'])
+            }
+          >
+            Uptime Status
+          </MenuItem>
+        )}
         <Seperator />
         <MenuItem
           onClick={() => createDeleteModal(ModalTypes['new-delete'])}
