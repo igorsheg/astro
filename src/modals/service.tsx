@@ -159,7 +159,7 @@ const ServiceModal: FC<ServiceModalProps> = ({
     <Modal
       collapsable
       onRequestClose={onRequestClose}
-      title={'Create New Service'}
+      title={modalIdentity.title}
       modalIdentity={modalIdentity}
     >
       <form onChange={debounce(ev => onFormChange(ev), 50)}>

@@ -49,6 +49,7 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
         background: ${p => p.theme.background.secondary};
         transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1), color 240ms cubic-bezier(0.19, 1, 0.22, 1);
 		margin-left: calc(100vw - 100%);
+
 	}
 	body {
 		padding: 0;
@@ -57,11 +58,14 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
 		line-height: 1.75;
 		width: 100%;
 		font-weight: 400;
+		font-family: 'Inter var', sans-serif;
 
 	}
 
 	pre {
-		font-family: input-mono, monospace;
+
+		font-family: 'Inter var', sans-serif;
+
 	}
 	*,
 	*:before,
@@ -69,7 +73,7 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 	}
-	code pre span {
+	code pre span  {
 		-webkit-font-smoothing: subpixel-antialiased;
 		-moz-osx-font-smoothing: subpixel-antialiased;
 		font-family: input-mono, monospace;
@@ -79,7 +83,7 @@ const GlobalStyle = createGlobalStyle<GlobalStylesProps>`
 
 	h1, h2, h3, h4, h5 {
   	margin: 3rem 0 1.38rem;
-  	font-family: 'Poppins', sans-serif;
+  	font-family: 'Inter var', sans-serif;
   	font-weight: 400;
   	line-height: 1.3;
 	}

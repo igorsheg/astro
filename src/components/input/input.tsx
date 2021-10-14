@@ -89,6 +89,7 @@ const StyledInput = styled(ReakitInput)<InputProps>`
   background: ${p => p.theme.background.secondary};
   transition: all 240ms cubic-bezier(0.19, 1, 0.22, 1);
   position: relative;
+  font-family: 'Inter var', sans-serif;
 
   :hover {
     border: 1px solid ${p => transparentize(0.5, p.theme.text.primary)};

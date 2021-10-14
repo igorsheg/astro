@@ -1,4 +1,5 @@
 import { Cross2Icon, MinusIcon, SizeIcon } from '@radix-ui/react-icons';
+import { easeExpInOut } from 'd3-ease';
 import { invert, transparentize } from 'polished';
 import React, {
   FC,
@@ -12,7 +13,12 @@ import React, {
 } from 'react';
 import { animated, to, useSpring } from 'react-spring';
 import { useDrag } from 'react-use-gesture';
-import { Dialog, DialogBackdrop, useDialogState } from 'reakit/Dialog';
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogStateReturn,
+  useDialogState,
+} from 'reakit/Dialog';
 import { VisuallyHidden } from 'reakit/VisuallyHidden';
 import { uiStore } from 'src/stores';
 import styled, { css } from 'styled-components';
@@ -21,7 +27,6 @@ import Button from './button';
 import Flex from './flex';
 import Padder from './padder';
 import Tooltip from './tooltip';
-
 const trans = ([x, y]: [number, number]) => `translate3d(${x}px, ${y}px, 0)`;
 
 interface ModalProps {
@@ -40,18 +45,82 @@ const Modal: FC<ModalProps> = ({
 }) => {
   const dialog = useDialogState({ animated: 240 });
   const { activeModals, setUiStore } = uiStore();
-
-  const modalRef = useRef() as MutableRefObject<HTMLDivElement>;
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisualyHidden, setIsVisuallyHiden] = useState(false);
 
   const isTucked =
     activeModals.find(m => m.id === modalIdentity.id)?.state === 'tucked';
+
+  const onRequestHide = () => {
+    const ctxModal = activeModals.findIndex(m => m.id === modalIdentity.id);
+    setUiStore(d => {
+      d.activeModals[ctxModal].state = isTucked ? 'expnanded' : 'tucked';
+    });
+  };
+
+  useEffect(() => {
+    setTimeout(
+      () => {
+        setIsVisuallyHiden(isTucked);
+      },
+      isTucked ? 420 : 0,
+    );
+  }, [isTucked]);
+
+  return (
+    <Blanket isTucked={isTucked} {...dialog}>
+      <ModalBody
+        isTucked={isTucked}
+        activeModals={activeModals}
+        modalIdentity={modalIdentity}
+        title={title}
+        dialog={dialog}
+        collapsable={collapsable}
+        onRequestClose={onRequestClose}
+        onRequestHide={onRequestHide}
+      >
+        {isVisualyHidden ? (
+          <VisuallyHidden>{children}</VisuallyHidden>
+        ) : (
+          children
+        )}
+      </ModalBody>
+    </Blanket>
+  );
+};
+
+const ModalBody: FC<{
+  activeModals: ModalIdentity<unknown>[];
+  modalIdentity: ModalIdentity<unknown>;
+  isTucked: boolean;
+  title: ReactNode | undefined;
+  dialog: DialogStateReturn;
+  collapsable: boolean;
+  onRequestClose: (modal: ModalIdentity<unknown>) => void;
+  onRequestHide: () => void;
+}> = ({
+  activeModals,
+  isTucked,
+  modalIdentity,
+  title,
+  dialog,
+  collapsable,
+  children,
+  onRequestClose,
+  onRequestHide,
+}) => {
+  const modalRef = useRef() as MutableRefObject<HTMLDivElement>;
+  const ref = useRef<HTMLDivElement>(null);
+
+  const getWindowDimensions = () => {
+    const { innerWidth: width, innerHeight: height } = window;
+    return {
+      width,
+      height,
+    };
+  };
+
   const isOpen =
     activeModals.find(m => m.id === modalIdentity.id)?.state === 'expnanded';
-
-  const activeModalIndex = activeModals.findIndex(
-    m => m.id === modalIdentity.id,
-  );
 
   const getModalDimentions = () => {
     if (modalRef && modalRef.current) {
@@ -71,13 +140,31 @@ const Modal: FC<ModalProps> = ({
     }
   }, [modalRef.current]);
 
-  const getWindowDimensions = () => {
-    const { innerWidth: width, innerHeight: height } = window;
-    return {
-      width,
-      height,
-    };
-  };
+  const [enterAnimation, setEnterAnimation] = useSpring(() => ({
+    opacity: 0,
+    transform: 'translate(0px, 50px) ',
+    transformOrigin: '300px 600px',
+    width: 600,
+    scale: 1,
+    config: {
+      duration: 420,
+      easing: t => easeExpInOut(t),
+    },
+  }));
+
+  useEffect(() => {
+    const tucked = `translate(0px, ${getWindowDimensions().height / 6}px) `;
+
+    const expanded = `translate(0px, 0px) `;
+    const collapsed = `translate(0px, 15px) `;
+
+    setEnterAnimation({
+      transform: isOpen ? expanded : isTucked ? tucked : collapsed,
+      opacity: isOpen ? 1 : 0,
+      scale: isOpen ? 1 : 0.2,
+    });
+    dialog.setVisible(isOpen || isTucked);
+  }, [isTucked, isOpen]);
 
   const [{ coord }, set] = useSpring(() => ({
     coord: [0, 0],
@@ -107,99 +194,62 @@ const Modal: FC<ModalProps> = ({
     },
   );
 
-  function tpmt(x: number) {
-    return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
-  }
-
-  const [enterAnimation, setEnterAnimation] = useSpring(() => ({
-    opacity: 0,
-    transform: 'translate(0px, 50px) ',
-    transformOrigin: '300px 30px',
-    width: 600,
-    config: {
-      duration: 420,
-      easing: (t: number) => 1 - tpmt(t),
-    },
-  }));
-
-  useEffect(() => {
-    const tucked = `translate(${
-      -getModalDimentions().x + activeModalIndex * 108
-    }px,
-      ${getWindowDimensions().height - getModalDimentions().y - 60}px) `;
-
-    const expanded = `translate(0px, 0px) `;
-    const collapsed = `translate(0px, 15px) `;
-
-    setEnterAnimation({
-      transform: isOpen ? expanded : isTucked ? tucked : collapsed,
-      opacity: isOpen || isTucked ? 1 : 0,
-    });
-    dialog.setVisible(isOpen || isTucked);
-  }, [isTucked, isOpen]);
-
-  const onRequestHide = () => {
-    setUiStore(d => {
-      const ctxModal = activeModals.findIndex(m => m.id === modalIdentity.id);
-      d.activeModals[ctxModal].state = isTucked ? 'expnanded' : 'tucked';
-    });
-  };
-
   return (
-    <Blanket isTucked={isTucked} {...dialog}>
-      <animated.div style={enterAnimation}>
-        <StyledModal
-          isTucked={isTucked}
-          ref={modalRef}
-          hideOnEsc={true}
-          hideOnClickOutside={false}
-          style={{
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            transform: to([coord] as any, trans as any),
-          }}
-          aria-label={`${title} Modal`}
-          {...bindCanvas}
-          {...dialog}
-        >
-          <Header ref={ref}>
-            <Flex>
-              <Tooltip tabIndex={-1} label="Close modal">
-                <Button
-                  style={{ width: '30px', padding: 0 }}
-                  tabIndex={-1}
-                  hierarchy="ternary"
-                  onClick={() => onRequestClose(modalIdentity)}
-                >
-                  <Cross2Icon />
-                </Button>
-              </Tooltip>
-
-              {collapsable && (
-                <Tooltip
-                  tabIndex={-1}
-                  label={isTucked ? 'Expand modal' : 'Hide modal'}
-                >
+    <animated.div style={enterAnimation}>
+      <StyledModal
+        isTucked={isTucked}
+        ref={modalRef}
+        hideOnEsc={true}
+        hideOnClickOutside={false}
+        style={{
+          opacity: enterAnimation.opacity,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          transform: to([coord] as any, trans as any),
+        }}
+        aria-label={`${title} Modal`}
+        {...bindCanvas}
+        {...dialog}
+      >
+        <Header ref={ref}>
+          <Flex style={{ minWidth: '60px' }}>
+            {!isTucked && (
+              <>
+                <Tooltip tabIndex={-1} label="Close modal">
                   <Button
                     style={{ width: '30px', padding: 0 }}
                     tabIndex={-1}
                     hierarchy="ternary"
-                    onClick={onRequestHide}
+                    onClick={() => onRequestClose(modalIdentity)}
                   >
-                    {isTucked ? <SizeIcon /> : <MinusIcon />}
+                    <Cross2Icon />
                   </Button>
                 </Tooltip>
-              )}
-            </Flex>
-            <h1>{title}</h1>
-            <Padder x={78} />
-          </Header>
 
-          <Body>
-            {isTucked ? <VisuallyHidden>{children}</VisuallyHidden> : children}
-          </Body>
-        </StyledModal>
-      </animated.div>
-    </Blanket>
+                {collapsable && (
+                  <Tooltip
+                    tabIndex={-1}
+                    label={isTucked ? 'Expand modal' : 'Hide modal'}
+                  >
+                    <Button
+                      style={{ width: '30px', padding: 0 }}
+                      tabIndex={-1}
+                      hierarchy="ternary"
+                      onClick={onRequestHide}
+                    >
+                      {isTucked ? <SizeIcon /> : <MinusIcon />}
+                    </Button>
+                  </Tooltip>
+                )}
+              </>
+            )}
+          </Flex>
+
+          <h1>{title}</h1>
+          <Padder x={78} />
+        </Header>
+        <Body>{children}</Body>
+      </StyledModal>
+    </animated.div>
   );
 };
 
@@ -225,6 +275,7 @@ const Blanket = styled(DialogBackdrop)<{ isTucked: boolean }>`
   height: 100vh;
   position: absolute;
   pointer-events: ${p => (p.isTucked ? 'none' : 'all')};
+  user-select: ${p => (p.isTucked ? 'none' : 'all')};
   top: 0;
   z-index: 991;
   display: flex;
@@ -233,7 +284,7 @@ const Blanket = styled(DialogBackdrop)<{ isTucked: boolean }>`
   background: ${p =>
     p.isTucked ? 'transparent' : transparentize(0.5, 'black')};
   opacity: 0;
-  transition: opacity 240ms cubic-bezier(0.19, 1, 0.22, 1);
+  transition: background 240ms cubic-bezier(0.19, 1, 0.22, 1);
 
   &[data-enter] {
     opacity: 1;
@@ -246,6 +297,8 @@ const StyledModal = styled(animated(Dialog))<{ isTucked: boolean }>`
   position: absolute;
   border-radius: 6px;
   position: relative;
+  pointer-events: ${p => (p.isTucked ? 'none' : 'all')};
+  user-select: ${p => (p.isTucked ? 'none' : 'all')};
   /* overflow: hidden; */
   opacity: 1;
   flex-direction: column;

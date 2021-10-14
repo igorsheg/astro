@@ -14,6 +14,7 @@ import { categoryStore, configStore, uiStore } from 'src/stores';
 import { servicesUtils } from 'src/utils';
 import styled from 'styled-components';
 import { ModalIdentity, ModalTypes } from 'typings';
+import Dock from 'src/components/dock';
 
 const ServiceModal = dynamic(() => import('src/modals/service'), {
   ssr: true,
@@ -134,6 +135,7 @@ const Index: FC = () => {
   if (!categories) return <Loader />;
   return (
     <>
+      <Dock />
       <AstroToast />
       {activeModals.map(modal => {
         const CtxModal = MODALS[modal.label];

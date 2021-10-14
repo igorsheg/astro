@@ -28,7 +28,7 @@ const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
         <link rel="icon" href="/favicon.ico" />
         <link
           rel="preload"
-          href="/fonts/Inter.var.woff2"
+          href="/fonts/Inter-roman.var.woff2"
           as="font"
           crossOrigin=""
         />

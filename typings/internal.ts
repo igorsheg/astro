@@ -30,7 +30,7 @@ export type ModalState = 'expnanded' | 'tucked' | 'closed';
 export interface ModalIdentity<T> {
   id: string | number;
   label: ModalTypes;
-  title?: string;
+  title: string;
   state: ModalState;
   entityType: EntityTypes;
   baseState?: T;
