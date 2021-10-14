@@ -6,6 +6,7 @@ import { Theme } from 'server/entities';
 import { localSrorageStore, themeStore } from 'src/stores';
 import GlobalStyle from 'src/styles/global';
 import { ThemeProvider } from 'styled-components';
+import 'src/styles/fonts.css';
 
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   const { data: themes, sync: syncThemes } = themeStore();
@@ -26,12 +27,12 @@ const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
       <Head>
         <title>Astro</title>
         <link rel="icon" href="/favicon.ico" />
-        <link
+        {/* <link
           rel="preload"
           href="/fonts/Inter-roman.var.woff2"
           as="font"
           crossOrigin=""
-        />
+        /> */}
         <meta
           name="viewport"
           content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"
