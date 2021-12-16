@@ -17,7 +17,7 @@ To launch container:
 ```sh
 docker run -d \
   -p 8088:8088 \
-  -v </your/local/path/>:/server/data \
+  -v </your/local/path/>:/app/server/data \
   igorsheg/astro
 ```
 
@@ -34,13 +34,6 @@ cd astro
 
 ```sh
 make install-dep
-```
-
-3. Init Database
-
-```sh
-make init-db
-make seed-db
 ```
 
 4. Run Backend

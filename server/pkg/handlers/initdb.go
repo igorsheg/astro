@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"astro/pkg/category"
@@ -11,11 +11,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/mbndr/figlet4go"
 	"gorm.io/datatypes"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-func main() {
+func tableExists(db *gorm.DB) bool {
+
+	return db.Migrator().HasTable(&config.Config{}) &&
+		db.Migrator().HasTable(&service.Service{}) &&
+		db.Migrator().HasTable(&category.Category{}) &&
+		db.Migrator().HasTable(&theme.Theme{})
+}
+
+func InitDb(db *gorm.DB) {
 
 	ascii := figlet4go.NewAsciiRender()
 	options := figlet4go.NewRenderOptions()
@@ -23,12 +30,12 @@ func main() {
 	renderStr, _ := ascii.RenderOpts("Astro", options)
 	fmt.Print(renderStr)
 
-	color.Green("---> Initiating Data")
-
-	db, err := gorm.Open(sqlite.Open("./data/astrodb.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
+	if tableExists(db) {
+		color.Green("---> Using existing databse")
+		return
 	}
+
+	color.Green("---> Initiating Data")
 	color.Green("---> Migrating Entities")
 	db.AutoMigrate(&service.Service{}, &category.Category{}, &theme.Theme{}, &config.Config{}, &service.Ping{})
 

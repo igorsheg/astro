@@ -20,11 +20,12 @@ func main() {
 
 	ginEngine := gin.Default()
 
-	db, err := gorm.Open(sqlite.Open("./data/astrodb.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("data/astrodb.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 
+	handlers.InitDb(db)
 	handlers.SetupRoutes(ginEngine, db)
 
 	ginEngine.Run(os.Getenv("HTTP_ADDRESS") + ":" + os.Getenv("HTTP_PORT"))

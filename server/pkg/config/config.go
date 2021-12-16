@@ -6,9 +6,10 @@ import (
 )
 
 type Config struct {
-	ID       string `json:"id"`
-	Title    string `json:"title"`
-	Subtitle string `json:"subtitle"`
+	ID         string `json:"id"`
+	Title      string `json:"title"`
+	Subtitle   string `json:"subtitle"`
+	FirstTimer string `json:"fisrtTimer"`
 }
 
 func NewService(ctx *gin.Engine, db *gorm.DB) Config {

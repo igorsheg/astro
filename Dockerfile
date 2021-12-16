@@ -7,7 +7,6 @@ RUN apk add sqlite yarn gcc libc-dev
 COPY . .
 
 RUN cd web && yarn install && NODE_ENV=production yarn build
-RUN cd server && go run scripts/initdb.go
 RUN cd server && go build -o astroserver.sh cmd/astro/main.go
 
 ######################################################

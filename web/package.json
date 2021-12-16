@@ -1,15 +1,10 @@
 {
-  "name": "react-esbuild-starter",
-  "version": "2.1.0",
-  "description": "Starter template for React + Typescript, powered by Esbuild",
-  "repository": "https://github.com/belaczek/react-esbuild-starter.git",
-  "author": "Tomas Belada <tomas@belada.net>",
+  "name": "astro",
+  "version": "0.5.0",
+  "description": "An open, extensible, dashboard for all of your homelab services.",
+  "repository": "https://github.com/igorsheg/astro.git",
+  "author": "Igor Shegolev <igorsheg@gmail.com>",
   "license": "MIT",
-  "keywords": [
-    "react",
-    "typescript",
-    "esbuild"
-  ],
   "scripts": {
     "start": "yarn run concurrently --names tsc,esb -c green.bold,blue.bold --kill-others \"yarn:bundle --dev\" \"tsc --watch\" ",
     "build": "yarn run  concurrently --success --names tsc,esb -c green.bold,blue.bold tsc yarn:bundle",
