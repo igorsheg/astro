@@ -1,25 +1,33 @@
-FROM mhart/alpine-node AS builder
+FROM golang:1.17.3-alpine3.14 AS builder
 
 WORKDIR /app
 
-COPY  package.json /app
-RUN yarn --production=true --quiet=true && yarn add -D typescript @types/node @types/react
-COPY . /app
+RUN apk add sqlite yarn gcc libc-dev
 
-RUN yarn build 
+COPY . .
+
+RUN cd web && yarn install && NODE_ENV=production yarn build
+RUN cd server && go run scripts/initdb.go
+RUN cd server && go build -o astroserver.sh cmd/astro/main.go
 
 ######################################################
 
-FROM mhart/alpine-node:slim as prod
-ENV NODE_ENV=production
+FROM alpine:3.14 as prod
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/bin ./bin
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
-EXPOSE 3000
+WORKDIR /app
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+COPY --from=builder /app/web/statics ./web/statics
+COPY --from=builder /app/web/public ./web/public
+COPY --from=builder /app/web/index.html ./web/index.html
+COPY --from=builder /app/server/astroserver.sh ./server/astroserver.sh
+COPY --from=builder /app/server/data ./server/data
+COPY --from=builder /app/.env .
+
+WORKDIR /app/server
+ENV GIN_MODE=release
+EXPOSE 8088
+
+CMD ["./astroserver.sh"]
+
 

@@ -1,9 +1,4 @@
-node_modules
-Dockerfile
-bin
-.next
-*.sqlite3
-*.log
-public/logos/*
-!public/logos/demo-*.png
-!public/logos/placeholder.png
+web/node_modules
+web/statics
+
+server/data/*

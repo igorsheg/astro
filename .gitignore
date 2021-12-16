@@ -1,40 +1,13 @@
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+server/data/*
+!server/data/.gitkeep
 
-# testing
-/coverage
+server/astroserver.sh
+server/initdb.sh
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
-/bin
-
-# misc
-.DS_Store
-*.pem
-*.sqlite3
-public/logos/*
+web/node_modules
+web/statics
+web/tsconfig.tsbuildinfo
+web/public/logos/*
+web/temp
 !public/logos/demo-*.png
 !public/logos/placeholder.png
-
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-*.log
-stats.json
-
-# local env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env
-# vercel
-.vercel
