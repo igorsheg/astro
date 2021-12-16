@@ -18,6 +18,9 @@ seed-db:
 clean:
 	@cd server && rm -rf data/*
 
+install-dep:
+	@cd web && yarn
+	
 start-dev-server:
 	@cd server && go run cmd/astro/main.go
 
