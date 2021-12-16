@@ -16,7 +16,7 @@ seed-db:
 	@cd server && go run scripts/initdb.go
 
 clean:
-	@cd server && rm -rf data/*⏎
+	@cd server && rm -rf data/*
 
 start-dev-server:
 	@cd server && go run cmd/astro/main.go
