@@ -1,0 +1,34 @@
+root = "."
+
+[build]
+  bin = "astroserver.sh"
+  cmd = "go build -o astroserver.sh ./cmd/astro/main.go"
+  delay = 1000
+  exclude_dir = []
+  exclude_file = []
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = ""
+  include_dir = ["web/www"]
+  include_ext = ["js","go", "html"]
+  kill_delay = "0s"
+  log = "build-errors.log"
+  send_interrupt = false
+  stop_on_error = true
+
+[color]
+  app = ""
+  build = "yellow"
+  main = "magenta"
+  runner = "green"
+  watcher = "cyan"
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = false
+
+[screen]
+  clear_on_rebuild = false

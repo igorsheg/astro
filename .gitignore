@@ -1,6 +1,5 @@
 server/data/*
 !server/data/.gitkeep
-
 server/astroserver.sh
 server/initdb.sh
 
@@ -9,5 +8,6 @@ web/statics
 web/tsconfig.tsbuildinfo
 web/public/logos/*
 web/temp
-!public/logos/demo-*.png
-!public/logos/placeholder.png
+!web/public/logos/demo-*.png
+!web/public/logos/placeholder.png
+!web/public/logos/.gitkeep

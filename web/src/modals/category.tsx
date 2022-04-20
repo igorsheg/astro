@@ -11,7 +11,7 @@ import Flex from "../components/flex";
 import { Input } from "../components/input";
 import Modal from "../components/modal";
 import Padder from "../components/padder";
-import {  uiStore } from "../stores";
+import { uiStore } from "../stores";
 import {
   Category,
   ModalProps,
@@ -20,15 +20,14 @@ import {
   SelectOption,
 } from "../types";
 import { fetcher, useFilteredList, validateForm } from "../utils";
-import {useQueryClient} from "react-query";
+import { useQueryClient } from "react-query";
 
 const schema = object().shape({
   name: string().required("Naming your service is requiered"),
 });
 
 const CategoryModal: FC<ModalProps<Category>> = ({ ...modalProps }) => {
-
-  const queryClient =  useQueryClient();
+  const queryClient = useQueryClient();
   const { onRequestClose, id, draft, label, baseState } = modalProps;
   const setUiStore = uiStore((s) => s.setUiStore);
   const ctxModalIndex = uiStore((s) =>
@@ -67,7 +66,6 @@ const CategoryModal: FC<ModalProps<Category>> = ({ ...modalProps }) => {
     icon: x as RadixIconTypes,
   }));
 
-
   const submitFormHandler = async (
     ev: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -104,7 +102,7 @@ const CategoryModal: FC<ModalProps<Category>> = ({ ...modalProps }) => {
   };
 
   return (
-    <Modal collapsable {...modalProps} title={"Create New Category"}>
+    <Modal collapsable {...modalProps} title={modalProps.title}>
       <form>
         <FormBody>
           <Group>

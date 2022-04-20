@@ -1,7 +1,7 @@
 import * as RadixIcons from "@radix-ui/react-icons";
 import React, { FC } from "react";
 import { MenuButton, MenuSeparator, useMenuState } from "reakit/Menu";
-import { Category, ModalTypes} from "../types";
+import { Category, ModalTypes } from "../types";
 import Button from "../components/button";
 import { ContextMenu, MenuItem } from "../components/menu";
 import Tooltip from "../components/tooltip";
@@ -17,13 +17,12 @@ const CategoryMenu: FC<{ item: Category }> = ({ item }) => {
   });
 
   const createEditModal = (modalType: ModalTypes) => {
-
     setUiStore((d) => {
       d.activeModals.push({
         id: item.id as string,
         label: modalType,
-        state:  "expnanded",
-        title: `Edit Service`,
+        state: "expnanded",
+        title: `Edit Category`,
         baseState: item,
         draft: item,
         entityType: "services",

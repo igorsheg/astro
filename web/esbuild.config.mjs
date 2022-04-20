@@ -15,9 +15,16 @@ esbuild
     },
     watch: isDevServer && {
       onRebuild(err) {
-        serve.update();
-        err ? error("❌ Failed") : log("✅ Updated");
+        err ? console.error("❌ Failed") : console.log("✅ Updated");
       },
     },
   })
   .catch(() => process.exit(1));
+
+// if (isDevServer) {
+//   serve.start({
+//     port: 3006,
+//     root: "./www",
+//     live: true,
+//   });
+// }

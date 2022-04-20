@@ -32,7 +32,7 @@ function tpmt(x: number) {
 
 const Modal: FC<ModalProps<any>> = ({ ...modalProps }) => {
   const { children, collapsable = false, id } = modalProps;
-  const dialog = useDialogState({ animated: true });
+  const dialog = useDialogState({ animated: true, modal: true });
   const { activeModals, setUiStore } = uiStore();
   const [isVisualyHidden, setIsVisuallyHiden] = useState(false);
 
@@ -129,12 +129,12 @@ const ModalBody: FC<ModalBodyProps<unknown>> = ({ ...modalBodyProps }) => {
 
   const [enterAnimation, setEnterAnimation] = useSpring(() => ({
     opacity: 0,
-    transform: "translate(0px, 15px) ",
-    transformOrigin: "300px 600px",
+    transform: "translate(0px, 5px) ",
+    transformOrigin: "center center",
     width: 600,
-    scale: 0.9,
+    scale: 0.98,
     config: {
-      duration: 240,
+      duration: 420,
       easing: (t) => ((t *= 2) <= 1 ? tpmt(1 - t) : 2 - tpmt(t - 1)) / 2,
     },
   }));
@@ -148,7 +148,7 @@ const ModalBody: FC<ModalBodyProps<unknown>> = ({ ...modalBodyProps }) => {
     setEnterAnimation({
       transform: isOpen ? expanded : isTucked ? tucked : collapsed,
       opacity: isOpen ? 1 : 0,
-      scale: isOpen ? 1 : 0.3,
+      scale: isOpen ? 1 : 0.5,
     });
     dialog.setVisible(isOpen || isTucked);
   }, [isTucked, isOpen]);

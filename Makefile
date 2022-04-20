@@ -1,6 +1,6 @@
 .PHONY: build
 
-compile-server:
+build:
 	@cd server && go build -o astroserver.sh cmd/server/main.go
 
 build-docker:
@@ -12,11 +12,11 @@ init-db:
 clean:
 	@cd server && rm -rf data/*
 
-install-dep:
-	@cd web && yarn
+dev:
+	make -j 2 dev-server dev-web
 	
-start-dev-server:
-	@cd server && go run cmd/astro/main.go
+dev-server:
+	@cd server && air
 
-start-dev-web:
+dev-web:
 	@cd web && yarn start
