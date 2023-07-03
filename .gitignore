@@ -30,8 +30,7 @@ dist-ssr
 *.sln
 *.sw?
 .env
-.envrc
-.ditenv
+.direnv
 
 
 tmp
