@@ -28,3 +28,4 @@ tower = "0.4.13"
 bincode = "1.3.3"
 chrono = {version = "0.4.26", features = ["serde"]}
 reqwest = "0.11.18"
+log = { version = "0.4.19", features = ["kv_unstable_std"] }

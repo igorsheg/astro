@@ -20,7 +20,7 @@ pub fn spawn_uptime_check_task(
                 Ok(services) => {
                     for service in services {
                         let start = std::time::Instant::now(); // Start time measurement
-                        let status = match client.get(&service.url).send().await {
+                        let status = match client.head(&service.url).send().await {
                             Ok(response) => {
                                 let latency = start.elapsed().as_millis(); // Compute latency
                                 let uptime = response.status().is_success();
