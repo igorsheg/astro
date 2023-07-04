@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bincode;
 use serde::{Deserialize, Serialize};
-use sled::Db;
+use sled::{Db, Tree};
 
 use crate::infra::error::AstroError;
 
@@ -31,11 +31,11 @@ pub struct InsertService {
 }
 
 pub struct ServiceRepository {
-    db: Arc<Db>,
+    db: Arc<Tree>,
 }
 
 impl ServiceRepository {
-    pub fn new(db: Arc<Db>) -> Self {
+    pub fn new(db: Arc<Tree>) -> Self {
         Self { db }
     }
 
@@ -56,25 +56,29 @@ impl ServiceRepository {
     pub fn list_all(&self, category_id: Option<&str>) -> Result<Vec<Service>, AstroError> {
         let mut services = Vec::new();
 
-        match category_id {
-            Some(id) => {
-                let prefix = format!("{}:", id);
+        for result in self.db.iter() {
+            let (key, value) = result?;
+            let key_string = String::from_utf8_lossy(&key);
 
-                for result in self.db.scan_prefix(&prefix) {
-                    let (_, value) = result?;
+            // check if key matches the format: "CATEGORY_ID:SERVICE_ID"
+            if key_string.contains(":") {
+                if let Some(id) = category_id {
+                    let prefix = format!("{}:", id);
+                    // If category_id is provided, only push matching services
+                    if key_string.starts_with(&prefix) {
+                        let service: Service =
+                            bincode::deserialize(&value).map_err(AstroError::from)?;
+                        services.push(service);
+                    }
+                } else {
+                    // If category_id is not provided, push all services
                     let service: Service =
                         bincode::deserialize(&value).map_err(AstroError::from)?;
                     services.push(service);
                 }
             }
-            None => {
-                for result in self.db.iter() {
-                    let (_, value) = result?;
-                    let yay: Service = bincode::deserialize(&value).map_err(AstroError::from)?;
-                    services.push(yay);
-                }
-            }
         }
+
         Ok(services)
     }
 }

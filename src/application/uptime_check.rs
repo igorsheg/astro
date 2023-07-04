@@ -16,7 +16,7 @@ pub fn spawn_uptime_check_task(
     tokio::task::spawn(async move {
         let client = reqwest::Client::new();
         loop {
-            match service_repo.list_all(Some("unsorted")) {
+            match service_repo.list_all(None) {
                 Ok(services) => {
                     for service in services {
                         let start = std::time::Instant::now(); // Start time measurement

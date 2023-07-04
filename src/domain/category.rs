@@ -1,64 +1,50 @@
+use std::sync::Arc;
+
 use bincode;
 use serde::{Deserialize, Serialize};
-use sled::Db;
+use sled::{Db, Tree};
 
-use super::service::Service;
+use crate::infra::error::AstroError;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Category {
-    id: String,
-    name: String,
-    description: String,
-    icon: String,
-    services: Vec<Service>,
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub icon: String,
 }
 
-pub struct CategoryRepository<'a> {
-    db: &'a Db,
+#[derive(Serialize, Deserialize, Debug)]
+pub struct InsertCategory {
+    pub name: String,
+    pub description: Option<String>,
+    pub icon: Option<String>,
 }
 
-impl<'a> CategoryRepository<'a> {
-    pub fn new(db: &'a Db) -> Self {
+pub struct CategoryRepository {
+    db: Arc<Tree>,
+}
+
+impl CategoryRepository {
+    pub fn new(db: Arc<Tree>) -> Self {
         Self { db }
     }
 
-    pub fn insert(&self, category: &Category) -> sled::Result<()> {
-        let encoded_category = bincode::serialize(category)
-            .map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-        self.db.insert(&category.id, encoded_category)?;
+    pub fn list(&self) -> Result<Vec<Category>, AstroError> {
+        let mut categories = Vec::new();
 
-        // For each service in the category, insert it into the DB
-        // with a key that is a composite of the category id and service id
-        for service in &category.services {
-            let key = format!("{}:{}", &category.id, &service.id);
-            let encoded_service = bincode::serialize(service)
-                .map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-            self.db.insert(key, encoded_service)?;
+        for result in self.db.iter() {
+            let (_, value) = result?;
+            let category: Category = bincode::deserialize(&value).map_err(AstroError::from)?;
+            categories.push(category);
         }
-
-        Ok(())
+        Ok(categories)
     }
 
-    pub fn get_by_id(&self, id: &str) -> sled::Result<Option<Category>> {
-        let category_ivec = self.db.get(id)?;
+    pub fn insert(&self, category: Category) -> Result<(), AstroError> {
+        let encoded_category = bincode::serialize(&category).map_err(AstroError::from)?;
+        self.db.insert(&category.id, encoded_category)?;
 
-        if let Some(encoded_category) = category_ivec {
-            let mut category: Category = bincode::deserialize(&encoded_category)
-                .map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-
-            category.services = Vec::new();
-
-            // Retrieve all services for this category
-            for result in self.db.scan_prefix(format!("{}:", id)) {
-                let (_, value) = result?;
-                let service: Service = bincode::deserialize(&value)
-                    .map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-                category.services.push(service);
-            }
-
-            Ok(Some(category))
-        } else {
-            Ok(None)
-        }
+        Ok(())
     }
 }

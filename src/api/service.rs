@@ -10,16 +10,17 @@ use std::sync::Arc;
 
 use crate::domain::service::{InsertService, Service, ServiceRepository};
 use crate::domain::uptime::UptimeStatusRepository;
+use crate::Trees;
 
 #[derive(Debug, Deserialize)]
 pub struct ListServicesFilter {
     category_id: Option<String>,
 }
 pub async fn get_services(
-    Extension(db): Extension<Arc<Db>>,
+    Extension(trees): Extension<Trees>,
     Query(query): Query<ListServicesFilter>,
 ) -> impl IntoResponse {
-    let repo = ServiceRepository::new(db);
+    let repo = ServiceRepository::new(Arc::clone(&trees.services_tree));
     match repo.list_all(query.category_id.as_deref()) {
         Ok(services) => Json(services).into_response(),
         Err(e) => {
@@ -33,7 +34,7 @@ pub async fn get_services(
 }
 
 pub async fn insert_service(
-    Extension(db): Extension<Arc<Db>>,
+    Extension(trees): Extension<Trees>,
     Json(body): Json<InsertService>,
 ) -> String {
     let service = Service {
@@ -48,7 +49,7 @@ pub async fn insert_service(
         category_id: Some(body.category_id.unwrap_or("unsorted".to_string())),
     };
 
-    let repo = ServiceRepository::new(db);
+    let repo = ServiceRepository::new(Arc::clone(&trees.services_tree));
     match repo.insert(service) {
         Ok(_) => "Service inserted successfully.".to_string(),
         Err(err) => format!("Failed to insert  service: {}", err),
@@ -56,10 +57,10 @@ pub async fn insert_service(
 }
 
 pub async fn get_service_uptime(
-    Extension(uptime_tree): Extension<Arc<Tree>>,
+    Extension(trees): Extension<Trees>,
     Path(service_id): Path<String>,
 ) -> impl IntoResponse {
-    let repo = UptimeStatusRepository::new(uptime_tree);
+    let repo = UptimeStatusRepository::new(Arc::clone(&trees.uptime_tree));
 
     match repo.list_for_service(&service_id) {
         Ok(statuses) => Json(statuses).into_response(),
