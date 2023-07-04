@@ -101,8 +101,6 @@ async fn main() {
         uptime_tree,
     };
 
-    // let uptime_tree = Arc::new(db.open_tree("uptime_tree").expect("Failed to open tree"));
-    //
     let service_repo = ServiceRepository::new(Arc::clone(&trees.services_tree));
     let category_repo = CategoryRepository::new(Arc::clone(&trees.categories_tree));
     let status_repo = UptimeStatusRepository::new(Arc::clone(&trees.uptime_tree));

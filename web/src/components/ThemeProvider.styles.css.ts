@@ -5,4 +5,5 @@ export const styleWrapperStyles = style({
   fontFamily: vars.fonts.primary,
   fontSize: vars.fontSize["0x"],
   color: vars.colors.text,
+  background: vars.colors.background,
 });

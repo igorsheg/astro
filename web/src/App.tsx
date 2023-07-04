@@ -1,33 +1,49 @@
-import { useContext } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { FC, PropsWithChildren, useContext, useEffect, useState } from "react";
 import { ThemeContext } from "./components/ThemeProvider";
+import { observer } from "mobx-react-lite";
+import { vars } from "./styles/index.css";
+import { StoreContext } from "./store";
+import { ServiceType } from "./store/service";
 
-function App() {
+const App = observer(() => {
   const { toggleTheme } = useContext(ThemeContext);
+  const Store = useContext(StoreContext);
+  const [tab, setTab] = useState("home-media");
+  const services = Store.servicesStore.getServicesByCategory(tab);
+
+  useEffect(() => {
+    Store.fetchData();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => toggleTheme()}>count is </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  );
-}
+    <div style={{ height: "100vh", width: "100vw" }}>
+      <button onClick={toggleTheme}>Theme!</button>
+      <button onClick={() => setTab("utilities")}>tab!</button>
 
+      <div
+        style={{
+          fontSize: vars.fontSize["0x"],
+          width: 600,
+          height: 300,
+          overflow: "auto",
+        }}
+      >
+        {services.map((svc) => (
+          <Service svc={svc} />
+        ))}
+      </div>
+    </div>
+  );
+});
+
+const Service: FC<PropsWithChildren<{ svc: ServiceType }>> = observer(
+  ({ svc }) => {
+    return (
+      <>
+        <p>{svc.name}</p>
+        <pre>{JSON.stringify(svc.status, null, 2)}</pre>
+      </>
+    );
+  }
+);
 export default App;

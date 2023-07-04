@@ -55,7 +55,7 @@ pub fn spawn_uptime_check_task(
             }
 
             let now = Utc::now();
-            let target_time: DateTime<Utc> = now + chrono::Duration::seconds(5);
+            let target_time: DateTime<Utc> = now + chrono::Duration::minutes(5);
             let wait_duration = (target_time - now).to_std().unwrap();
 
             tokio::time::sleep(wait_duration).await; // Changed from sleep to tokio::time::sleep
