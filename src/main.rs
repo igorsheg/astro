@@ -7,9 +7,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
     domain::{
-        category::CategoryRepository,
-        client_config::{setup_default_config, ConfigRepository},
-        service::ServiceRepository,
+        category::CategoryRepository, client_config::ConfigRepository, service::ServiceRepository,
         uptime::UptimeStatusRepository,
     },
     utils::example_seed::seed_sample_data,
@@ -116,14 +114,6 @@ async fn main() {
         Arc::new(service_repo),
         Arc::new(status_repo),
     );
-    //
-    // let client_configs_tree = Arc::new(
-    //     db.open_tree("client_configs_tree")
-    //         .expect("Failed to open tree"),
-    // );
-    // let config_repo = ConfigRepository::new(Arc::clone(&trees.configs_tree));
-    //
-    // setup_default_config(&config_repo).await;
 
     let cors = CorsLayer::new()
         .allow_methods(vec![Method::GET])

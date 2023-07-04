@@ -1,41 +1,33 @@
-import { useCallback } from "react";
-import { Routes, Route, Outlet } from "react-router-dom";
-import Dashboard from "./views/Dashboard";
-import { ThemeProvider } from "styled-components";
-import GlobalStyle from "./consts/globalStyles";
-import { localSrorageStore } from "./stores";
-import { SAMPLE_THEMES } from "./consts/seed-data";
-import { Theme } from "./types";
-import { useQuery } from "react-query";
-import { fetcher } from "./utils";
+import { useContext } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import { ThemeContext } from "./components/ThemeProvider";
 
-export function App() {
-  const { data: themes } = useQuery("themes", () =>
-    fetcher<Theme[]>(["themes"])
-  );
-  const { activeThemeId } = localSrorageStore();
-
-  const ctxTheme = useCallback(
-    () =>
-      (themes && themes.find((t) => t.id === activeThemeId)) ||
-      SAMPLE_THEMES.dark,
-    [activeThemeId]
-  );
+function App() {
+  const { toggleTheme } = useContext(ThemeContext);
 
   return (
-    <Routes>
-      <Route path="/" element={<Layout ctxTheme={ctxTheme} />}>
-        <Route index element={<Dashboard />} />
-      </Route>
-    </Routes>
+    <>
+      <div>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => toggleTheme()}>count is </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
   );
 }
 
-function Layout({ ctxTheme }: { ctxTheme: () => Theme }) {
-  return (
-    <ThemeProvider theme={ctxTheme()}>
-      <GlobalStyle />
-      <Outlet />
-    </ThemeProvider>
-  );
-}
+export default App;
