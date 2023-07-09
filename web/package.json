@@ -11,13 +11,18 @@
   },
   "dependencies": {
     "@radix-ui/colors": "^1.0.0",
+    "@reduxjs/toolkit": "^1.9.5",
+    "@tanstack/react-query": "^4.29.19",
     "@vanilla-extract/vite-plugin": "^3.8.2",
+    "axios": "^1.4.0",
     "mobx": "^6.9.0",
     "mobx-react-lite": "^3.4.3",
     "mobx-state-tree": "^5.1.8",
     "polished": "^4.2.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.1.1",
+    "recharts": "^2.7.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",

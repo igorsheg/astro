@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bincode;
 use serde::{Deserialize, Serialize};
-use sled::{Db, Tree};
+use sled::Tree;
 
 use crate::infra::error::AstroError;
 

@@ -5,7 +5,6 @@ use axum::{Extension, Json};
 use chrono::Utc;
 use serde::Deserialize;
 use serde_json::json;
-use sled::{Db, Tree};
 use std::sync::Arc;
 
 use crate::domain::service::{InsertService, Service, ServiceRepository};
