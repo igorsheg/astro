@@ -40,7 +40,7 @@ pub fn seed_sample_data(
         },
     ];
     for category in categories {
-        category_repo.insert(category)?;
+        category_repo.insert(&category)?;
     }
 
     let services = vec![
@@ -147,7 +147,7 @@ pub fn seed_sample_data(
     ];
 
     for service in services {
-        service_repo.insert(service)?;
+        service_repo.insert(&service)?;
     }
 
     Ok(())

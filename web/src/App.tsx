@@ -3,15 +3,7 @@ import { ThemeContext } from "./components/ThemeProvider";
 import { vars } from "./styles/index.css";
 import { Service, UptimeStatus } from "./models/service"; // Import your async thunks
 import { useFetchServicesQuery } from "./services/api";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { AreaChart, Area, Tooltip, ResponsiveContainer } from "recharts";
 
 const App = () => {
   const { toggleTheme } = useContext(ThemeContext);
@@ -48,7 +40,6 @@ const SingleService: FC<PropsWithChildren<{ svc: Service }>> = memo(
     return (
       <>
         <p>{svc.name}</p>
-        <pre>{JSON.stringify(svc.status, null, 2)}</pre>
         {svc.status && <ServiceUptimeChart data={svc.status} />}
       </>
     );

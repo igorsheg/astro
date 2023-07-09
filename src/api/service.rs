@@ -1,74 +1,53 @@
 use axum::extract::{Path, Query};
-use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::{Extension, Json};
-use chrono::Utc;
 use serde::Deserialize;
-use serde_json::json;
 use std::sync::Arc;
 
-use crate::domain::service::{InsertService, Service, ServiceRepository};
+use crate::domain::service::{InsertService, ServiceRepository};
 use crate::domain::uptime::UptimeStatusRepository;
+use crate::infra::error::{AppError, AstroError};
 use crate::Trees;
 
 #[derive(Debug, Deserialize)]
 pub struct ListServicesFilter {
     category_id: Option<String>,
 }
-pub async fn get_services(
+pub async fn list(
     Extension(trees): Extension<Trees>,
     Query(query): Query<ListServicesFilter>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let repo = ServiceRepository::new(Arc::clone(&trees.services_tree));
-    match repo.list_all(query.category_id.as_deref()) {
-        Ok(services) => Json(services).into_response(),
-        Err(e) => {
-            let error = format!("Error retrieving services: {}", e);
-            let json_error = Json(json!({
-                "error": error,
-            }));
-            (StatusCode::INTERNAL_SERVER_ERROR, json_error).into_response()
-        }
+
+    match repo.list(query.category_id.as_deref()) {
+        Ok(services) => Ok(Json(services).into_response()),
+        Err(err) => Err(AppError(AstroError::Axum(format!(
+            "Error fetching services: {}",
+            err
+        )))),
     }
 }
 
-pub async fn insert_service(
+pub async fn insert(
     Extension(trees): Extension<Trees>,
     Json(body): Json<InsertService>,
-) -> String {
-    let service = Service {
-        id: uuid::Uuid::new_v4().to_string(),
-        name: body.name,
-        description: body.description.unwrap_or("".to_string()),
-        logo: body.logo.unwrap_or("".to_string()),
-        url: body.url.unwrap_or("".to_string()),
-        target: body.target.unwrap_or("_blank".to_string()),
-        tags: body.tags.unwrap_or("".to_string()),
-        created_at: Utc::now(),
-        category_id: Some(body.category_id.unwrap_or("unsorted".to_string())),
-    };
+) -> Result<String, AppError> {
+    let service = body.to_service();
 
     let repo = ServiceRepository::new(Arc::clone(&trees.services_tree));
-    match repo.insert(service) {
-        Ok(_) => "Service inserted successfully.".to_string(),
-        Err(err) => format!("Failed to insert  service: {}", err),
-    }
+    repo.insert(&service)?;
+    Ok(format!("Succesfuly created new service: {}", &service.name))
 }
 
 pub async fn get_service_uptime(
     Extension(trees): Extension<Trees>,
     Path(service_id): Path<String>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let repo = UptimeStatusRepository::new(Arc::clone(&trees.uptime_tree));
 
-    match repo.list_for_service(&service_id) {
-        Ok(statuses) => Json(statuses).into_response(),
-        Err(e) => {
-            let error = format!("Error retrieving statuses: {}", e);
-            let json_error = Json(json!({
-                "error": error,
-            }));
-            (StatusCode::INTERNAL_SERVER_ERROR, json_error).into_response()
-        }
-    }
+    let service_uptime = repo
+        .list_for_service(&service_id)
+        .map_err(|err| AstroError::Axum(format!("Error fething service uptime: {}", err)))?;
+
+    Ok(Json(service_uptime).into_response())
 }

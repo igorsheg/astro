@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use bincode;
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sled::Tree;
 
@@ -30,6 +31,22 @@ pub struct InsertService {
     pub category_id: Option<String>,
 }
 
+impl InsertService {
+    pub fn to_service(&self) -> Service {
+        Service {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: self.name.clone(),
+            description: self.description.clone().unwrap_or_default(),
+            logo: self.logo.clone().unwrap_or_default(),
+            url: self.url.clone().unwrap_or_default(),
+            target: self.target.clone().unwrap_or("_blank".to_string()),
+            tags: self.tags.clone().unwrap_or_default(),
+            created_at: Utc::now(),
+            category_id: Some(self.category_id.clone().unwrap_or("unsorted".to_string())),
+        }
+    }
+}
+
 pub struct ServiceRepository {
     db: Arc<Tree>,
 }
@@ -39,13 +56,13 @@ impl ServiceRepository {
         Self { db }
     }
 
-    pub fn insert(&self, service: Service) -> Result<(), AstroError> {
+    pub fn insert(&self, service: &Service) -> Result<(), AstroError> {
         let key = format!(
             "{}:{}",
             service
-                .clone()
                 .category_id
-                .unwrap_or("unsorted".to_string()),
+                .as_ref()
+                .unwrap_or(&"unsorted".to_string()),
             service.id
         );
         let encoded_service = bincode::serialize(&service).map_err(AstroError::from)?;
@@ -53,7 +70,7 @@ impl ServiceRepository {
         Ok(())
     }
 
-    pub fn list_all(&self, category_id: Option<&str>) -> Result<Vec<Service>, AstroError> {
+    pub fn list(&self, category_id: Option<&str>) -> Result<Vec<Service>, AstroError> {
         let mut services = Vec::new();
 
         for result in self.db.iter() {
@@ -61,7 +78,7 @@ impl ServiceRepository {
             let key_string = String::from_utf8_lossy(&key);
 
             // check if key matches the format: "CATEGORY_ID:SERVICE_ID"
-            if key_string.contains(":") {
+            if key_string.contains(':') {
                 if let Some(id) = category_id {
                     let prefix = format!("{}:", id);
                     // If category_id is provided, only push matching services

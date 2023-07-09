@@ -21,6 +21,17 @@ pub struct InsertCategory {
     pub icon: Option<String>,
 }
 
+impl InsertCategory {
+    pub fn to_category(&self) -> Category {
+        Category {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: self.name.clone(),
+            description: self.description.clone().unwrap_or_default(),
+            icon: self.icon.clone().unwrap_or("".to_string()),
+        }
+    }
+}
+
 pub struct CategoryRepository {
     db: Arc<Tree>,
 }
@@ -41,7 +52,7 @@ impl CategoryRepository {
         Ok(categories)
     }
 
-    pub fn insert(&self, category: Category) -> Result<(), AstroError> {
+    pub fn insert(&self, category: &Category) -> Result<(), AstroError> {
         let encoded_category = bincode::serialize(&category).map_err(AstroError::from)?;
         self.db.insert(&category.id, encoded_category)?;
 

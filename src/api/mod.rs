@@ -11,8 +11,8 @@ pub fn handler() -> Router {
     let general_routes = Router::new().route("/health", get(health_handler));
 
     let services_routes = Router::new()
-        .route("/services", get(service::get_services))
-        .route("/services", post(service::insert_service))
+        .route("/services", get(service::list))
+        .route("/services", post(service::insert))
         .route("/uptime/:service_id", get(service::get_service_uptime));
 
     let categories_routes = Router::new()
@@ -29,6 +29,6 @@ pub fn handler() -> Router {
 }
 
 async fn health_handler() -> impl IntoResponse {
-    tracing::info!("Health Ok");
+    log::info!("Health Ok");
     StatusCode::OK
 }

@@ -29,7 +29,7 @@ pub async fn handle_static_files(uri: Uri) -> Result<impl IntoResponse, StatusCo
             ))
         }
         Err(e) => {
-            tracing::error!("{}", e);
+            log::error!("{}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
