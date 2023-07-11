@@ -18,11 +18,9 @@ const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
 
   const springConfig: SpringOptions = {
-    stiffness: 600,
+    stiffness: 300,
     damping: 30,
   };
   const springX = useSpring(x, springConfig);
@@ -31,26 +29,23 @@ const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
   const rotateX = useTransform(
     springY,
     [-window.innerHeight / 2, window.innerHeight / 2],
-    [0, 0],
+    [-10, 10],
   );
   const rotateY = useTransform(
     springX,
     [-window.innerWidth / 2, window.innerWidth / 2],
-    [0, 0],
+    [10, -10],
   );
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const xPosition = event.clientX - rect.left - rect.width / 2;
-    const yPosition = event.clientY - rect.top - rect.height / 2;
 
-    const mouseXPosition = event.clientX - rect.left;
-    const mouseYPosition = event.clientY - rect.top;
+    // offsetX and offsetY give the position of the mouse relative to the element
+    const xPosition = event.nativeEvent.offsetX - rect.width / 2;
+    const yPosition = event.nativeEvent.offsetY - rect.height / 2;
 
     x.set(xPosition);
     y.set(yPosition);
-    mouseX.set(mouseXPosition);
-    mouseY.set(mouseYPosition);
   };
 
   const [coords, setCoords] = useState({ x: "0px", y: "0px" });
@@ -61,10 +56,14 @@ const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
     let nextCoords = { x: "0px", y: "0px" };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      nextCoords = {
-        x: `${e.clientX - container!.offsetLeft}px`,
-        y: `${e.clientY - container!.offsetTop}px`,
-      };
+      const rect = container?.getBoundingClientRect();
+
+      if (rect) {
+        nextCoords = {
+          x: `${e.clientX - rect.left - 150}px`, // subtracting half the size of the spotlight
+          y: `${e.clientY - rect.top + window.screenTop - 150}px`,
+        };
+      }
 
       if (rafId === null) {
         rafId = requestAnimationFrame(() => {
@@ -89,6 +88,26 @@ const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const container = ref.current;
+    if (container) {
+      const spotlightElement = container.querySelector(`.${spotlight}`);
+      const borderHighlightElement = container.querySelector(
+        `.${borderHighlight}`,
+      );
+      if (spotlightElement && borderHighlightElement) {
+        console.log(
+          "spotlightElement dimensions",
+          spotlightElement.getBoundingClientRect(),
+        );
+        console.log(
+          "borderHighlightElement dimensions",
+          borderHighlightElement.getBoundingClientRect(),
+        );
+      }
+    }
+  }, []);
+
   return (
     <motion.div
       ref={ref}
@@ -97,8 +116,6 @@ const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
       onMouseLeave={() => {
         x.set(0);
         y.set(0);
-        mouseX.set(0);
-        mouseY.set(0);
       }}
       style={{
         rotateX,

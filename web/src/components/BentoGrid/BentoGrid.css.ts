@@ -7,8 +7,8 @@ export const gridContainer = style({
   gridAutoColumns: "auto",
   // gridTemplateRows: "repeat(12, 1fr)",
   gridAutoRows: "minmax(100px, auto)", // assuming a row is 100px at minimum, adjust as needed
-  gridColumnGap: vars.spacing.s3,
-  gridRowGap: vars.spacing.s3,
+  gridColumnGap: vars.spacing.s4,
+  gridRowGap: vars.spacing.s4,
   // gridAutoRows: "min-content",
   position: "relative",
   width: "100%",

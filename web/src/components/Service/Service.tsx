@@ -10,27 +10,35 @@ export const SingleService: FC<PropsWithChildren<{ svc: Service }>> = ({
 }) => {
   return (
     <FancyCard>
-      <Box gap="6" className={` ${styles.baseCard}  ${styles.glass}`}>
-        <span
-          style={{
-            ...vars.typography.l,
-            color: vars.colors.d12,
-            fontWeight: 500,
-          }}
-        >
-          {svc.name}
-        </span>
-        <span style={{ ...vars.typography.m, color: vars.colors.d11 }}>
-          {svc.description}
-        </span>
-        {svc.status && (
-          <UptimeAreaChart
-            withAreaFill
-            status={svc.status}
-            width={100}
-            height={100}
+      <Box className={` ${styles.baseCard}  ${styles.glass}`}>
+        <Box gap={0} orientation="column">
+          <img
+            style={{ width: vars.spacing.s7, paddingBottom: vars.spacing.s3 }}
+            src={`${svc.logo}/${svc.id}`}
           />
-        )}
+          <span
+            style={{
+              ...vars.typography.l,
+              color: vars.colors.d12,
+              fontWeight: 500,
+            }}
+          >
+            {svc.name}
+          </span>
+          <span style={{ ...vars.typography.m, color: vars.colors.d11 }}>
+            {svc.description}
+          </span>
+          {svc.status && (
+            <Box xAlign="end">
+              <UptimeAreaChart
+                withAreaFill
+                status={svc.status}
+                width={66}
+                height={66}
+              />
+            </Box>
+          )}
+        </Box>
       </Box>
     </FancyCard>
   );

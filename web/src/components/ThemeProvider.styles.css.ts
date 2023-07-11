@@ -6,5 +6,5 @@ export const styleWrapperStyles = style({
   background: vars.colors.background,
   fontFamily: vars.fonts.primary,
   color: vars.colors.text,
-  transition: "all 320ms ease",
+  transition: "all 240ms ease",
 });

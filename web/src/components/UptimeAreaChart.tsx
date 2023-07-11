@@ -1,8 +1,8 @@
-import { curveMonotoneX } from "@visx/curve";
+import { curveNatural } from "@visx/curve";
 import { localPoint } from "@visx/event";
 import { LinearGradient } from "@visx/gradient";
 import { GridColumns } from "@visx/grid";
-import { scaleLinear, scaleTime } from "@visx/scale";
+import { scaleLinear, scaleUtc } from "@visx/scale";
 import { AreaClosed, Bar, Line } from "@visx/shape";
 import {
   defaultStyles,
@@ -49,7 +49,7 @@ const AreaChart = ({
   if (!status || !status.length) return null;
 
   const servicePings = status
-    .slice()
+    .slice(status.length - 10, status.length)
     .sort((a, b) => +new Date(a.checked_at) - +new Date(b.checked_at));
 
   const columnsLineColor = "#edffea";
@@ -76,7 +76,8 @@ const AreaChart = ({
 
   const dateScale = useMemo(
     () =>
-      scaleTime({
+      scaleUtc({
+        nice: true,
         range: [margin.left, innerWidth + margin.left],
         domain: extent(servicePings, getDate) as [Date, Date],
       }),
@@ -89,9 +90,10 @@ const AreaChart = ({
         range: [innerHeight + margin.top, margin.top],
         domain: [
           0,
-          (max(servicePings, getLatencyValue) || 0) + innerHeight / 3,
+          (max(servicePings, getLatencyValue) || 0) + innerHeight / 2,
         ],
         nice: true,
+        clamp: true,
       }),
     [margin.top, innerHeight],
   );
@@ -127,6 +129,7 @@ const AreaChart = ({
     <div style={{ height, width }}>
       <svg width={width} height={height}>
         <LinearGradient
+          toOffset="80%"
           id="area-gradient"
           from={accentColor()}
           to={accentColor()}
@@ -153,7 +156,7 @@ const AreaChart = ({
           strokeWidth={1}
           stroke="url(#area-gradient)"
           fill={withAreaFill ? "url(#area-gradient)" : "none"}
-          curve={curveMonotoneX}
+          curve={curveNatural}
         />
         <Bar
           x={margin.left}

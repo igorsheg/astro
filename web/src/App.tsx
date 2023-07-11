@@ -24,7 +24,7 @@ const App = () => {
         height: "100vh",
         width: "100vw",
         overflow: "auto",
-        padding: `0 ${vars.spacing.s12}`,
+        padding: `0 ${vars.spacing.s4}`,
       }}
     >
       <Box bleedBottom={-30} orientation="row">

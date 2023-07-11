@@ -9,29 +9,25 @@ export const cardStyles = style({
   isolation: "isolate",
   overflow: "hidden",
   height: "100%",
-  vars: {
-    "--mouse-x": "0px",
-    "--mouse-y": "0px",
-  },
 });
 
 export const borderHighlight = style({
   position: "absolute",
   width: "300px",
   height: "300px",
-  top: "-230px",
-  left: "-230px",
-  backgroundColor: vars.colors.d12,
+  backgroundColor: vars.colorVars.a9,
   opacity: 0,
-  borderRadius: "100%",
+  left: 0,
+  top: 0,
+  borderRadius: "50%",
   pointerEvents: "none",
   transition: "opacity 230ms ease",
   filter: "blur(100px)",
   zIndex: -1,
-  transform: "translateZ(9px)",
+  transform: "translateZ(0px)",
   selectors: {
     [`${cardStyles}:hover &`]: {
-      opacity: 0.5,
+      opacity: 0.4,
     },
   },
 });
@@ -44,22 +40,17 @@ export const spotlight = style({
   position: "absolute",
   width: "300px",
   height: "300px",
-  left: "-230px",
-  top: "-230px",
-  backgroundColor: vars.colors.d12,
+  backgroundColor: vars.colorVars.a6,
   borderRadius: "50%",
   pointerEvents: "none",
   opacity: 0,
-  boxShadow:
-    "0 0 30px 60px rgba(0, 0, 0, 0.2), 0 0 60px 100px rgba(0, 0, 0, 0.4), 0 0 100px 100px rgba(0, 0, 0, 0.6), 0 0 140px 140px rgba(0, 0, 0, 0.8)",
-  transform: "translateX(var(--mouse-x)) translateY(var(--mouse-y))",
+  left: 0,
+  top: 0,
   transition: "opacity  230ms ease",
-  // boxShadow: "0 0 100px 100px rgba(0, 0, 0, 0.8)",
-  filter: "blur(200px)",
+  filter: "blur(100px)",
   zIndex: 991,
   willChange: "transform",
   selectors: {
-    // target child components on hover
     [`${cardStyles}:hover &`]: {
       opacity: 0.05,
     },
