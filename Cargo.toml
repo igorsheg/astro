@@ -2,10 +2,12 @@
 name = "astro"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
 [[bin]]
 name = "astro"
 path = "src/main.rs"
+
 
 
 [dependencies]

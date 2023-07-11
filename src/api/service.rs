@@ -13,6 +13,7 @@ use crate::Trees;
 pub struct ListServicesFilter {
     category_id: Option<String>,
 }
+
 pub async fn list(
     Extension(trees): Extension<Trees>,
     Query(query): Query<ListServicesFilter>,

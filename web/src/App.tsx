@@ -1,9 +1,11 @@
-import { FC, PropsWithChildren, memo, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { ThemeContext } from "./components/ThemeProvider";
-import { vars } from "./styles/index.css";
-import { Service, UptimeStatus } from "./models/service"; // Import your async thunks
 import { useFetchServicesQuery } from "./services/api";
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from "recharts";
+import BentoGrid from "./components/BentoGrid/BentoGrid";
+import { SingleService } from "./components/Service/Service";
+import { vars } from "./styles/index.css";
+import Button from "./components/Button/Button";
+import Box from "./components/Box/Box";
 
 const App = () => {
   const { toggleTheme } = useContext(ThemeContext);
@@ -16,65 +18,31 @@ const App = () => {
   });
 
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
-      <button onClick={toggleTheme}>Theme!</button>
-      <button onClick={() => setTab("utilities")}>tab!</button>
-
-      <div
-        style={{
-          fontSize: vars.fontSize["0x"],
-          width: 600,
-          height: 800,
-          overflow: "auto",
-        }}
-      >
+    <div
+      style={{
+        maxHeight: "100vh",
+        height: "100vh",
+        width: "100vw",
+        overflow: "auto",
+        padding: `0 ${vars.spacing.s12}`,
+      }}
+    >
+      <Box bleedBottom={-30} orientation="row">
+        <Button onClick={toggleTheme}>Theme!</Button>
+        <button onClick={() => setTab("utilities")}>tab!</button>
+      </Box>
+      <BentoGrid>
         {services &&
-          services.map((svc) => <SingleService key={svc.id} svc={svc} />)}
-      </div>
+          services.map((svc, i) => (
+            <BentoGrid.Item
+              key={svc.id}
+              priority={i === 0 ? "high" : i === 7 ? "medium" : "none"}
+            >
+              <SingleService svc={svc} />
+            </BentoGrid.Item>
+          ))}
+      </BentoGrid>
     </div>
-  );
-};
-
-const SingleService: FC<PropsWithChildren<{ svc: Service }>> = memo(
-  ({ svc }) => {
-    return (
-      <>
-        <p>{svc.name}</p>
-        {svc.status && <ServiceUptimeChart data={svc.status} />}
-      </>
-    );
-  },
-);
-
-const ServiceUptimeChart: React.FC<{ data: UptimeStatus[] }> = ({ data }) => {
-  return (
-    <ResponsiveContainer width="100%" height={400}>
-      <AreaChart
-        data={data}
-        margin={{
-          top: 10,
-          right: 30,
-          left: 0,
-          bottom: 0,
-        }}
-      >
-        <defs>
-          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#8884d8" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <Tooltip />
-        <Area
-          type="monotone"
-          dataKey="latency"
-          stroke="#8884d8"
-          strokeWidth={2}
-          fillOpacity={1}
-          fill="url(#colorUv)"
-        />
-      </AreaChart>
-    </ResponsiveContainer>
   );
 };
 
