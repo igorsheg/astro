@@ -1,5 +1,10 @@
 import { Category } from "./category";
 
+export type ServiceGridDetails = {
+  order: number;
+  w: number; // number of column spans
+  h: number; // number of row spans
+};
 export type UptimeStatus = {
   service_id: string;
   checked_at: string;
@@ -18,12 +23,7 @@ export type Service = {
   category?: Category;
   target: string;
   status?: UptimeStatus[];
-
-  grid_details: {
-    order: number;
-    w: number; // number of column spans
-    h: number; // number of row spans
-  };
+  grid_details: ServiceGridDetails;
 };
 
 export type ServiceDetail = {

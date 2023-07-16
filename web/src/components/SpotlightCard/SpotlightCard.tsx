@@ -5,9 +5,9 @@ import {
   borderHighlight,
   contentContainer,
   spotlight,
-} from "./SpotlightBorder.css";
+} from "./SpotlightCard.css";
 
-const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
+export const SpotlightCard: React.FC<PropsWithChildren> = ({ children }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const [{ rotateX, rotateY, spotlightX, spotlightY }, api] = useSpring(() => ({
@@ -94,5 +94,3 @@ const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
     </AnimatedDiv>
   );
 };
-
-export default FancyCard;
