@@ -18,6 +18,12 @@ export type Service = {
   category?: Category;
   target: string;
   status?: UptimeStatus[];
+
+  grid_details: {
+    order: number;
+    w: number; // number of column spans
+    h: number; // number of row spans
+  };
 };
 
 export type ServiceDetail = {

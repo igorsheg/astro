@@ -4,7 +4,7 @@ use crate::{
     domain::{
         category::{Category, CategoryRepository},
         client_config::{Config, ConfigRepository},
-        service::{Service, ServiceRepository},
+        service::{GridDetails, Service, ServiceRepository},
     },
     infra::error::AstroError,
 };
@@ -54,6 +54,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 2,
+                w: 2,
+                h: 2,
+            },
         },
         Service {
             id: "radarr".to_string(),
@@ -65,6 +70,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 3,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "sonarr".to_string(),
@@ -76,6 +86,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 4,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "bazarr".to_string(),
@@ -87,6 +102,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 5,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "jackett".to_string(),
@@ -98,6 +118,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 6,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "home-assistant".to_string(),
@@ -110,6 +135,11 @@ pub fn seed_sample_data(
             category_id: Some("utilities".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 7,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "homebridge".to_string(),
@@ -121,6 +151,11 @@ pub fn seed_sample_data(
             category_id: Some("utilities".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 8,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "unifi".to_string(),
@@ -132,6 +167,11 @@ pub fn seed_sample_data(
             category_id: Some("utilities".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 9,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "adguard-home".to_string(),
@@ -143,6 +183,11 @@ pub fn seed_sample_data(
             category_id: Some("utilities".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 10,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "spotify".to_string(),
@@ -154,6 +199,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 11,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "netflix".to_string(),
@@ -165,6 +215,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 12,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "github".to_string(),
@@ -176,6 +231,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 13,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "trello".to_string(),
@@ -187,6 +247,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 14,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "slack".to_string(),
@@ -198,6 +263,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 15,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "wordpress".to_string(),
@@ -209,6 +279,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 16,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "aws".to_string(),
@@ -220,6 +295,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 17,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "google-drive".to_string(),
@@ -231,6 +311,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 18,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "zoom".to_string(),
@@ -242,6 +327,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 19,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "jira".to_string(),
@@ -253,6 +343,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 20,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "dropbox".to_string(),
@@ -264,6 +359,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 21,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "discord".to_string(),
@@ -275,6 +375,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 22,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "twitch".to_string(),
@@ -286,6 +391,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 23,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "google-maps".to_string(),
@@ -297,6 +407,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 24,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "evernote".to_string(),
@@ -308,6 +423,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 25,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "adobe-creative-cloud".to_string(),
@@ -319,6 +439,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 26,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "airbnb".to_string(),
@@ -330,6 +455,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 27,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "reddit".to_string(),
@@ -341,6 +471,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 28,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "shopify".to_string(),
@@ -352,6 +487,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 29,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "google-docs".to_string(),
@@ -363,6 +503,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 30,
+                w: 1,
+                h: 1,
+            },
         },
         Service {
             id: "instagram".to_string(),
@@ -374,6 +519,11 @@ pub fn seed_sample_data(
             category_id: Some("home-media".to_string()),
             target: "_blank".to_string(),
             created_at: Utc::now(),
+            grid_details: GridDetails {
+                order: 31,
+                w: 1,
+                h: 1,
+            },
         },
     ];
 

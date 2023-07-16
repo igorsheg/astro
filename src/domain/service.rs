@@ -8,6 +8,13 @@ use sled::Tree;
 use crate::infra::error::AstroError;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct GridDetails {
+    pub order: usize,
+    pub w: usize,
+    pub h: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Service {
     pub id: String,
     pub name: String,
@@ -18,6 +25,7 @@ pub struct Service {
     pub tags: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub category_id: Option<String>,
+    pub grid_details: GridDetails,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -43,6 +51,11 @@ impl InsertService {
             tags: self.tags.clone().unwrap_or_default(),
             created_at: Utc::now(),
             category_id: Some(self.category_id.clone().unwrap_or("unsorted".to_string())),
+            grid_details: GridDetails {
+                order: 1,
+                w: 1,
+                h: 1,
+            },
         }
     }
 }
