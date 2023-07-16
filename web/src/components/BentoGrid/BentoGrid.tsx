@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ReactSortable, SortableEvent } from "react-sortablejs";
 import { Service } from "../../models/service";
 import * as styles from "./BentoGrid.css";
 import { SingleService } from "../Service/Service";
-
-const BASE_HEIGHT = 200;
-const BASE_WIDTH = 200;
+import * as serviceStyles from "../Service/Service.css";
 
 interface AlbumGalleryProps {
   items: Service[];
@@ -18,7 +16,12 @@ export const SortableGrid: React.FC<AlbumGalleryProps> = ({ items }) => {
     : items.map((svc) => ({ ...svc }));
 
   const [services, setServices] = useState<Service[]>(initialServices);
-
+  const [resizingService, setResizingService] = useState<{
+    id: string;
+    w: number;
+    h: number;
+  } | null>(null);
+  const gridItemRefs = useRef({});
   useEffect(() => {
     localStorage.setItem("services", JSON.stringify(services));
   }, [services]);
@@ -45,8 +48,16 @@ export const SortableGrid: React.FC<AlbumGalleryProps> = ({ items }) => {
     let lastFrame = null;
 
     // Store the initial size of the service
-    let initialW = services.find((svc) => svc.id === serviceId)?.grid_details.w;
-    let initialH = services.find((svc) => svc.id === serviceId)?.grid_details.h;
+    const initialElement = services.find((svc) => svc.id === serviceId);
+    let initialW = initialElement?.grid_details.w;
+    let initialH = initialElement?.grid_details.h;
+
+    // Calculate the actual cell size
+    const gridElement = gridItemRefs.current[serviceId];
+    const baseWidth = gridElement ? gridElement.offsetWidth / initialW : 0;
+    const baseHeight = gridElement ? gridElement.offsetHeight / initialH : 0;
+
+    setResizingService({ id: serviceId, w: initialW, h: initialH });
 
     // Handler for mousemove event during resizing
     const handleMouseMove = (moveEvent: MouseEvent) => {
@@ -54,9 +65,22 @@ export const SortableGrid: React.FC<AlbumGalleryProps> = ({ items }) => {
       const deltaX = moveEvent.clientX - initialX;
       const deltaY = moveEvent.clientY - initialY;
 
-      // Convert the changes in x and y to grid units
-      const deltaW = Math.round(deltaX / BASE_WIDTH);
-      const deltaH = Math.round(deltaY / BASE_HEIGHT);
+      const deltaW = Math.floor(deltaX / baseWidth + 0.4);
+      const deltaH = Math.floor(deltaY / baseHeight + 0.4);
+
+      // Convert the changes in x and y to pixels
+      const deltaWidth = deltaX + initialW * baseWidth;
+      const deltaHeight = deltaY + initialH * baseHeight;
+
+      setResizingService((resizingService) =>
+        resizingService && resizingService.id === serviceId
+          ? {
+              ...resizingService,
+              w: deltaWidth,
+              h: deltaHeight,
+            }
+          : resizingService,
+      );
 
       // Update the "w" and "h" properties of the service based on the mouse movements
       setServices(
@@ -81,6 +105,31 @@ export const SortableGrid: React.FC<AlbumGalleryProps> = ({ items }) => {
       window.cancelAnimationFrame(lastFrame);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+
+      // Update the "w" and "h" properties of the actual service
+
+      // Clear the resizing service
+
+      // Update the "w" and "h" properties of the actual service
+      if (resizingService) {
+        setServices(
+          services.map((svc) =>
+            svc.id === resizingService.id
+              ? {
+                  ...svc,
+                  grid_details: {
+                    ...svc.grid_details,
+                    w: resizingService.w,
+                    h: resizingService.h,
+                  },
+                }
+              : svc,
+          ),
+        );
+      }
+
+      // Clear the resizing service
+      setResizingService(null);
     };
 
     // Add the event listeners for mousemove and mouseup
@@ -107,10 +156,10 @@ export const SortableGrid: React.FC<AlbumGalleryProps> = ({ items }) => {
           <div
             key={service.id}
             className={styles.gridItem}
+            ref={(ref) => (gridItemRefs.current[service.id] = ref)}
             style={{
               gridColumnEnd: `span ${service.grid_details.w * 4}`,
               gridRowEnd: `span ${service.grid_details.h * 2}`,
-              transition: "all 230ms ease",
             }}
           >
             <SingleService svc={service} />
@@ -118,6 +167,20 @@ export const SortableGrid: React.FC<AlbumGalleryProps> = ({ items }) => {
               className={styles.resizeHandle}
               onMouseDown={handleMouseDown(service.id)}
             />
+            {resizingService && resizingService.id === service.id && (
+              <div
+                className={`${serviceStyles.baseCard}`} // Add your SingleService styles here
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: `${resizingService?.w}px`,
+                  borderRadius: "12px",
+                  height: `${resizingService?.h}px`,
+                  background: "rgba(255, 255, 255, 0.1)", // You can customize this as needed
+                }}
+              />
+            )}
           </div>
         ))}
     </ReactSortable>

@@ -15,7 +15,6 @@ export const gridContainer = style({
 
 export const gridItem = style({
   position: "relative",
-  userSelect: "none", // Prevent the user from selecting the element
 });
 
 export const resizeHandle = style({
