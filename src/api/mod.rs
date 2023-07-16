@@ -6,6 +6,7 @@ mod category;
 mod client_config;
 mod service;
 pub mod static_paths;
+mod upload;
 
 pub fn handler() -> Router {
     let general_routes = Router::new().route("/health", get(health_handler));
@@ -23,9 +24,12 @@ pub fn handler() -> Router {
         .route("/configs/:config_id", get(client_config::get))
         .route("/configs", get(client_config::list));
 
+    let file_routes = Router::new().route("/upload", post(upload::upload_handler));
+
     Router::merge(services_routes, categories_routes)
         .merge(general_routes)
         .merge(config_routes)
+        .merge(file_routes)
 }
 
 async fn health_handler() -> impl IntoResponse {

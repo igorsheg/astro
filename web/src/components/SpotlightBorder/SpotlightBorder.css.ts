@@ -27,7 +27,7 @@ export const borderHighlight = style({
   transform: "translateZ(0px)",
   selectors: {
     [`${cardStyles}:hover &`]: {
-      opacity: 0.4,
+      opacity: 0.6,
     },
   },
 });

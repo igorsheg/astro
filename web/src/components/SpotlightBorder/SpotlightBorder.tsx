@@ -1,142 +1,97 @@
-import { useRef, PropsWithChildren, useState, useEffect } from "react";
+import React, { useRef, useEffect, PropsWithChildren } from "react";
+import { useSpring, animated } from "react-spring";
 import {
   cardStyles,
   borderHighlight,
   contentContainer,
   spotlight,
 } from "./SpotlightBorder.css";
-import {
-  SpringOptions,
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
 
 const FancyCard: React.FC<PropsWithChildren> = ({ children }) => {
-  const ref = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const [{ rotateX, rotateY, spotlightX, spotlightY }, api] = useSpring(() => ({
+    rotateX: 0,
+    rotateY: 0,
+    spotlightX: 150,
+    spotlightY: 150,
+    config: {
+      tension: 300,
+      friction: 26,
+    },
+  }));
 
-  const springConfig: SpringOptions = {
-    stiffness: 300,
-    damping: 30,
-  };
-  const springX = useSpring(x, springConfig);
-  const springY = useSpring(y, springConfig);
-
-  const rotateX = useTransform(
-    springY,
-    [-window.innerHeight / 2, window.innerHeight / 2],
-    [-10, 10],
-  );
-  const rotateY = useTransform(
-    springX,
-    [-window.innerWidth / 2, window.innerWidth / 2],
-    [10, -10],
-  );
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-
-    // offsetX and offsetY give the position of the mouse relative to the element
-    const xPosition = event.nativeEvent.offsetX - rect.width / 2;
-    const yPosition = event.nativeEvent.offsetY - rect.height / 2;
-
-    x.set(xPosition);
-    y.set(yPosition);
-  };
-
-  const [coords, setCoords] = useState({ x: "0px", y: "0px" });
-
-  useEffect(() => {
-    const container = ref.current;
-    let rafId: number | null = null;
-    let nextCoords = { x: "0px", y: "0px" };
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = container?.getBoundingClientRect();
-
-      if (rect) {
-        nextCoords = {
-          x: `${e.clientX - rect.left - 150}px`, // subtracting half the size of the spotlight
-          y: `${e.clientY - rect.top + window.screenTop - 150}px`,
-        };
-      }
-
-      if (rafId === null) {
-        rafId = requestAnimationFrame(() => {
-          setCoords(nextCoords);
-          rafId = null;
-        });
-      }
-    };
-
-    if (container) {
-      container.addEventListener("mousemove", handleMouseMove as any);
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!cardRef.current) {
+      return;
     }
 
+    const rect = cardRef.current.getBoundingClientRect();
+    const xPosition = e.clientX - rect.left;
+    const yPosition = e.clientY - rect.top;
+
+    const normalizedX = ((xPosition - rect.width / 2) / (rect.width / 2)) * 150;
+    const normalizedY =
+      ((yPosition - rect.height / 2) / (rect.height / 2)) * 150;
+
+    // Subtract half the size of the spotlight (150px)
+    const spotlightX = xPosition - 150;
+    const spotlightY = yPosition - 150;
+
+    api.start({
+      rotateX: -normalizedY / 30,
+      rotateY: normalizedX / 30,
+      spotlightX,
+      spotlightY,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    // api.start({ rotateX: 0, rotateY: 0, spotlightX: 0, spotlightY: 0 });
+  };
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (card) {
+      card.addEventListener("mousemove", handleMouseMove);
+      card.addEventListener("mouseleave", handleMouseLeave);
+    }
     return () => {
-      if (container) {
-        container.removeEventListener("mousemove", handleMouseMove as any);
-      }
-
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
+      if (card) {
+        card.removeEventListener("mousemove", handleMouseMove);
+        card.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
   }, []);
 
-  useEffect(() => {
-    const container = ref.current;
-    if (container) {
-      const spotlightElement = container.querySelector(`.${spotlight}`);
-      const borderHighlightElement = container.querySelector(
-        `.${borderHighlight}`,
-      );
-      if (spotlightElement && borderHighlightElement) {
-        console.log(
-          "spotlightElement dimensions",
-          spotlightElement.getBoundingClientRect(),
-        );
-        console.log(
-          "borderHighlightElement dimensions",
-          borderHighlightElement.getBoundingClientRect(),
-        );
-      }
-    }
-  }, []);
+  const AnimatedDiv = animated.div;
 
   return (
-    <motion.div
-      ref={ref}
+    <AnimatedDiv
+      ref={cardRef}
       className={cardStyles}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
       style={{
         rotateX,
         rotateY,
         transformOrigin: "center",
       }}
     >
-      <div
+      <AnimatedDiv
         className={borderHighlight}
         style={{
-          transform: `translate(${coords.x}, ${coords.y})`,
+          x: spotlightX,
+          y: spotlightY,
         }}
       />
       <div className={contentContainer}>{children}</div>
-      <div
+      <AnimatedDiv
         className={spotlight}
         style={{
-          transform: `translate(${coords.x}, ${coords.y})`,
+          x: spotlightX,
+          y: spotlightY,
         }}
       />
-    </motion.div>
+    </AnimatedDiv>
   );
 };
 

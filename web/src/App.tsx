@@ -1,8 +1,7 @@
 import { useContext, useState } from "react";
 import { ThemeContext } from "./components/ThemeProvider";
 import { useFetchServicesQuery } from "./services/api";
-import BentoGrid from "./components/BentoGrid/BentoGrid";
-import { SingleService } from "./components/Service/Service";
+import { SortableGrid } from "./components/BentoGrid/BentoGrid";
 import { vars } from "./styles/index.css";
 import Button from "./components/Button/Button";
 import Box from "./components/Box/Box";
@@ -31,17 +30,7 @@ const App = () => {
         <Button onClick={toggleTheme}>Theme!</Button>
         <button onClick={() => setTab("utilities")}>tab!</button>
       </Box>
-      <BentoGrid>
-        {services &&
-          services.map((svc, i) => (
-            <BentoGrid.Item
-              key={svc.id}
-              priority={i === 0 ? "high" : i === 7 ? "medium" : "none"}
-            >
-              <SingleService svc={svc} />
-            </BentoGrid.Item>
-          ))}
-      </BentoGrid>
+      {services && <SortableGrid items={services} />}
     </div>
   );
 };
