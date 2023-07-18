@@ -12,7 +12,8 @@ CREATE TABLE categories (
     id TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    icon TEXT NOT NULL
+    icon TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL
 );
 
 -- Create the services table
@@ -52,17 +53,18 @@ VALUES (
 );
 
 -- Insert sample category data
-INSERT INTO categories (id, name, description, icon)
-VALUES ('home-media', 'Home Media', 'Global streaming service', 'VideoIcon');
-
-INSERT INTO categories (id, name, description, icon)
-VALUES (
-    'utilities',
-    'Utilities',
-    'A movie collection manager for Usenet and BitTorrent users',
-    'MixerVerticalIcon'
-);
-
+INSERT INTO categories (id, name, description, icon, created_at)
+VALUES ('home-media', 'Home Media', 'Global streaming service', 'VideoIcon', DATETIME('now')),
+    ('utilities', 'Utilities', 'A movie collection manager for Usenet and BitTorrent users', 'MixerVerticalIcon', DATETIME('now'));
+    
+    -- INSERT INTO categories (id, name, description, icon)
+-- VALUES (
+--     'utilities',
+--     'Utilities',
+--     'A movie collection manager for Usenet and BitTorrent users',
+--     'MixerVerticalIcon'
+-- );
+--
 -- Insert sample service data
 INSERT INTO services (id, name, description, tags, url, logo, category_id, target, created_at, grid_order, grid_w, grid_h)
 VALUES
@@ -96,4 +98,3 @@ VALUES
     ('shopify', 'Shopify', 'E-commerce platform', 'app, online store', 'https://www.shopify.com', 'https://source.boringavatars.com/marble/120', 'home-media', '_blank', DATETIME('now'), 29, 1, 1),
     ('google-docs', 'Google Docs', 'Online word processing', 'app, productivity', 'https://www.google.com/docs', 'https://source.boringavatars.com/marble/120', 'home-media', '_blank', DATETIME('now'), 30, 1, 1),
     ('instagram', 'Instagram', 'Photo and video sharing', 'app, social media', 'https://www.instagram.com', 'https://source.boringavatars.com/marble/120', 'home-media', '_blank', DATETIME('now'), 31, 1, 1);
-
