@@ -1,29 +1,33 @@
-use std::sync::Arc;
+use axum::extract::State;
+use axum::{response::IntoResponse, Json};
 
-use axum::{response::IntoResponse, Extension, Json};
-
-use crate::domain::category::{CategoryRepository, InsertCategory};
+use crate::domain::category::InsertCategory;
 use crate::infra::error::{AppError, AstroError};
-use crate::Trees;
+use crate::AppState;
 
 pub async fn insert(
-    Extension(trees): Extension<Trees>,
+    State(state): State<AppState>,
     Json(body): Json<InsertCategory>,
 ) -> Result<impl IntoResponse, AppError> {
     let category = body.to_category();
 
-    let repo = CategoryRepository::new(Arc::clone(&trees.categories_tree));
-    repo.insert(&category)?;
-    Ok(format!(
-        "Succesfuly created new service: {}",
-        &category.name
-    ))
+    let repo = state.dbs.category_repo;
+    match repo.insert(category).await {
+        Ok(category) => Ok(format!(
+            "Succesfuly created new category: {}",
+            &category.name
+        )),
+        Err(err) => Err(AppError(AstroError::Axum(format!(
+            "Error fetching category: {}",
+            err
+        )))),
+    }
 }
 
-pub async fn list(Extension(trees): Extension<Trees>) -> Result<impl IntoResponse, AppError> {
-    let repo = CategoryRepository::new(Arc::clone(&trees.categories_tree));
+pub async fn list(State(state): State<AppState>) -> Result<impl IntoResponse, AppError> {
+    let repo = state.dbs.category_repo;
 
-    match repo.list() {
+    match repo.list().await {
         Ok(categories) => Ok(Json(categories).into_response()),
         Err(err) => Err(AppError(AstroError::Axum(format!(
             "Error fetching categories: {}",

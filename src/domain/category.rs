@@ -1,10 +1,7 @@
 use std::sync::Arc;
 
-use bincode;
 use serde::{Deserialize, Serialize};
-use sled::Tree;
-
-use crate::infra::error::AstroError;
+use sqlx::SqlitePool;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Category {
@@ -32,30 +29,43 @@ impl InsertCategory {
     }
 }
 
+#[derive(Clone)]
 pub struct CategoryRepository {
-    db: Arc<Tree>,
+    db: Arc<SqlitePool>,
 }
 
 impl CategoryRepository {
-    pub fn new(db: Arc<Tree>) -> Self {
+    pub fn new(db: Arc<SqlitePool>) -> Self {
         Self { db }
     }
 
-    pub fn list(&self) -> Result<Vec<Category>, AstroError> {
-        let mut categories = Vec::new();
+    pub async fn list(&self) -> Result<Vec<Category>, sqlx::Error> {
+        let categories: Vec<Category> = sqlx::query_as!(
+            Category,
+            r#"
+            SELECT * FROM categories
+            "#,
+        )
+        .fetch_all(self.db.as_ref())
+        .await?;
 
-        for result in self.db.iter() {
-            let (_, value) = result?;
-            let category: Category = bincode::deserialize(&value).map_err(AstroError::from)?;
-            categories.push(category);
-        }
         Ok(categories)
     }
 
-    pub fn insert(&self, category: &Category) -> Result<(), AstroError> {
-        let encoded_category = bincode::serialize(&category).map_err(AstroError::from)?;
-        self.db.insert(&category.id, encoded_category)?;
+    pub async fn insert(&self, category: Category) -> Result<Category, sqlx::Error> {
+        sqlx::query!(
+            r#"
+            INSERT INTO categories (id, name, description, icon)
+            VALUES (?, ?, ?, ?)
+            "#,
+            category.id,
+            category.name,
+            category.description,
+            category.icon,
+        )
+        .execute(self.db.as_ref())
+        .await?;
 
-        Ok(())
+        Ok(category)
     }
 }

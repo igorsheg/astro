@@ -1,44 +1,49 @@
-import { Service, UptimeStatus } from "../models/service";
+import { Service } from "../models/service";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  tagTypes: ["Service"],
   baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL }),
+  tagTypes: ["Service"],
   endpoints: (builder) => ({
-    fetchServices: builder.query<Service[] | undefined, void>({
-      queryFn: async (_arg, _queryApi, _extraOptions, baseQuery) => {
-        // First, fetch services
-        const servicesResult = await baseQuery("/services");
-
-        // If the services request failed, propagate the error
-        if (!servicesResult.data) {
-          return { error: servicesResult.error, meta: servicesResult.meta };
-        }
-        const services = servicesResult.data as Service[];
-        // Fetch service details for each service
-        const servicesWithDetails: Service[] = [];
-        for (const service of services) {
-          const detailsResult = await baseQuery(`/uptime/${service.id}`);
-          // If the details request failed, propagate the error
-          if (!detailsResult.data) {
-            return { error: detailsResult.error, meta: detailsResult.meta };
-          }
-          const details = detailsResult.data as UptimeStatus[];
-
-          const serviceWithDetails: Service = {
-            ...service,
-            status: details,
-          };
-
-          servicesWithDetails.push(serviceWithDetails);
-        }
-
-        return { data: servicesWithDetails };
-      },
-      providesTags: ["Service"],
+    fetchServices: builder.query<Service[], void>({
+      query: () => "services",
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Service" as const, id })),
+              { type: "Service", id: "LIST" },
+            ]
+          : [{ type: "Service", id: "LIST" }],
+    }),
+    patchGridOrder: builder.mutation<
+      void,
+      Array<{ id: string; grid_order: number }>
+    >({
+      query: (services) => ({
+        url: `services/grid_order`,
+        method: "PATCH",
+        body: services,
+      }),
+      invalidatesTags: (_result, _error, services) =>
+        services.map(({ id }) => ({ type: "Service", id })),
+    }),
+    patchService: builder.mutation<
+      void,
+      Pick<Service, "id"> & Partial<Service>
+    >({
+      query: ({ id, ...patch }) => ({
+        url: `services`,
+        method: "PATCH",
+        body: { id, ...patch },
+      }),
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Service", id }],
     }),
   }),
 });
 
-export const { useFetchServicesQuery } = apiSlice;
+export const {
+  useFetchServicesQuery,
+  usePatchGridOrderMutation,
+  usePatchServiceMutation,
+} = apiSlice;

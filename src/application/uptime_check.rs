@@ -39,7 +39,7 @@ pub fn spawn_uptime_check_task(
     tokio::task::spawn(async move {
         let client = reqwest::Client::new();
         loop {
-            let services = service_repo.list(None)?; // Already returns AstroError
+            let services = service_repo.list(None).await.unwrap(); // Already returns AstroError
             for service in services {
                 let status = check_service(&client, &service).await?;
                 log::debug!("Writing uptime status {:?}", status);

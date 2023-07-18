@@ -16,6 +16,9 @@ pub enum AstroError {
     #[error("axum error: {0}")]
     Axum(String),
 
+    #[error("sqlx error: {0}")]
+    SQLx(#[from] sqlx::Error),
+
     #[error("other error")]
     Other(&'static str),
 }

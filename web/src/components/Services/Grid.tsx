@@ -1,27 +1,32 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ReactSortable, SortableEvent } from "react-sortablejs";
 import { Service } from "../../models/service";
-import * as styles from "./Services.css";
+import { ResizeHandle } from "./ResizeHandle";
+import { ResizeOverlay } from "./ResizeOverlay";
 import { SingleService } from "./Service";
+import * as styles from "./Services.css";
 import {
   calculateDeltas,
   updateResizingService,
   updateServiceSize,
 } from "./utils";
-import { ResizeHandle } from "./ResizeHandle";
-import { ResizeOverlay } from "./ResizeOverlay";
+import {
+  usePatchGridOrderMutation,
+  usePatchServiceMutation,
+} from "../../services/api";
 
 interface ServiceGridProps {
   items: Service[];
 }
 
 export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
-  const storedServices = localStorage.getItem("services");
-  const initialServices = storedServices
-    ? JSON.parse(storedServices)
-    : items.map((svc) => ({ ...svc }));
+  const [patchServicesOrder] = usePatchGridOrderMutation();
+  const [patchService] = usePatchServiceMutation();
 
-  const [services, setServices] = useState<Service[]>(initialServices);
+  const [services, setServices] = useState<Service[]>(
+    items.map((item) => ({ ...item })),
+  );
+
   const [resizingService, setResizingService] = useState<{
     id: string;
     w: number;
@@ -31,9 +36,25 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
   const gridItemRefs = useRef<{
     [activeId: string]: HTMLDivElement | null;
   }>({});
+  const prevServicesRef = useRef(services);
 
   useEffect(() => {
-    localStorage.setItem("services", JSON.stringify(services));
+    services.forEach((service) => {
+      const prevService = prevServicesRef.current.find(
+        (s) => s.id === service.id,
+      );
+      if (!prevService) return;
+
+      if (
+        service.grid_h !== prevService.grid_h ||
+        service.grid_w !== prevService.grid_w
+      ) {
+        patchService(service);
+        console.log(`Service with ID ${service.id} has changed size.`);
+      }
+    });
+
+    prevServicesRef.current = services;
   }, [services]);
 
   const handleEnd = (evt: SortableEvent) => {
@@ -46,20 +67,25 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
         0,
         updatedServices.splice(oldIndex, 1)[0],
       );
-      updatedServices.forEach((svc, index) => (svc.grid_details.order = index));
+      updatedServices.forEach((svc, index) => (svc.grid_order = index));
       setServices(updatedServices);
     }
+    const changes = updatedServices.map((svc) => ({
+      id: svc.id,
+      grid_order: svc.grid_order,
+    }));
+    patchServicesOrder(changes);
   };
 
   const handleMouseDown = (serviceId: string) => (event: React.MouseEvent) => {
     event.preventDefault();
 
-    let initialX = event.clientX;
-    let initialY = event.clientY;
+    const initialX = event.clientX;
+    const initialY = event.clientY;
 
     const initialElement = services.find((svc) => svc.id === serviceId);
-    let initialW = initialElement?.grid_details.w ?? 0;
-    let initialH = initialElement?.grid_details.h ?? 0;
+    const initialW = initialElement?.grid_w ?? 0;
+    const initialH = initialElement?.grid_h ?? 0;
 
     const gridElement = gridItemRefs.current[serviceId];
     const baseWidth = gridElement?.offsetWidth ?? 0;
@@ -98,6 +124,7 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
         deltaW,
         deltaH,
       );
+
       setServices(servicesUpdated);
     };
 
@@ -123,24 +150,25 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
+
   return (
     <ReactSortable
       className={styles.gridContainer}
       list={services}
       setList={setServices}
-      animation={600}
+      animation={100}
       onEnd={handleEnd}
     >
       {services
-        .sort((a, b) => a.grid_details.order - b.grid_details.order)
+        .sort((a, b) => a.grid_order - b.grid_order)
         .map((service) => (
           <div
             key={service.id}
             className={styles.gridItem}
             ref={(ref) => (gridItemRefs.current[service.id] = ref)}
             style={{
-              gridColumnEnd: `span ${service.grid_details.w * 4}`,
-              gridRowEnd: `span ${service.grid_details.h * 2}`,
+              gridColumnEnd: `span ${service.grid_w * 4}`,
+              gridRowEnd: `span ${service.grid_h * 2}`,
             }}
           >
             <SingleService svc={service} />

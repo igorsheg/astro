@@ -1,6 +1,8 @@
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use axum::routing::{get, post, Router};
+use axum::routing::{get, patch, post, Router};
+
+use crate::AppState;
 
 mod category;
 mod client_config;
@@ -8,12 +10,14 @@ mod service;
 pub mod static_paths;
 mod upload;
 
-pub fn handler() -> Router {
+pub fn handler() -> Router<AppState> {
     let general_routes = Router::new().route("/health", get(health_handler));
 
     let services_routes = Router::new()
         .route("/services", get(service::list))
         .route("/services", post(service::insert))
+        .route("/services", patch(service::update))
+        .route("/services/grid_order", patch(service::update_grid_order))
         .route("/uptime/:service_id", get(service::get_service_uptime));
 
     let categories_routes = Router::new()

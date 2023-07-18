@@ -1,535 +1,84 @@
-use chrono::Utc;
-
-use crate::{
-    domain::{
-        category::{Category, CategoryRepository},
-        client_config::{Config, ConfigRepository},
-        service::{GridDetails, Service, ServiceRepository},
-    },
-    infra::error::AstroError,
-};
-
-pub fn seed_sample_data(
-    config_repo: &ConfigRepository,
-    category_repo: &CategoryRepository,
-    service_repo: &ServiceRepository,
-) -> Result<(), AstroError> {
-    // Create sample config
-    let config = Config {
-        id: Some("default-config".to_string()),
-        title: "Astro".to_string(),
-        subtitle: "Your personal space".to_string(),
-        created_at: None,
-        updated_at: None,
-    };
-    config_repo.insert(&config)?;
-
-    // Create sample categories
-    let categories = vec![
-        Category {
-            id: "home-media".to_string(),
-            name: "Home Media".to_string(),
-            description: "Global streaming service".to_string(),
-            icon: "VideoIcon".to_string(),
-        },
-        Category {
-            id: "utilities".to_string(),
-            name: "Utilities".to_string(),
-            description: "A movie collection manager for Usenet and BitTorrent users".to_string(),
-            icon: "MixerVerticalIcon".to_string(),
-        },
-    ];
-    for category in categories {
-        category_repo.insert(&category)?;
-    }
-
-    let services = vec![
-        Service {
-            id: "plex".to_string(),
-            name: "Plex".to_string(),
-            description: "Global streaming service".to_string(),
-            tags: "app, server".to_string(),
-            url: "https://www.plex.tv".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 2,
-                w: 2,
-                h: 2,
-            },
-        },
-        Service {
-            id: "radarr".to_string(),
-            name: "Radarr".to_string(),
-            description: "A movie collection manager for Usenet and BitTorrent users".to_string(),
-            tags: "app, server".to_string(),
-            url: "https://radarr.video".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 3,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "sonarr".to_string(),
-            name: "Sonarr".to_string(),
-            description: "A PVR for Usenet and BitTorrent users".to_string(),
-            tags: "app, server".to_string(),
-            url: "https://sonarr.tv".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 4,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "bazarr".to_string(),
-            name: "Bazarr".to_string(),
-            description: "Manages and downloads subtitles".to_string(),
-            tags: "app, server".to_string(),
-            url: "https://www.bazarr.media".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 5,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "jackett".to_string(),
-            name: "Jackett".to_string(),
-            description: "API Support for your favorite torrent trackers".to_string(),
-            tags: "app, server".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            url: "https://github.com/Jackett/Jackett".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 6,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "home-assistant".to_string(),
-            name: "Home Assistant".to_string(),
-            description: "Open source home automation that puts local control and privacy first."
-                .to_string(),
-            tags: "app, server".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            url: "https://www.home-assistant.io".to_string(),
-            category_id: Some("utilities".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 7,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "homebridge".to_string(),
-            name: "Homebridge".to_string(),
-            description: "Adds HomeKit support to your non-HomeKit smart home devices.".to_string(),
-            tags: "app, server".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            url: "https://homebridge.io".to_string(),
-            category_id: Some("utilities".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 8,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "unifi".to_string(),
-            name: "Unifi".to_string(),
-            description: "Network management software solution from Ubiquiti.".to_string(),
-            tags: "app, server".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            url: "https://github.com/k8s-at-home/charts/tree/master/charts/unifi".to_string(),
-            category_id: Some("utilities".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 9,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "adguard-home".to_string(),
-            name: "AdGuard Home".to_string(),
-            description: "Network-wide software for blocking ads & tracking.".to_string(),
-            tags: "app, server".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            url: "https://github.com/AdguardTeam/AdGuardHome".to_string(),
-            category_id: Some("utilities".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 10,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "spotify".to_string(),
-            name: "Spotify".to_string(),
-            description: "Music streaming platform".to_string(),
-            tags: "app, music".to_string(),
-            url: "https://www.spotify.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 11,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "netflix".to_string(),
-            name: "Netflix".to_string(),
-            description: "Video streaming service".to_string(),
-            tags: "app, movies, TV shows".to_string(),
-            url: "https://www.netflix.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 12,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "github".to_string(),
-            name: "GitHub".to_string(),
-            description: "Development platform".to_string(),
-            tags: "app, code, version control".to_string(),
-            url: "https://www.github.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 13,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "trello".to_string(),
-            name: "Trello".to_string(),
-            description: "Collaborative project management".to_string(),
-            tags: "app, productivity".to_string(),
-            url: "https://www.trello.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 14,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "slack".to_string(),
-            name: "Slack".to_string(),
-            description: "Team communication platform".to_string(),
-            tags: "app, collaboration".to_string(),
-            url: "https://www.slack.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 15,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "wordpress".to_string(),
-            name: "WordPress".to_string(),
-            description: "Content management system".to_string(),
-            tags: "app, website".to_string(),
-            url: "https://www.wordpress.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 16,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "aws".to_string(),
-            name: "Amazon Web Services".to_string(),
-            description: "Cloud computing platform".to_string(),
-            tags: "app, cloud, hosting".to_string(),
-            url: "https://aws.amazon.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 17,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "google-drive".to_string(),
-            name: "Google Drive".to_string(),
-            description: "File storage and synchronization".to_string(),
-            tags: "app, cloud, storage".to_string(),
-            url: "https://www.google.com/drive/".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 18,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "zoom".to_string(),
-            name: "Zoom".to_string(),
-            description: "Video conferencing platform".to_string(),
-            tags: "app, communication".to_string(),
-            url: "https://www.zoom.us".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 19,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "jira".to_string(),
-            name: "Jira".to_string(),
-            description: "Issue tracking and project management".to_string(),
-            tags: "app, development".to_string(),
-            url: "https://www.atlassian.com/software/jira".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 20,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "dropbox".to_string(),
-            name: "Dropbox".to_string(),
-            description: "File hosting service".to_string(),
-            tags: "app, cloud, storage".to_string(),
-            url: "https://www.dropbox.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 21,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "discord".to_string(),
-            name: "Discord".to_string(),
-            description: "Voice, video, and text communication".to_string(),
-            tags: "app, gaming".to_string(),
-            url: "https://www.discord.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 22,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "twitch".to_string(),
-            name: "Twitch".to_string(),
-            description: "Live streaming platform".to_string(),
-            tags: "app, gaming, entertainment".to_string(),
-            url: "https://www.twitch.tv".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 23,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "google-maps".to_string(),
-            name: "Google Maps".to_string(),
-            description: "Web mapping service".to_string(),
-            tags: "app, maps, navigation".to_string(),
-            url: "https://www.google.com/maps".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 24,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "evernote".to_string(),
-            name: "Evernote".to_string(),
-            description: "Note-taking app".to_string(),
-            tags: "app, productivity".to_string(),
-            url: "https://www.evernote.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 25,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "adobe-creative-cloud".to_string(),
-            name: "Adobe Creative Cloud".to_string(),
-            description: "Creative software suite".to_string(),
-            tags: "app, design, multimedia".to_string(),
-            url: "https://www.adobe.com/creativecloud.html".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 26,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "airbnb".to_string(),
-            name: "Airbnb".to_string(),
-            description: "Accommodation marketplace".to_string(),
-            tags: "app, travel".to_string(),
-            url: "https://www.airbnb.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 27,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "reddit".to_string(),
-            name: "Reddit".to_string(),
-            description: "Social news aggregation".to_string(),
-            tags: "app, social media, news".to_string(),
-            url: "https://www.reddit.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 28,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "shopify".to_string(),
-            name: "Shopify".to_string(),
-            description: "E-commerce platform".to_string(),
-            tags: "app, online store".to_string(),
-            url: "https://www.shopify.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 29,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "google-docs".to_string(),
-            name: "Google Docs".to_string(),
-            description: "Online word processing".to_string(),
-            tags: "app, productivity".to_string(),
-            url: "https://www.google.com/docs".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 30,
-                w: 1,
-                h: 1,
-            },
-        },
-        Service {
-            id: "instagram".to_string(),
-            name: "Instagram".to_string(),
-            description: "Photo and video sharing".to_string(),
-            tags: "app, social media".to_string(),
-            url: "https://www.instagram.com".to_string(),
-            logo: "https://source.boringavatars.com/marble/120".to_string(),
-            category_id: Some("home-media".to_string()),
-            target: "_blank".to_string(),
-            created_at: Utc::now(),
-            grid_details: GridDetails {
-                order: 31,
-                w: 1,
-                h: 1,
-            },
-        },
-    ];
-
-    for service in services {
-        service_repo.insert(&service)?;
-    }
-
-    Ok(())
-}
+// use chrono::Utc;
+// use sqlx::SqlitePool;
+//
+// use crate::{
+//     domain::{category::Category, client_config::Config},
+//     infra::error::AstroError,
+// };
+//
+// pub async fn seed_sample_data(pool: &SqlitePool) -> Result<(), AstroError> {
+//     // Create a transaction
+//     let mut tx = pool.begin().await.unwrap();
+//
+//     // Insert sample config
+//     let config = Config {
+//         id: "default-config".to_string(),
+//         title: "Astro".to_string(),
+//         subtitle: "Your personal space".to_string(),
+//         created_at: Utc::now().naive_utc(),
+//         updated_at: Utc::now().naive_utc(),
+//     };
+//     sqlx::query!(
+//         "INSERT INTO config (id, title, subtitle) VALUES (?, ?, ?)",
+//         config.id,
+//         config.title,
+//         config.subtitle
+//     )
+//     .execute(&mut tx)
+//     .await;
+//
+//     // Insert sample categories
+//     let categories = vec![
+//         Category {
+//             id: "home-media".to_string(),
+//             name: "Home Media".to_string(),
+//             description: "Global streaming service".to_string(),
+//             icon: "VideoIcon".to_string(),
+//         },
+//         Category {
+//             id: "utilities".to_string(),
+//             name: "Utilities".to_string(),
+//             description: "A movie collection manager for Usenet and BitTorrent users".to_string(),
+//             icon: "MixerVerticalIcon".to_string(),
+//         },
+//     ];
+//     for category in categories {
+//         sqlx::query!(
+//             "INSERT INTO categories (id, name, description, icon) VALUES (?, ?, ?, ?)",
+//             category.id,
+//             category.name,
+//             category.description,
+//             category.icon
+//         )
+//         .execute(&mut tx)
+//         .await;
+//     }
+//
+//     // Insert sample services
+//     let services = vec![
+//         // define services here
+//     ];
+//
+//     for service in services {
+//         sqlx::query!("INSERT INTO services (id, name, description, tags, url, logo, category_id, target, created_at, grid_order, grid_w, grid_h) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+//             service.id,
+//             service.name,
+//             service.description,
+//             service.tags,
+//             service.url,
+//             service.logo,
+//             service.category_id.unwrap(),
+//             service.target,
+//             service.created_at,
+//             service.grid_details.order,
+//             service.grid_details.w,
+//             service.grid_details.h)
+//             .execute(&mut tx)
+//             .await?;
+//     }
+//
+//     // Commit the transaction
+//     tx.commit().await.unwrap();
+//
+//     Ok(())
+// }

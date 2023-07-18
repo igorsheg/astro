@@ -23,7 +23,9 @@ export type Service = {
   category?: Category;
   target: string;
   status?: UptimeStatus[];
-  grid_details: ServiceGridDetails;
+  grid_order: number;
+  grid_w: number;
+  grid_h: number;
 };
 
 export type ServiceDetail = {

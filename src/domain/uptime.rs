@@ -11,6 +11,7 @@ pub struct UptimeStatus {
     pub latency: u128, // latency in milliseconds
 }
 
+#[derive(Clone)]
 pub struct UptimeStatusRepository {
     db: Arc<Tree>, // This tree is dedicated for uptime status logs
 }

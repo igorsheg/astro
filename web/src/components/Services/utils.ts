@@ -42,11 +42,8 @@ export const updateServiceSize = (
     svc.id === serviceId
       ? {
           ...svc,
-          grid_details: {
-            ...svc.grid_details,
-            w: Math.max(1, initialW + deltaW),
-            h: Math.max(1, initialH + deltaH),
-          },
+          grid_w: Math.max(1, initialW + deltaW),
+          grid_h: Math.max(1, initialH + deltaH),
         }
       : svc,
   );

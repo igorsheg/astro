@@ -1,100 +1,78 @@
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize};
-use sled::Tree;
+use chrono::NaiveDateTime;
+use serde::Serialize;
+use sqlx::SqlitePool;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Config {
-    pub id: Option<String>,
+    pub id: String,
     pub title: String,
     pub subtitle: String,
-    pub created_at: Option<chrono::NaiveDateTime>,
-    pub updated_at: Option<chrono::NaiveDateTime>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
+#[derive(Debug, Clone)]
 pub struct ConfigRepository {
-    db: Arc<Tree>,
+    db: Arc<SqlitePool>,
 }
 
 impl ConfigRepository {
-    pub fn new(db: Arc<Tree>) -> Self {
+    pub fn new(db: Arc<SqlitePool>) -> Self {
         Self { db }
     }
 
-    pub fn list(&self) -> sled::Result<Vec<Config>> {
-        let mut configs = Vec::new();
-
-        for result in self.db.iter() {
-            let (_, value) = result?;
-            let config: Config = bincode::deserialize(&value)
-                .map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-            configs.push(config);
-        }
-
+    pub async fn list(&self) -> Result<Vec<Config>, sqlx::Error> {
+        let configs = sqlx::query_as!(Config, "SELECT * FROM config")
+            .fetch_all(&*self.db)
+            .await?;
         Ok(configs)
     }
 
-    pub fn insert(&self, config: &Config) -> sled::Result<()> {
-        let encoded_config =
-            bincode::serialize(config).map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-        let id = config
-            .id
-            .clone()
-            .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+    pub async fn insert(&self, config: &Config) -> Result<(), sqlx::Error> {
+        sqlx::query("INSERT INTO config (id, title, subtitle, created_at, updated_at) VALUES (?, ?, ?, ?, ?)")
+            .bind(config.id.clone())
+            .bind(&config.title)
+            .bind(&config.subtitle)
+            .bind(config.created_at)
+            .bind(config.updated_at)
+            .execute(&*self.db)
+            .await?;
 
-        match self.db.insert(id.clone(), encoded_config) {
-            Ok(_) => {
-                log::info!("Successfully inserted config with ID {}", id);
-                Ok(())
-            }
-            Err(e) => {
-                log::error!("Failed to insert config with ID {}. Error: {}", id, e);
-                Err(e)
-            }
-        }
-    }
-
-    pub fn get(&self, id: &str) -> sled::Result<Option<Config>> {
-        let config_ivec = self.db.get(id)?;
-
-        if let Some(encoded_config) = config_ivec {
-            let config: Config = bincode::deserialize(&encoded_config)
-                .map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-            Ok(Some(config))
-        } else {
-            Ok(None)
-        }
-    }
-
-    pub fn update(&self, id: &str, new_config: &Config) -> sled::Result<()> {
-        let encoded_config = bincode::serialize(new_config)
-            .map_err(|err| sled::Error::Unsupported(err.to_string()))?;
-        self.db.insert(id, encoded_config)?;
         Ok(())
     }
 
-    pub fn delete(&self, id: &str) -> sled::Result<()> {
-        self.db.remove(id)?;
+    pub async fn get(&self, id: &str) -> Result<Option<Config>, sqlx::Error> {
+        sqlx::query_as!(Config, "SELECT * FROM config WHERE id = ?", id)
+            .fetch_optional(&*self.db)
+            .await
+    }
+
+    pub async fn update(&self, id: &str, new_config: &Config) -> Result<(), sqlx::Error> {
+        sqlx::query!(
+            "UPDATE config SET title = ?, 
+            subtitle = ?, 
+            created_at = ?, 
+            updated_at = ? 
+            WHERE id = ?",
+            new_config.title,
+            new_config.subtitle,
+            new_config.created_at,
+            new_config.updated_at,
+            id
+        )
+        .execute(&*self.db)
+        .await?;
+
         Ok(())
     }
-}
 
-pub async fn setup_default_config(config_repo: &ConfigRepository) {
-    let default_config_id = "default-config";
+    pub async fn delete(&self, id: &str) -> Result<(), sqlx::Error> {
+        sqlx::query!("DELETE FROM config WHERE id = ?", id)
+            .execute(&*self.db)
+            .await?;
 
-    log::info!("Creating default config");
-    match config_repo.get(default_config_id) {
-        Ok(None) => {
-            let default_config = Config {
-                id: Some(default_config_id.to_string()),
-                title: "Astro".to_string(),
-                subtitle: "Your personal space".to_string(),
-                created_at: None,
-                updated_at: None,
-            };
-            config_repo.insert(&default_config).unwrap();
-        }
-        Ok(Some(_)) => {} // default config already exists
-        Err(e) => panic!("Failed to get default config: {}", e), // handle error as you see fit
+        Ok(())
     }
 }

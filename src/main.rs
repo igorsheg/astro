@@ -1,16 +1,12 @@
-use axum::{http::Method, routing::get, Extension, Router};
-use sled::Tree;
+use axum::{http::Method, routing::get, Router};
 use std::{net::SocketAddr, sync::Arc};
 use structopt::StructOpt;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::{
-    domain::{
-        category::CategoryRepository, client_config::ConfigRepository, service::ServiceRepository,
-        uptime::UptimeStatusRepository,
-    },
-    utils::example_seed::seed_sample_data,
+use crate::domain::{
+    category::CategoryRepository, client_config::ConfigRepository, service::ServiceRepository,
+    uptime::UptimeStatusRepository,
 };
 
 pub mod api;
@@ -18,7 +14,6 @@ pub mod api;
 pub mod domain {
     pub mod category;
     pub mod client_config;
-    pub mod config;
     pub mod service;
     pub mod uptime;
 }
@@ -28,6 +23,7 @@ pub mod application {
 }
 
 pub mod infra {
+    pub mod db;
     pub mod error;
 }
 
@@ -46,15 +42,21 @@ struct Opts {
     )]
     listen_address: String,
 
-    #[structopt(short = "db", long, default_value = "./tmp", help = "sled db path")]
-    db_store: String,
+    #[structopt(short = "db", long, help = "Sqlite database path")]
+    db_path: String,
 }
+
 #[derive(Clone)]
-pub struct Trees {
-    pub services_tree: Arc<Tree>,
-    pub configs_tree: Arc<Tree>,
-    pub categories_tree: Arc<Tree>,
-    pub uptime_tree: Arc<Tree>,
+pub struct AppState {
+    dbs: DbState,
+}
+
+#[derive(Clone)]
+pub struct DbState {
+    service_repo: ServiceRepository,
+    config_repo: ConfigRepository,
+    category_repo: CategoryRepository,
+    uptime_repo: UptimeStatusRepository,
 }
 
 #[tokio::main]
@@ -69,52 +71,42 @@ async fn main() {
     let options: Opts = Opts::from_args();
     let addr: SocketAddr = options.listen_address.as_str().parse().unwrap();
 
-    let db = Arc::new(
+    let sqlite_db_path = format!("sqlite://{}/{}", options.db_path, "astro.sqlite");
+    println!("sqlite_db_path: {}", sqlite_db_path);
+
+    let sqlite_db = infra::db::create_pool(&sqlite_db_path).await;
+
+    let sled_db = Arc::new(
         sled::Config::default()
             .use_compression(true)
-            .path(&options.db_store)
+            .path(&options.db_path)
             .open()
             .unwrap(),
     );
 
-    let services_tree = Arc::new(
-        db.open_tree("services_tree")
-            .expect("Failed to open services_tree"),
-    );
-    let configs_tree = Arc::new(
-        db.open_tree("configs_tree")
-            .expect("Failed to open configs_tree"),
-    );
-    let categories_tree = Arc::new(
-        db.open_tree("categories_tree")
-            .expect("Failed to open categories_tree"),
-    );
+    let service_repo = ServiceRepository::new(Arc::clone(&sqlite_db));
+    let category_repo = CategoryRepository::new(Arc::clone(&sqlite_db));
+    let config_repo = ConfigRepository::new(Arc::clone(&sqlite_db)); // If you have `ConfigRepository`
+
     let uptime_tree = Arc::new(
-        db.open_tree("uptime_tree")
+        sled_db
+            .open_tree("uptime_tree")
             .expect("Failed to open uptime_tree"),
     );
 
-    let trees = Trees {
-        services_tree,
-        configs_tree,
-        categories_tree,
-        uptime_tree,
+    let uptime_repo = UptimeStatusRepository::new(Arc::clone(&uptime_tree));
+
+    let app_state = AppState {
+        dbs: DbState {
+            service_repo,
+            config_repo, // if exists
+            category_repo,
+            uptime_repo,
+        },
     };
 
-    let service_repo = ServiceRepository::new(Arc::clone(&trees.services_tree));
-    let category_repo = CategoryRepository::new(Arc::clone(&trees.categories_tree));
-    let status_repo = UptimeStatusRepository::new(Arc::clone(&trees.uptime_tree));
-    let config_repo = ConfigRepository::new(Arc::clone(&trees.configs_tree));
-
-    let _ = seed_sample_data(&config_repo, &category_repo, &service_repo);
-
-    application::uptime_check::spawn_uptime_check_task(
-        Arc::new(service_repo),
-        Arc::new(status_repo),
-    );
-
     let cors = CorsLayer::new()
-        .allow_methods(vec![Method::GET])
+        .allow_methods(vec![Method::GET, Method::POST, Method::PATCH])
         .allow_origin(Any)
         .allow_headers(vec![
             axum::http::header::CONTENT_TYPE,
@@ -124,8 +116,8 @@ async fn main() {
     let app = Router::new()
         .nest("/api/v1", api::handler())
         .fallback(get(api::static_paths::handle_static_files))
-        .layer(Extension(trees))
-        .layer(cors);
+        .layer(cors)
+        .with_state(app_state);
 
     log::debug!("listening on {}", &options.listen_address);
 
