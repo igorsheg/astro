@@ -47,23 +47,30 @@ async fn main() -> std::io::Result<()> {
     // Create the ping interval
     let ping_interval = Duration::from_secs(30); // 5 minutes
 
-    // Start the periodic ping task
-    tokio::spawn(periodic_ping(
-        svc_service.clone(),
-        uptime_service.clone(),
-        ping_interval,
-    ));
-
     let server = presentation::http::server::Server::new(
         config.server.host,
         config.server.port.parse().unwrap(),
         Services {
-            svc_service,
-            uptime_service,
+            svc_service: svc_service.clone(),
+            uptime_service: uptime_service.clone(),
         },
     );
 
-    server.run().await;
+    // Spawn the server task
+    let server_task = tokio::spawn(async move {
+        server.run().await;
+    });
+
+    // Spawn the ping task
+    let ping_task = tokio::spawn(async move {
+        periodic_ping(svc_service, uptime_service, ping_interval).await;
+    });
+
+    // Wait for both tasks to complete.
+    match tokio::try_join!(server_task, ping_task) {
+        Ok(_) => (),
+        Err(e) => error!("An error occurred in one of the tasks: {:?}", e),
+    }
 
     Ok(())
 }

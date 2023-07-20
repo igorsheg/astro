@@ -16,8 +16,8 @@ export const SpotlightCard: React.FC<PropsWithChildren> = ({ children }) => {
     spotlightX: 150,
     spotlightY: 150,
     config: {
-      tension: 300,
-      friction: 26,
+      tension: 400,
+      friction: 30,
     },
   }));
 

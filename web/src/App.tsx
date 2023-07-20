@@ -16,7 +16,9 @@ const App = () => {
   //   }),
   // });
   //
-  const { data: services, isLoading } = useFetchServicesByCategoryQuery(tab);
+  const { data: services, isLoading } = useFetchServicesByCategoryQuery(tab, {
+    pollingInterval: 31000,
+  });
 
   if (isLoading) {
     return <div>Loading</div>;
@@ -39,7 +41,7 @@ const App = () => {
         <Button onClick={toggleTheme}>Theme!</Button>
         <button onClick={() => setTab("utilities")}>tab!</button>
       </Box>
-      <SortableGrid key={tab} items={services} />
+      <SortableGrid items={services} />
     </div>
   );
 };
