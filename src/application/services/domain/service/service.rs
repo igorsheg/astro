@@ -38,4 +38,7 @@ where
 
         self.service_repository.update(id, &service).await
     }
+    pub async fn update_batch_order(&self, services: &[(String, i64)]) -> Result<()> {
+        self.service_repository.update_batch_order(services).await
+    }
 }

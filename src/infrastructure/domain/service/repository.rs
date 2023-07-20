@@ -75,4 +75,20 @@ impl Repository for ServiceRepository {
 
         Ok(Service::from(result))
     }
+
+    async fn update_batch_order(&self, services: &[(String, i64)]) -> Result<()> {
+        let mut tx = self.db_pool.begin().await?;
+
+        for (id, grid_order) in services {
+            sqlx::query("UPDATE services SET grid_order = $1 WHERE id = $2")
+                .bind(grid_order)
+                .bind(id)
+                .execute(&mut *tx)
+                .await?;
+        }
+
+        tx.commit().await?;
+
+        Ok(())
+    }
 }

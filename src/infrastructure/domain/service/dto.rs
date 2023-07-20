@@ -1,4 +1,5 @@
 use chrono::NaiveDateTime;
+use serde::Deserialize;
 use sqlx::FromRow;
 
 use crate::domain::service::entity::Service;
@@ -36,4 +37,10 @@ impl From<ServiceDTO> for Service {
             grid_h: dto.grid_h,
         }
     }
+}
+
+#[derive(Debug, FromRow, Deserialize)]
+pub(crate) struct ServicesOrderDTO {
+    pub id: String,
+    pub grid_order: i64,
 }

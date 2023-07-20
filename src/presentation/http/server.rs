@@ -1,16 +1,28 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 
-use axum::{http::Method, routing::get, Extension};
+use axum::{
+    http::Method,
+    routing::{get, patch},
+    Extension,
+};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
-    application::services::domain::service::service::ServiceService,
-    infrastructure::domain::service::repository::ServiceRepository,
-    presentation::http::service::controller::{list_services, update_service},
+    application::services::{
+        domain::{service::service::ServiceService, uptime::uptime::UptimeService},
+        uptime_task::periodic_ping,
+    },
+    infrastructure::domain::{
+        service::repository::ServiceRepository, uptime::repository::UptimeRepository,
+    },
+    presentation::http::service::controller::{
+        list_services, update_service, update_services_order,
+    },
 };
 
 pub struct Services {
     pub svc_service: Arc<ServiceService<ServiceRepository>>,
+    pub uptime_service: Arc<UptimeService<UptimeRepository>>,
 }
 
 pub struct Server {
@@ -54,7 +66,9 @@ impl Server {
 
         let service_routes = axum::Router::new()
             .route("/", get(list_services).patch(update_service))
-            .layer(Extension(self.services.svc_service.clone()));
+            .route("/grid_order", patch(update_services_order))
+            .layer(Extension(self.services.svc_service.clone()))
+            .layer(Extension(self.services.uptime_service.clone()));
 
         let api_routes = axum::Router::new()
             // .nest("/categories", category_routes)

@@ -8,7 +8,7 @@ export type ServiceGridDetails = {
 export type UptimeStatus = {
   service_id: string;
   checked_at: string;
-  uptime: boolean;
+  ok: boolean;
   latency: number;
 };
 
@@ -22,7 +22,7 @@ export type Service = {
   category_id: string;
   category?: Category;
   target: string;
-  status?: UptimeStatus[];
+  uptime_status?: UptimeStatus[];
   grid_order: number;
   grid_w: number;
   grid_h: number;

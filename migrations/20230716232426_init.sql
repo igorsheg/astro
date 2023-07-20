@@ -34,10 +34,10 @@ CREATE TABLE services (
 );
 
 -- Create the uptime_status table
-CREATE TABLE uptime_status (
+CREATE TABLE uptimes (
     service_id TEXT NOT NULL,
     checked_at TIMESTAMP NOT NULL,
-    uptime BOOLEAN NOT NULL,
+    ok BOOLEAN NOT NULL,
     latency INTEGER NOT NULL,
     FOREIGN KEY (service_id) REFERENCES services (id)
 );

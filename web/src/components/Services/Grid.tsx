@@ -57,7 +57,6 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
         service.grid_w !== prevService.grid_w
       ) {
         patchService(service);
-        console.log(`Service with ID ${service.id} has changed size.`);
       }
     });
   }, [services]);

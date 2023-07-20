@@ -1,15 +1,23 @@
 use std::sync::Arc;
 
-use axum::{debug_handler, extract::Query, Extension, Json};
+use axum::{extract::Query, Extension, Json};
 use serde::Deserialize;
 
 use crate::{
-    application::services::domain::service::{dto::NewServiceDTO, service::ServiceService},
+    application::services::domain::{
+        service::{dto::NewServiceDTO, service::ServiceService},
+        uptime::uptime::UptimeService,
+    },
     domain::service::entity::Service,
-    infrastructure::{domain::service::repository::ServiceRepository, error::AppError},
+    infrastructure::{
+        domain::{service::repository::ServiceRepository, uptime::repository::UptimeRepository},
+        error::AppError,
+    },
 };
 
-use super::dto::{ServiceResponse, UpdateServicePayload};
+use super::dto::{
+    ServiceResponse, ServiceWithUptime, UpdateServicePayload, UpdateServicesOrderPayload,
+};
 
 #[derive(Debug, Deserialize)]
 pub struct Filter {
@@ -18,13 +26,22 @@ pub struct Filter {
 
 pub async fn list_services(
     Extension(svc_service): Extension<Arc<ServiceService<ServiceRepository>>>,
+    Extension(uptime_service): Extension<Arc<UptimeService<UptimeRepository>>>,
     Query(filter): Query<Filter>,
 ) -> Result<Json<Vec<ServiceResponse>>, AppError> {
     match svc_service.find(filter.category_id).await {
-        Ok(users) => {
-            let responses: Result<Vec<ServiceResponse>, _> =
-                users.into_iter().map(ServiceResponse::try_from).collect();
-            Ok(Json(responses?))
+        Ok(services) => {
+            let mut responses = Vec::new();
+            for service in services {
+                let uptime_status = uptime_service.find(Some(service.id.clone())).await?;
+                let service_with_uptime = ServiceWithUptime {
+                    service,
+                    uptime_status,
+                };
+                let response = ServiceResponse::try_from(service_with_uptime)?;
+                responses.push(response);
+            }
+            Ok(Json(responses))
         }
         Err(e) => {
             error!("{:?}", e);
@@ -56,6 +73,24 @@ pub async fn update_service(
 
     match svc_service.update(&body_id, new_service).await {
         Ok(user) => Ok(Json(user)),
+        Err(e) => {
+            error!("{:?}", e);
+            Err(AppError::from(e))
+        }
+    }
+}
+
+pub async fn update_services_order(
+    Extension(svc_service): Extension<Arc<ServiceService<ServiceRepository>>>,
+    Json(body): Json<Vec<UpdateServicesOrderPayload>>,
+) -> Result<Json<()>, AppError> {
+    let services: Vec<(String, i64)> = body
+        .iter()
+        .map(|service| (service.id.clone(), service.grid_order))
+        .collect();
+
+    match svc_service.update_batch_order(&services).await {
+        Ok(_) => Ok(Json(())),
         Err(e) => {
             error!("{:?}", e);
             Err(AppError::from(e))

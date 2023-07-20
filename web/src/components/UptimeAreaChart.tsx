@@ -55,10 +55,10 @@ const AreaChart = ({
   const columnsLineColor = "#edffea";
   const accentColor = useCallback(
     () =>
-      servicePings[servicePings.length - 1].uptime
+      servicePings[servicePings.length - 1].ok
         ? vars.colors.sucess
         : vars.colors.danger,
-    [servicePings[servicePings.length - 1].uptime],
+    [servicePings[servicePings.length - 1].ok],
   );
 
   const tooltipStyles: CSSProperties = {

@@ -10,6 +10,9 @@ pub type Result<T> = std::result::Result<T, AstroError>;
 pub enum AstroError {
     #[error("An error ocurred during database interaction. {0}")]
     DatabaseError(String),
+
+    #[error("An error occurred during HTTP interaction. {0}")]
+    HttpError(String),
 }
 
 pub struct AppError(pub AstroError);
@@ -29,6 +32,12 @@ impl IntoResponse for AppError {
 impl From<AstroError> for AppError {
     fn from(err: AstroError) -> Self {
         Self(err)
+    }
+}
+
+impl From<reqwest::Error> for AstroError {
+    fn from(reqwest_error: reqwest::Error) -> Self {
+        AstroError::HttpError(reqwest_error.to_string())
     }
 }
 

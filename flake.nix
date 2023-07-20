@@ -17,6 +17,7 @@
           pkgs.pkg-config
           pkgs.openssl
           pkgs.redis
+          pkgs.sqlite
         ];
         RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
