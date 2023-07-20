@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ReactSortable, SortableEvent } from "react-sortablejs";
 import { Service } from "../../models/service";
 import { ResizeHandle } from "./ResizeHandle";
@@ -19,6 +19,14 @@ interface ServiceGridProps {
   items: Service[];
 }
 
+function usePrevious<T>(value: T) {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
   const [patchServicesOrder] = usePatchGridOrderMutation();
   const [patchService] = usePatchServiceMutation();
@@ -36,13 +44,12 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
   const gridItemRefs = useRef<{
     [activeId: string]: HTMLDivElement | null;
   }>({});
-  const prevServicesRef = useRef(services);
+
+  const prevServices = usePrevious(services);
 
   useEffect(() => {
     services.forEach((service) => {
-      const prevService = prevServicesRef.current.find(
-        (s) => s.id === service.id,
-      );
+      const prevService = prevServices?.find((s) => s.id === service.id);
       if (!prevService) return;
 
       if (
@@ -53,8 +60,6 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
         console.log(`Service with ID ${service.id} has changed size.`);
       }
     });
-
-    prevServicesRef.current = services;
   }, [services]);
 
   const handleEnd = (evt: SortableEvent) => {
@@ -77,79 +82,86 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
     patchServicesOrder(changes);
   };
 
-  const handleMouseDown = (serviceId: string) => (event: React.MouseEvent) => {
-    event.preventDefault();
+  const handleMouseDown = useCallback(
+    (serviceId: string) => (event: React.MouseEvent) => {
+      event.preventDefault();
 
-    const initialX = event.clientX;
-    const initialY = event.clientY;
+      const initialX = event.clientX;
+      const initialY = event.clientY;
 
-    const initialElement = services.find((svc) => svc.id === serviceId);
-    const initialW = initialElement?.grid_w ?? 0;
-    const initialH = initialElement?.grid_h ?? 0;
+      const initialElement = services.find((svc) => svc.id === serviceId);
+      const initialW = initialElement?.grid_w ?? 0;
+      const initialH = initialElement?.grid_h ?? 0;
 
-    const gridElement = gridItemRefs.current[serviceId];
-    const baseWidth = gridElement?.offsetWidth ?? 0;
-    const baseHeight = gridElement?.offsetHeight ?? 0;
+      const gridElement = gridItemRefs.current[serviceId];
+      const baseWidth = gridElement?.offsetWidth ?? 0;
+      const baseHeight = gridElement?.offsetHeight ?? 0;
 
-    if (baseHeight && baseWidth) {
-      setResizingService({ id: serviceId, w: baseWidth, h: baseHeight });
-    }
-
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const { deltaX, deltaY, deltaW, deltaH } = calculateDeltas(
-        moveEvent,
-        initialX,
-        initialY,
-        baseWidth,
-        baseHeight,
-      );
-
-      const deltaWidth = deltaX + baseWidth;
-      const deltaHeight = deltaY + baseHeight;
-
-      setResizingService((prevResizingService) =>
-        updateResizingService(
-          prevResizingService,
-          serviceId,
-          deltaWidth,
-          deltaHeight,
-        ),
-      );
-
-      const servicesUpdated = updateServiceSize(
-        services,
-        serviceId,
-        initialW,
-        initialH,
-        deltaW,
-        deltaH,
-      );
-
-      setServices(servicesUpdated);
-    };
-
-    const handleMouseUp = () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-
-      if (resizingService) {
-        const servicesUpdated = updateServiceSize(
-          services,
-          resizingService.id,
-          resizingService.w,
-          resizingService.h,
-          0,
-          0,
-        );
-        setServices(servicesUpdated);
+      if (baseHeight && baseWidth) {
+        setResizingService({ id: serviceId, w: baseWidth, h: baseHeight });
       }
 
-      setResizingService(null);
-    };
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const { deltaX, deltaY, deltaW, deltaH } = calculateDeltas(
+          moveEvent,
+          initialX,
+          initialY,
+          baseWidth,
+          baseHeight,
+        );
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
+        const deltaWidth = deltaX + baseWidth;
+        const deltaHeight = deltaY + baseHeight;
+
+        setResizingService((prevResizingService) =>
+          updateResizingService(
+            prevResizingService,
+            serviceId,
+            deltaWidth,
+            deltaHeight,
+          ),
+        );
+
+        const servicesUpdated = updateServiceSize(
+          services,
+          serviceId,
+          initialW,
+          initialH,
+          deltaW,
+          deltaH,
+        );
+
+        setServices(servicesUpdated);
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+
+        if (resizingService) {
+          const servicesUpdated = updateServiceSize(
+            services,
+            resizingService.id,
+            resizingService.w,
+            resizingService.h,
+            0,
+            0,
+          );
+          setServices(servicesUpdated);
+        }
+
+        setResizingService(null);
+      };
+
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    },
+    [services],
+  );
+
+  const sortedServices = [...services].sort(
+    (a, b) => a.grid_order - b.grid_order,
+  );
 
   return (
     <ReactSortable
@@ -159,29 +171,24 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
       animation={100}
       onEnd={handleEnd}
     >
-      {services
-        .sort((a, b) => a.grid_order - b.grid_order)
-        .map((service) => (
-          <div
-            key={service.id}
-            className={styles.gridItem}
-            ref={(ref) => (gridItemRefs.current[service.id] = ref)}
-            style={{
-              gridColumnEnd: `span ${service.grid_w * 4}`,
-              gridRowEnd: `span ${service.grid_h * 2}`,
-            }}
-          >
-            <SingleService svc={service} />
-            <ResizeHandle
-              serviceId={service.id}
-              onMouseDown={handleMouseDown}
-            />
-            <ResizeOverlay
-              resizingService={resizingService}
-              serviceId={service.id}
-            />
-          </div>
-        ))}
+      {sortedServices.map((service) => (
+        <div
+          key={service.id}
+          className={styles.gridItem}
+          ref={(ref) => (gridItemRefs.current[service.id] = ref)}
+          style={{
+            gridColumnEnd: `span ${service.grid_w * 4}`,
+            gridRowEnd: `span ${service.grid_h * 2}`,
+          }}
+        >
+          <SingleService svc={service} />
+          <ResizeHandle serviceId={service.id} onMouseDown={handleMouseDown} />
+          <ResizeOverlay
+            resizingService={resizingService}
+            serviceId={service.id}
+          />
+        </div>
+      ))}
     </ReactSortable>
   );
 };

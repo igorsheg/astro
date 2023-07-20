@@ -4,26 +4,28 @@ use axum::{http::Method, routing::get, Extension};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
-    application::services::domain::{
-        category::service::CategoryService, service::service::ServiceService,
-    },
-    infrastructure::{
-        database::get_db_pool,
-        domain::{
-            category::repository::CategoryRepository, service::repository::ServiceRepository,
-        },
-    },
-    presentation::http::handler,
+    application::services::domain::service::service::ServiceService,
+    infrastructure::domain::service::repository::ServiceRepository,
+    presentation::http::service::controller::{list_services, update_service},
 };
+
+pub struct Services {
+    pub svc_service: Arc<ServiceService<ServiceRepository>>,
+}
 
 pub struct Server {
     host: String,
     port: u16,
+    services: Services,
 }
 
 impl Server {
-    pub fn new(host: String, port: u16) -> Self {
-        Self { host, port }
+    pub fn new(host: String, port: u16, services: Services) -> Self {
+        Self {
+            host,
+            port,
+            services,
+        }
     }
 
     pub async fn run(&self) {
@@ -46,26 +48,16 @@ impl Server {
                 axum::http::header::AUTHORIZATION,
             ]);
 
-        let sqlite_db = get_db_pool()
-            .await
-            .expect("Unable to connect to the database");
-
-        let service_repository = ServiceRepository::new(sqlite_db.clone());
-        let service_service = Arc::new(ServiceService::new(service_repository));
-
-        let category_repository = CategoryRepository::new(sqlite_db.clone());
-        let category_service = Arc::new(CategoryService::new(category_repository));
-
-        let category_routes = axum::Router::new()
-            .route("/", get(handler::find_all_cetegories))
-            .layer(Extension(category_service));
+        // let category_routes = axum::Router::new()
+        //     .route("/", get(list_services))
+        //     .layer(Extension(category_service));
 
         let service_routes = axum::Router::new()
-            .route("/", get(handler::find_all))
-            .layer(Extension(service_service));
+            .route("/", get(list_services).patch(update_service))
+            .layer(Extension(self.services.svc_service.clone()));
 
         let api_routes = axum::Router::new()
-            .nest("/categories", category_routes)
+            // .nest("/categories", category_routes)
             .nest("/services", service_routes);
         // let api_routes = axum::Router::new().nest("/services", service_routes);
 

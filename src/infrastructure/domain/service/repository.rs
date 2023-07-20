@@ -29,10 +29,20 @@ impl Repository for ServiceRepository {
         Ok(Service::from(result))
     }
 
-    async fn find(&self) -> Result<Vec<Service>> {
-        let result: Vec<ServiceDTO> = sqlx::query_as("SELECT * FROM services")
-            .fetch_all(&self.db_pool)
-            .await?;
+    async fn find(&self, category_id: Option<String>) -> Result<Vec<Service>> {
+        let result: Vec<ServiceDTO> = match category_id {
+            Some(category_id) => {
+                sqlx::query_as("SELECT * FROM services WHERE category_id = ?")
+                    .bind(category_id)
+                    .fetch_all(&self.db_pool)
+                    .await?
+            }
+            None => {
+                sqlx::query_as("SELECT * FROM services")
+                    .fetch_all(&self.db_pool)
+                    .await?
+            }
+        };
 
         Ok(result.into_iter().map(Service::from).collect())
     }
@@ -48,11 +58,20 @@ impl Repository for ServiceRepository {
 
     async fn update(&self, id: &str, service: &Service) -> Result<Service> {
         let result: ServiceDTO =
-            sqlx::query_as("UPDATE services SET name = $1 WHERE id = $2 RETURNING *")
-                .bind(&service.name)
-                .bind(id)
-                .fetch_one(&self.db_pool)
-                .await?;
+        sqlx::query_as::<_, ServiceDTO>("UPDATE services SET name = $1, description = $2, tags = $3, logo = $4, url = $5, category_id = $6, target = $7, grid_order = $8, grid_w = $9, grid_h = $10 WHERE id = $11 RETURNING *")
+            .bind(&service.name)
+            .bind(&service.description)
+            .bind(&service.tags)
+            .bind(&service.logo)
+            .bind(&service.url)
+            .bind(&service.category_id)
+            .bind(&service.target)
+            .bind(service.grid_order)
+            .bind(service.grid_w)
+            .bind(service.grid_h)
+            .bind(id)
+            .fetch_one(&self.db_pool)
+            .await?;
 
         Ok(Service::from(result))
     }

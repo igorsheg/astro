@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { ThemeContext } from "./components/ThemeProvider";
-import { useFetchServicesQuery } from "./services/api";
+import { useFetchServicesByCategoryQuery } from "./services/api";
 import { vars } from "./styles/index.css";
 import Button from "./components/Button/Button";
 import Box from "./components/Box/Box";
@@ -10,11 +10,20 @@ const App = () => {
   const { toggleTheme } = useContext(ThemeContext);
   const [tab, setTab] = useState("home-media");
 
-  const { services } = useFetchServicesQuery(undefined, {
-    selectFromResult: ({ data }) => ({
-      services: data?.filter((scv) => scv.category_id === tab),
-    }),
-  });
+  // const { services } = useFetchServicesQuery(undefined, {
+  //   selectFromResult: ({ data }) => ({
+  //     services: data?.filter((scv) => scv.category_id === tab),
+  //   }),
+  // });
+  //
+  const { data: services, isLoading } = useFetchServicesByCategoryQuery(tab);
+
+  if (isLoading) {
+    return <div>Loading</div>;
+  }
+  if (!services) {
+    return <div>No posts :(</div>;
+  }
 
   return (
     <div
@@ -30,7 +39,7 @@ const App = () => {
         <Button onClick={toggleTheme}>Theme!</Button>
         <button onClick={() => setTab("utilities")}>tab!</button>
       </Box>
-      {services && <SortableGrid items={services} />}
+      <SortableGrid key={tab} items={services} />
     </div>
   );
 };

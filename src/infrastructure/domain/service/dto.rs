@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 use sqlx::FromRow;
 
 use crate::domain::service::entity::Service;
@@ -29,7 +29,7 @@ impl From<ServiceDTO> for Service {
             url: dto.url,
             target: dto.target,
             tags: dto.tags,
-            created_at: DateTime::<Utc>::from_utc(dto.created_at, Utc {}),
+            created_at: dto.created_at,
             category_id: dto.category_id,
             grid_order: dto.grid_order,
             grid_w: dto.grid_w,

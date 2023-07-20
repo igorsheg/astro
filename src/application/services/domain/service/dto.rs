@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 
 use crate::{domain::service::entity::Service, infrastructure::error::AstroError};
 
@@ -32,7 +32,7 @@ impl TryFrom<NewServiceDTO> for Service {
             logo: dto.logo,
             category_id: dto.category_id,
             target: dto.target,
-            created_at: DateTime::<Utc>::from_utc(dto.created_at, Utc {}),
+            created_at: dto.created_at,
             grid_order: dto.grid_order,
             grid_w: dto.grid_w,
             grid_h: dto.grid_h,

@@ -25,8 +25,8 @@ where
         Ok(service)
     }
 
-    pub async fn find(&self) -> Result<Vec<Service>> {
-        self.service_repository.find().await
+    pub async fn find(&self, category_id: Option<String>) -> Result<Vec<Service>> {
+        self.service_repository.find(category_id).await
     }
 
     pub async fn find_one(&self, id: &str) -> Result<Service> {
