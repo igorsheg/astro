@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{net::SocketAddr, sync::Arc};
 
 use axum::{
     http::Method,
@@ -8,9 +8,8 @@ use axum::{
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
-    application::services::{
-        domain::{service::service::ServiceService, uptime::uptime::UptimeService},
-        uptime_task::periodic_ping,
+    application::services::domain::{
+        service::service::ServiceService, uptime::uptime::UptimeService,
     },
     infrastructure::domain::{
         service::repository::ServiceRepository, uptime::repository::UptimeRepository,

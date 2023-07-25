@@ -3,7 +3,6 @@ import { vars } from "../../styles/index.css";
 
 export const cardStyles = style({
   position: "relative",
-  perspective: "600px",
   padding: "1px",
   borderRadius: "12px",
   isolation: "isolate",
@@ -21,7 +20,7 @@ export const borderHighlight = style({
   top: 0,
   borderRadius: "50%",
   pointerEvents: "none",
-  transition: "opacity 230ms ease",
+  transition: "opacity 100ms ease",
   filter: "blur(100px)",
   zIndex: -1,
   transform: "translateZ(0px)",
@@ -46,7 +45,7 @@ export const spotlight = style({
   opacity: 0,
   left: 0,
   top: 0,
-  transition: "opacity  230ms ease",
+  transition: "opacity  100ms ease",
   filter: "blur(100px)",
   zIndex: 991,
   willChange: "transform",

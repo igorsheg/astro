@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use chrono::Utc;
-use futures::stream::{self, StreamExt, TryStreamExt};
+use futures::stream::{self, StreamExt};
 use reqwest::get;
 use tokio::time::{sleep, timeout, Duration, Instant};
 

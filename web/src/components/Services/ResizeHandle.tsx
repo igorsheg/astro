@@ -2,16 +2,12 @@ import { FC, SVGProps } from "react";
 import * as styles from "./Services.css";
 
 interface ResizeHandleProps {
-  onMouseDown: (serviceId: string) => (event: React.MouseEvent) => void;
-  serviceId: string;
+  onMouseDown: (event: React.MouseEvent) => void;
 }
 
-export const ResizeHandle: FC<ResizeHandleProps> = ({
-  onMouseDown,
-  serviceId,
-}) => {
+export const ResizeHandle: FC<ResizeHandleProps> = ({ onMouseDown }) => {
   return (
-    <div className={styles.resizeHandle} onMouseDown={onMouseDown(serviceId)}>
+    <div className={styles.resizeHandle} onMouseDown={onMouseDown}>
       <MdiResizeBottomRight />
     </div>
   );

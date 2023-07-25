@@ -19,7 +19,7 @@ export const UptimeBar: React.FC<UptimeBarProps> = ({ data }) => {
       xAlign="flex-start"
       orientation="row"
       yAlign="flex-end"
-      style={{ height: "66px" }}
+      style={{ height: vars.spacing.s6 }}
     >
       {data.map((item, index) => {
         const normalizedLatency = (item.latency / totalLatency) * 100;

@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
     let svc_service = Arc::new(ServiceService::new(service_repository));
 
     // Create the ping interval
-    let ping_interval = Duration::from_secs(30); // 5 minutes
+    let ping_interval = Duration::from_secs(30);
 
     let server = presentation::http::server::Server::new(
         config.server.host,

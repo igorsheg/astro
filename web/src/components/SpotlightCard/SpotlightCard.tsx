@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, PropsWithChildren } from "react";
-import { useSpring, animated } from "react-spring";
+import React, { useRef, useEffect } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
   cardStyles,
   borderHighlight,
@@ -7,50 +7,49 @@ import {
   spotlight,
 } from "./SpotlightCard.css";
 
-export const SpotlightCard: React.FC<PropsWithChildren> = ({ children }) => {
+export const SpotlightCard: React.FC<
+  React.PropsWithChildren<{ isDragging: boolean }>
+> = ({ children, isDragging }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const [{ rotateX, rotateY, spotlightX, spotlightY }, api] = useSpring(() => ({
-    rotateX: 0,
-    rotateY: 0,
-    spotlightX: 150,
-    spotlightY: 150,
-    config: {
-      tension: 400,
-      friction: 30,
-    },
-  }));
+  const xPosition = useMotionValue(0);
+  const yPosition = useMotionValue(0);
+  const spotlightX = useMotionValue(0);
+  const spotlightY = useMotionValue(0);
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!cardRef.current) {
-      return;
-    }
+  const rotateX = useSpring(useTransform(yPosition, [-150, 150], [-3, 3]), {
+    stiffness: 200,
+    damping: 25,
+  });
 
-    const rect = cardRef.current.getBoundingClientRect();
-    const xPosition = e.clientX - rect.left;
-    const yPosition = e.clientY - rect.top;
-
-    const normalizedX = ((xPosition - rect.width / 2) / (rect.width / 2)) * 150;
-    const normalizedY =
-      ((yPosition - rect.height / 2) / (rect.height / 2)) * 150;
-
-    // Subtract half the size of the spotlight (150px)
-    const spotlightX = xPosition - 150;
-    const spotlightY = yPosition - 150;
-
-    api.start({
-      rotateX: -normalizedY / 30,
-      rotateY: normalizedX / 30,
-      spotlightX,
-      spotlightY,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    // api.start({ rotateX: 0, rotateY: 0, spotlightX: 0, spotlightY: 0 });
-  };
+  const rotateY = useSpring(useTransform(xPosition, [-150, 150], [6, -6]), {
+    stiffness: 200,
+    damping: 25,
+  });
 
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!cardRef.current || isDragging) {
+        return;
+      }
+
+      const rect = cardRef.current.getBoundingClientRect();
+      const xPos = e.clientX - (rect.left + rect.width / 2);
+      const yPos = e.clientY - (rect.top + rect.height / 2);
+
+      xPosition.set(xPos);
+      yPosition.set(yPos);
+      spotlightX.set(e.clientX - rect.left - 150);
+      spotlightY.set(e.clientY - rect.top - 150);
+    };
+
+    const handleMouseLeave = () => {
+      // xPosition.set(0);
+      // yPosition.set(0);
+      // spotlightX.set(0);
+      // spotlightY.set(0);
+    };
+
     const card = cardRef.current;
     if (card) {
       card.addEventListener("mousemove", handleMouseMove);
@@ -62,21 +61,20 @@ export const SpotlightCard: React.FC<PropsWithChildren> = ({ children }) => {
         card.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
-  }, []);
-
-  const AnimatedDiv = animated.div;
+  }, [isDragging]);
 
   return (
-    <AnimatedDiv
+    <motion.div
       ref={cardRef}
       className={cardStyles}
       style={{
         rotateX,
         rotateY,
         transformOrigin: "center",
+        perspective: 1000,
       }}
     >
-      <AnimatedDiv
+      <motion.div
         className={borderHighlight}
         style={{
           x: spotlightX,
@@ -84,13 +82,13 @@ export const SpotlightCard: React.FC<PropsWithChildren> = ({ children }) => {
         }}
       />
       <div className={contentContainer}>{children}</div>
-      <AnimatedDiv
+      <motion.div
         className={spotlight}
         style={{
           x: spotlightX,
           y: spotlightY,
         }}
       />
-    </AnimatedDiv>
+    </motion.div>
   );
 };

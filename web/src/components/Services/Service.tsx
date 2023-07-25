@@ -5,12 +5,25 @@ import Box from "../Box/Box";
 import { vars } from "../../styles/index.css";
 import { SpotlightCard } from "../SpotlightCard/SpotlightCard";
 import { UptimeBar } from "../UptimeBar/UptimeBar";
+import { ResizeHandle } from "./ResizeHandle";
+import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
+import { DragHandle } from "./DragHandle";
 
-export const SingleService: FC<PropsWithChildren<{ svc: Service }>> = ({
+interface SingleServiceProps {
+  svc: Service;
+  isDragging: boolean;
+  dragListeners: SyntheticListenerMap | undefined;
+  handleDragHandleMouseDown: (event: React.MouseEvent) => void;
+}
+
+export const SingleService: FC<PropsWithChildren<SingleServiceProps>> = ({
   svc,
+  isDragging,
+  dragListeners,
+  handleDragHandleMouseDown,
 }) => {
   return (
-    <SpotlightCard>
+    <SpotlightCard isDragging={isDragging}>
       <Box className={` ${styles.basecard}  ${styles.glass}`}>
         <Box
           style={{ height: "100%" }}
@@ -46,6 +59,8 @@ export const SingleService: FC<PropsWithChildren<{ svc: Service }>> = ({
             </Box>
           )}
         </Box>
+        <DragHandle {...dragListeners} />
+        <ResizeHandle onMouseDown={handleDragHandleMouseDown} />
       </Box>
     </SpotlightCard>
   );

@@ -6,7 +6,7 @@ lazy_static! {
     static ref CONFIGURATION: Configuration = Configuration::new();
 }
 
-pub fn get_configurations() -> &'static Configuration {
+pub fn _get_configurations() -> &'static Configuration {
     &CONFIGURATION
 }
 
