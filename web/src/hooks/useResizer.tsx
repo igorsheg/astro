@@ -1,147 +1,126 @@
-import { useCallback, useState, useRef } from "react";
-import { Service, ServiceGridDetails } from "../models/service";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-interface ResizingService extends Omit<ServiceGridDetails, "order"> {
+interface Service {
   id: string;
+  grid_w: number;
+  grid_h: number;
+  [key: string]: any;
 }
 
-const snapToGrid = (
-  size: number,
-  previousSize: number,
-  currentSize: number,
-  gridSize: number,
-  gap: number,
-  threshold = 0.6,
-) => {
-  const rem = size % gridSize;
-  const gapIncrement = Math.abs(currentSize - previousSize) * gap;
-  const adjustedGridSize = gridSize + gapIncrement;
+interface GridDimensions {
+  gridColumnEnd: number;
+  gridRowEnd: number;
+}
 
-  if (rem < threshold * adjustedGridSize) {
-    return size - rem; // snap to lower grid line
-  } else if (adjustedGridSize - rem < threshold * adjustedGridSize) {
-    return size + adjustedGridSize - rem; // snap to upper grid line
-  } else {
-    return size; // no snap, smooth resize
-  }
-};
+interface OverlayDimensions {
+  width: number;
+  height: number;
+}
 
-const calculateDeltas = (
-  moveEvent: MouseEvent,
-  initialX: number,
-  initialY: number,
-  cellWidth: number,
-  cellHeight: number,
-  threshold: number,
-): { deltaX: number; deltaY: number; deltaW: number; deltaH: number } => {
-  const deltaX = moveEvent.clientX - initialX;
-  const deltaY = moveEvent.clientY - initialY;
-  const rawDeltaW = deltaX / cellWidth;
-  const rawDeltaH = deltaY / cellHeight;
+const useResizeGrid = (service: Service, threshold: number = 150) => {
+  const gridItemRef = useRef<HTMLDivElement>(null);
+  const initialWidthRef = useRef<number>(0);
+  const initialHeightRef = useRef<number>(0);
+  const lastSnapWidthRef = useRef<number>(0);
+  const lastSnapHeightRef = useRef<number>(0);
+  const lastSnapXRef = useRef<number>(0);
+  const lastSnapYRef = useRef<number>(0);
 
-  const thresholdDeltaW =
-    rawDeltaW >= 0
-      ? Math.floor(rawDeltaW) + (rawDeltaW % 1 > threshold ? 1 : 0)
-      : Math.ceil(rawDeltaW) + (Math.abs(rawDeltaW) % 1 > threshold ? -1 : 0);
+  const [gridDimensions, setGridDimensions] = useState<GridDimensions>({
+    gridColumnEnd: service.grid_w,
+    gridRowEnd: service.grid_h,
+  });
+  const [overlayDimensions, setOverlayDimensions] = useState<OverlayDimensions>(
+    { width: 0, height: 0 },
+  );
 
-  const thresholdDeltaH =
-    rawDeltaH >= 0
-      ? Math.floor(rawDeltaH) + (rawDeltaH % 1 > threshold ? 1 : 0)
-      : Math.ceil(rawDeltaH) + (Math.abs(rawDeltaH) % 1 > threshold ? -1 : 0);
-
-  return { deltaX, deltaY, deltaW: thresholdDeltaW, deltaH: thresholdDeltaH };
-};
-
-export const useResizer = (initialService: Service, gap: number) => {
-  const [service, setService] = useState<Service>(initialService);
-  const [resizingOverlay, setResizingOverlay] =
-    useState<ResizingService | null>(null);
-
-  const gridItemRef = useRef<HTMLDivElement | null>(null);
-  const previousGridSizeRef = useRef({ w: service.grid_w, h: service.grid_h });
+  useEffect(() => {
+    if (gridItemRef.current) {
+      const { offsetWidth, offsetHeight } = gridItemRef.current;
+      initialWidthRef.current = offsetWidth;
+      initialHeightRef.current = offsetHeight;
+      lastSnapWidthRef.current = offsetWidth;
+      lastSnapHeightRef.current = offsetHeight;
+      setOverlayDimensions({
+        width: offsetWidth,
+        height: offsetHeight,
+      });
+    }
+  }, [gridItemRef.current]);
 
   const handleMouseDown = useCallback(
     (event: React.MouseEvent) => {
       const initialX = event.clientX;
       const initialY = event.clientY;
+      lastSnapXRef.current = initialX;
+      lastSnapYRef.current = initialY;
 
-      const baseWidth = gridItemRef.current?.offsetWidth ?? 0;
-      const baseHeight = gridItemRef.current?.offsetHeight ?? 0;
+      const onMouseMove = (event: MouseEvent) => {
+        const dx = event.clientX - initialX;
+        const dy = event.clientY - initialY;
 
-      if (baseHeight && baseWidth) {
-        setResizingOverlay({ id: service.id, w: baseWidth, h: baseHeight });
-      }
+        // Calculate new overlay dimensions based on mouse movement
+        const newOverlayWidth = initialWidthRef.current + dx;
+        const newOverlayHeight = initialHeightRef.current + dy;
 
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        const { deltaX, deltaY, deltaW, deltaH } = calculateDeltas(
-          moveEvent,
-          initialX,
-          initialY,
-          baseWidth / service.grid_w,
-          baseHeight / service.grid_h,
-          0.5,
-        );
+        setOverlayDimensions({
+          width: newOverlayWidth,
+          height: newOverlayHeight,
+        });
 
-        const newW = Math.max(1, Math.min(4, service.grid_w + deltaW));
-        const newH = Math.max(1, Math.min(4, service.grid_h + deltaH));
+        const dxFromLastSnap = event.clientX - lastSnapXRef.current;
+        const dyFromLastSnap = event.clientY - lastSnapYRef.current;
 
-        const overlayWidth = snapToGrid(
-          deltaX + baseWidth,
-          baseWidth,
-          previousGridSizeRef.current.w,
-          service.grid_w,
-          gap,
-          0.5,
-        );
-        const overlayHeight = snapToGrid(
-          deltaY + baseHeight,
-          baseHeight,
-          previousGridSizeRef.current.h,
-          gap,
-          0.5,
-        );
+        if (
+          Math.abs(dxFromLastSnap) >= threshold ||
+          Math.abs(dyFromLastSnap) >= threshold
+        ) {
+          // Calculate new grid dimensions
+          const newGridColumnEnd = Math.max(
+            1,
+            Math.round(
+              newOverlayWidth / (initialWidthRef.current / service.grid_w),
+            ),
+          );
+          const newGridRowEnd = Math.max(
+            1,
+            Math.round(
+              newOverlayHeight / (initialHeightRef.current / service.grid_h),
+            ),
+          );
 
-        setResizingOverlay((prevResizingService) =>
-          prevResizingService && prevResizingService.id === service.id
-            ? {
-                ...prevResizingService,
-                w: overlayWidth,
-                h: overlayHeight,
-              }
-            : prevResizingService,
-        );
-
-        if (service.grid_w !== newW || service.grid_h !== newH) {
-          previousGridSizeRef.current = {
-            w: service.grid_w,
-            h: service.grid_h,
-          };
-          setService({
-            ...service,
-            grid_w: newW,
-            grid_h: newH,
+          setGridDimensions({
+            gridColumnEnd: newGridColumnEnd,
+            gridRowEnd: newGridRowEnd,
           });
+
+          // Update last snap position and dimensions
+          lastSnapXRef.current = event.clientX;
+          lastSnapYRef.current = event.clientY;
+          lastSnapWidthRef.current = newOverlayWidth;
+          lastSnapHeightRef.current = newOverlayHeight;
         }
       };
 
-      const handleMouseUp = () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-        setResizingOverlay(null);
-      };
+      document.addEventListener("mousemove", onMouseMove);
 
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener(
+        "mouseup",
+        () => {
+          document.removeEventListener("mousemove", onMouseMove);
+        },
+        { once: true },
+      );
     },
-    [service, gridItemRef.current, gap],
+    [service, threshold],
   );
 
   return {
-    resizingOverlay,
-    handleMouseDown,
-    service,
+    gridDimensions,
+    overlayDimensions,
     gridItemRef,
-    gridH: service.grid_h,
-    gridW: service.grid_w,
+    handleMouseDown,
   };
 };
+
+export default useResizeGrid;

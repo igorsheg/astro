@@ -1,11 +1,11 @@
-import { FC, PropsWithChildren, useEffect } from "react";
+import { FC, PropsWithChildren, useEffect, useState } from "react";
 import { Service } from "../../models/service";
 import { useSortable } from "@dnd-kit/sortable";
 import { motion } from "framer-motion";
 import * as styles from "./Services.css";
 import { SingleService } from "./Service";
-import { ResizeOverlay } from "./ResizeOverlay";
-import { useResizer } from "../../hooks/useResizer";
+import useResizeGrid from "../../hooks/useResizer";
+import { vars } from "../../styles/index.css";
 
 interface SortableItemProps {
   service: Service;
@@ -14,20 +14,12 @@ interface SortableItemProps {
 export const SortableItem: FC<PropsWithChildren<SortableItemProps>> = ({
   service,
 }) => {
-  const {
-    resizingOverlay,
-    handleMouseDown,
-    gridItemRef,
-    service: updatedService,
-  } = useResizer(service, 12);
-
-  useEffect(() => {
-    console.log(resizingOverlay);
-  }, [resizingOverlay]);
-
-  useEffect(() => {
-    console.log("Changed Services", updatedService);
-  }, [updatedService]);
+  const { gridItemRef, gridDimensions, handleMouseDown, overlayDimensions } =
+    useResizeGrid(service);
+  //
+  // useEffect(() => {
+  //   console.log("Changed Services", updatedService);
+  // }, [updatedService]);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useSortable({ id: service.id, transition: null });
@@ -37,8 +29,8 @@ export const SortableItem: FC<PropsWithChildren<SortableItemProps>> = ({
       ref={gridItemRef}
       className={styles.gridItem}
       style={{
-        gridColumnEnd: `span ${updatedService.grid_w * 4}`,
-        gridRowEnd: `span ${updatedService.grid_h * 2}`,
+        gridColumnEnd: `span ${gridDimensions.gridColumnEnd * 4}`,
+        gridRowEnd: `span ${gridDimensions.gridRowEnd * 2}`,
       }}
     >
       <motion.div
@@ -64,9 +56,20 @@ export const SortableItem: FC<PropsWithChildren<SortableItemProps>> = ({
           isDragging={isDragging}
           svc={service}
         />
-        <ResizeOverlay
-          resizingOverlay={resizingOverlay}
-          serviceId={service.id}
+
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            pointerEvents: "none",
+            userSelect: "none",
+            zIndex: 2,
+            borderRadius: "12px",
+            border: `1px dashed ${vars.colorVars.d11}`,
+            width: `${overlayDimensions.width}px`,
+            height: `${overlayDimensions.height}px`,
+          }}
         />
       </motion.div>
     </div>

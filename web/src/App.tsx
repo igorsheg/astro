@@ -10,12 +10,6 @@ const App = () => {
   const { toggleTheme } = useContext(ThemeContext);
   const [tab, setTab] = useState("home-media");
 
-  // const { services } = useFetchServicesQuery(undefined, {
-  //   selectFromResult: ({ data }) => ({
-  //     services: data?.filter((scv) => scv.category_id === tab),
-  //   }),
-  // });
-  //
   const { data: services, isLoading } = useFetchServicesByCategoryQuery(tab, {
     pollingInterval: 31000,
   });
@@ -34,6 +28,7 @@ const App = () => {
         height: "100vh",
         width: "100vw",
         overflow: "auto",
+        overflowX: "hidden",
         padding: `0 ${vars.spacing.s4}`,
       }}
     >
