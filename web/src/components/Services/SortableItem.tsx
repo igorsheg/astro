@@ -19,9 +19,11 @@ export const SortableItem: FC<PropsWithChildren<SortableItemProps>> = ({
     handleMouseDown,
     gridItemRef,
     service: updatedService,
-    gridH,
-    gridW,
-  } = useResizer(service);
+  } = useResizer(service, 12);
+
+  useEffect(() => {
+    console.log(resizingOverlay);
+  }, [resizingOverlay]);
 
   useEffect(() => {
     console.log("Changed Services", updatedService);
@@ -35,8 +37,8 @@ export const SortableItem: FC<PropsWithChildren<SortableItemProps>> = ({
       ref={gridItemRef}
       className={styles.gridItem}
       style={{
-        gridColumnEnd: `span ${gridW * 4}`,
-        gridRowEnd: `span ${gridH * 2}`,
+        gridColumnEnd: `span ${updatedService.grid_w * 4}`,
+        gridRowEnd: `span ${updatedService.grid_h * 2}`,
       }}
     >
       <motion.div

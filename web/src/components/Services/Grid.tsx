@@ -10,12 +10,12 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  sortableKeyboardCoordinates,
   rectSwappingStrategy,
   arraySwap,
 } from "@dnd-kit/sortable";
 import { Service } from "../../models/service";
 import * as styles from "./Services.css";
+import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
 import {
   usePatchGridOrderMutation,
@@ -35,10 +35,7 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
     [...items].sort((a, b) => a.grid_order - b.grid_order),
   );
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
   );
 
   const handleDragEnd = useCallback(
@@ -65,6 +62,7 @@ export const SortableGrid: React.FC<ServiceGridProps> = ({ items }) => {
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
+      modifiers={[restrictToWindowEdges]}
     >
       <SortableContext
         items={services.map((service) => service.id)}
